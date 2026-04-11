@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero">
+    <div>
+        <p class="eyebrow">Reporte #{{ scan.id }}</p>
+        <h2>Resultado del análisis</h2>
+    </div>
+    <p class="score">Score {{ scan.score }}</p>
+</section>
+
+<section class="card">
+    <h3>Objetivo</h3>
+    <p>{{ scan.target_type }} · {{ scan.target_value }}</p>
+</section>
+
+<section class="card">
+    <h3>Hallazgos</h3>
+    {% if scan.findings %}
+    <ul class="findings">
+        {% for finding in scan.findings %}
+        <li>
+            <strong>{{ finding.rule_id }} - {{ finding.title }}</strong>
+            <span>{{ finding.severity }}</span>
+            <p>{{ finding.description }}</p>
+            <small>{{ finding.evidence }}</small>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No se detectaron hallazgos en este análisis.</p>
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero">
+    <div>
+        <p class="eyebrow">Estado general</p>
+        <h2>Escaneos recientes</h2>
+    </div>
+    <a class="button" href="/analyze">Nuevo análisis</a>
+</section>
+
+<section class="card-grid">
+    {% for scan in scans %}
+    <article class="card">
+        <p class="muted">#{{ scan.id }} · {{ scan.target_type }}</p>
+        <h3>{{ scan.target_value }}</h3>
+        <p>Estado: {{ scan.status }}</p>
+        <p>Score: {{ scan.score }}</p>
+        <a href="/reports/{{ scan.id }}">Ver reporte</a>
+    </article>
+    {% else %}
+    <article class="card">
+        <h3>Aún no hay análisis</h3>
+        <p>Ejecuta un análisis para guardar hallazgos en MySQL.</p>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}

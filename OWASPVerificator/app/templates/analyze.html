@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="card form-card">
+    <h2>Nuevo análisis</h2>
+    <form method="post" action="/analyze">
+        <label>Tipo de objetivo</label>
+        <select name="target_type" required>
+            <option value="code">Código</option>
+            <option value="url">URL</option>
+        </select>
+
+        <label>Valor a analizar</label>
+        <textarea name="target_value" rows="12" placeholder="Pega código o escribe una URL" required></textarea>
+
+        <button class="button" type="submit">Analizar</button>
+    </form>
+</section>
+{% endblock %}
