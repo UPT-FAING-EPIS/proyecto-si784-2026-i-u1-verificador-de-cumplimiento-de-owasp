@@ -1,10 +1,9 @@
-from sqlalchemy.orm import Session
-
 from app.models import Finding, Scan
 from app.services.scanner import calculate_score, scan_code, scan_url
+from app.store import scan_store
 
 
-def execute_scan(db: Session, target_type: str, target_value: str) -> Scan:
+def execute_scan(target_type: str, target_value: str) -> Scan:
     if target_type == "code":
         findings = scan_code(target_value)
     elif target_type == "url":
@@ -13,22 +12,23 @@ def execute_scan(db: Session, target_type: str, target_value: str) -> Scan:
         raise ValueError("target_type debe ser 'code' o 'url'")
 
     score = calculate_score(findings)
-    scan = Scan(target_type=target_type, target_value=target_value, status="completed", score=score)
-    db.add(scan)
-    db.flush()
-
-    for finding in findings:
-        db.add(
-            Finding(
-                scan_id=scan.id,
-                rule_id=finding.rule_id,
-                title=finding.title,
-                severity=finding.severity,
-                description=finding.description,
-                evidence=finding.evidence,
-            )
+    stored_findings = [
+        Finding(
+            rule_id=finding.rule_id,
+            title=finding.title,
+            severity=finding.severity,
+            description=finding.description,
+            evidence=finding.evidence,
         )
+        for finding in findings
+    ]
 
-    db.commit()
-    db.refresh(scan)
-    return scan
+    scan = Scan(
+        id=0,
+        target_type=target_type,
+        target_value=target_value,
+        status="completed",
+        score=score,
+        findings=stored_findings,
+    )
+    return scan_store.create_scan(scan)

@@ -1,15 +1,21 @@
 import os
 
-os.environ["DATABASE_URL"] = "sqlite:///./test.db"
 os.environ["APP_ENV"] = "test"
 
+import pytest
 from fastapi.testclient import TestClient
 
-from app.db import Base, engine
 from app.main import app
+from app.store import scan_store
 
-Base.metadata.create_all(bind=engine)
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def clear_store_between_tests():
+    scan_store.clear()
+    yield
+    scan_store.clear()
 
 
 def test_health_endpoint():

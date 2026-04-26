@@ -8,7 +8,7 @@ Este proyecto sigue las issues del repositorio y arranca con una base simple per
 ## Estado inicial
 - Definir requisitos del sistema: base documentada en `README.md`
 - Configurar repositorio y estructura del proyecto: carpeta `app/` y archivos de arranque
-- Diseñar arquitectura del verificador OWASP: FastAPI + MySQL + vistas HTML/CSS
+- Diseñar arquitectura del verificador OWASP: FastAPI + vistas HTML/CSS
 - Implementar verificaciones OWASP Top 10 (A01-A05): motor inicial en `app/services/scanner.py`
 - Implementar verificaciones OWASP Top 10 (A06-A10): parcialmente cubierto y listo para ampliar
 - Exponer API REST para analizar código: base de análisis en `/analyze`
@@ -22,7 +22,7 @@ Este proyecto sigue las issues del repositorio y arranca con una base simple per
 ## Avance actual estimado
 - Avance total del proyecto: 85%
 - Completado:
-	- arquitectura base (backend, frontend y persistencia)
+	- arquitectura base (backend y frontend)
 	- dashboard y reportes
 	- API REST para análisis y consulta de reportes (`/analyze/api`, `/reports/api`)
 	- pruebas unitarias e integración iniciales (pytest)

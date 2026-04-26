@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "OWASP Web (MySQL)",
+            "name": "OWASP Web (Local)",
             "type": "debugpy",
             "request": "launch",
             "module": "uvicorn",
@@ -19,7 +19,7 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "OWASP Web (Demo SQLite)",
+            "name": "OWASP Web (Demo)",
             "type": "debugpy",
             "request": "launch",
             "module": "uvicorn",
@@ -33,7 +33,6 @@
                 "8010"
             ],
             "env": {
-                "DATABASE_URL": "sqlite:///./demo.db",
                 "APP_ENV": "demo"
             },
             "console": "integratedTerminal"

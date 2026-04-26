@@ -1,13 +1,13 @@
 # Requisitos del Sistema
 
 ## 1. Objetivo
-Construir un verificador de cumplimiento OWASP simple pero completo, capaz de analizar código o una URL, guardar resultados en MySQL y mostrar hallazgos en una interfaz web ligera.
+Construir un verificador de cumplimiento OWASP simple pero completo, capaz de analizar código o una URL, generar reportes y mostrar hallazgos en una interfaz web ligera.
 
 ## 2. Alcance
 El sistema cubrirá el MVP con:
 - análisis de texto de código
 - análisis básico de URL
-- almacenamiento de escaneos y hallazgos en MySQL
+- historial de escaneos y hallazgos en memoria
 - panel web para ejecutar análisis y revisar resultados
 - reglas iniciales alineadas con OWASP Top 10
 
@@ -37,8 +37,8 @@ El sistema cubrirá el MVP con:
 - El sistema deberá asignar un puntaje de cumplimiento a cada análisis.
 - El puntaje deberá disminuir según la severidad y cantidad de hallazgos.
 
-### RF-07. Persistir análisis y hallazgos
-- El sistema deberá almacenar escaneos y hallazgos en MySQL.
+### RF-07. Mantener historial de análisis
+- El sistema deberá conservar escaneos y hallazgos en memoria durante la ejecución del servicio.
 - El sistema deberá permitir consultar el historial de análisis realizados.
 
 ### RF-08. Mostrar panel web
@@ -58,7 +58,7 @@ El sistema cubrirá el MVP con:
 
 ### RNF-01. Simplicidad
 - La solución deberá mantenerse simple de instalar, ejecutar y mantener.
-- El stack principal será Python, FastAPI, MySQL y HTML/CSS.
+- El stack principal será Python, FastAPI y HTML/CSS.
 
 ### RNF-02. Rendimiento
 - El sistema deberá responder de forma aceptable para análisis pequeños y medianos.
@@ -86,7 +86,7 @@ El sistema cubrirá el MVP con:
 
 ### RNF-08. Compatibilidad
 - El sistema deberá funcionar en navegadores modernos.
-- El acceso a base de datos deberá ser compatible con MySQL.
+- El backend deberá ejecutarse en entornos Windows y Linux sin dependencias de base de datos.
 
 ### RNF-09. Observabilidad
 - El sistema deberá permitir identificar errores de análisis y fallos de conexión.
@@ -96,13 +96,12 @@ El sistema cubrirá el MVP con:
 - La solución deberá poder correr en Windows y en entornos Linux de despliegue.
 
 ## 5. Restricciones
-- La base de datos disponible para el proyecto es MySQL.
 - El frontend inicial será HTML con CSS puro, sin framework JavaScript pesado.
 - El MVP no cubrirá certificación formal de cumplimiento OWASP; solo evaluación de alineación y hallazgos.
 
 ## 6. Criterios de aceptación del MVP
 - Se puede ejecutar un análisis de código desde la web.
 - Se puede ejecutar un análisis de URL desde la web.
-- Los resultados quedan guardados en MySQL.
+- Los resultados quedan disponibles en memoria durante la ejecución del servicio.
 - El dashboard muestra el historial de análisis.
 - Cada reporte muestra hallazgos y puntaje.

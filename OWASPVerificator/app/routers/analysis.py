@@ -1,9 +1,7 @@
-from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi import APIRouter, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session
 
-from app.db import get_db
 from app.schemas import AnalyzeRequest, ScanOut
 from app.services.analysis_service import execute_scan
 
@@ -21,10 +19,9 @@ def analyze(
     request: Request,
     target_type: str = Form(...),
     target_value: str = Form(...),
-    db: Session = Depends(get_db),
 ):
     try:
-        scan = execute_scan(db, target_type=target_type, target_value=target_value)
+        scan = execute_scan(target_type=target_type, target_value=target_value)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
@@ -32,8 +29,8 @@ def analyze(
 
 
 @router.post("/api", response_model=ScanOut)
-def analyze_api(payload: AnalyzeRequest, db: Session = Depends(get_db)):
+def analyze_api(payload: AnalyzeRequest):
     try:
-        return execute_scan(db, target_type=payload.target_type, target_value=payload.target_value)
+        return execute_scan(target_type=payload.target_type, target_value=payload.target_value)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc

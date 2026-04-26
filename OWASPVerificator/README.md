@@ -8,8 +8,7 @@ Proyecto base en Python para evaluar cumplimiento OWASP de forma simple y amplia
 
 ## Stack
 - FastAPI
-- SQLAlchemy
-- MySQL
+- Uvicorn / Gunicorn
 - Jinja2
 - CSS puro
 
@@ -17,7 +16,7 @@ Proyecto base en Python para evaluar cumplimiento OWASP de forma simple y amplia
 - Dashboard de ejecuciones
 - Análisis por URL
 - Análisis por texto de código
-- Persistencia de scans y hallazgos en MySQL
+- Historial en memoria de scans y hallazgos
 - Reglas iniciales para OWASP Top 10
 - API REST para análisis y reportes
 
@@ -29,18 +28,16 @@ Proyecto base en Python para evaluar cumplimiento OWASP de forma simple y amplia
 
 ## Requisitos
 - Python 3.11+
-- MySQL accesible desde Heidi o cualquier cliente MySQL
 
 ## Configuración
 1. Copia `.env.example` a `.env`
-2. Ajusta credenciales de MySQL
-3. Instala dependencias:
+2. Instala dependencias:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Ejecuta la app:
+3. Ejecuta la app:
 
 ```bash
 uvicorn app.main:app --reload
@@ -58,16 +55,16 @@ Ejecuta un análisis de texto con una muestra que contenga patrones inseguros. S
 4. Envía el formulario
 5. Verifica que te redirige a un reporte con hallazgos
 
-### 3. Prueba de persistencia en MySQL
-1. Crea la base de datos `owasp_verificator`
-2. Ejecuta un análisis desde la web
-3. Revisa en MySQL las tablas `scans` y `findings`
-4. Verifica que el análisis quedó guardado
+### 3. Historial temporal (sin base de datos)
+1. Ejecuta más de un análisis desde la web
+2. Vuelve al dashboard
+3. Verifica que aparecen los análisis recientes
+4. Reinicia la app y confirma que el historial se limpia (almacenamiento en memoria)
 
 ### 4. Resultado esperado
 - El dashboard muestra el análisis realizado
 - El reporte muestra hallazgos y score
-- La base de datos guarda el historial
+- El historial existe mientras la app esté en ejecución
 
 ### 5. Pruebas automáticas
 Ejecuta:
@@ -79,14 +76,34 @@ python -m pytest -q
 Resultado actual esperado: `4 passed`
 
 ## Variables de entorno
-- `DATABASE_URL`: cadena SQLAlchemy para MySQL
 - `APP_TITLE`: nombre de la aplicación
 - `APP_ENV`: entorno de ejecución
 
 Ejemplo:
 
 ```env
-DATABASE_URL=mysql+pymysql://root:password@127.0.0.1:3306/owasp_verificator
 APP_TITLE=OWASP Verificator
 APP_ENV=development
 ```
+
+## Despliegue en Azure con GitHub Actions
+
+El repositorio incluye workflow en `.github/workflows/azure-webapp.yml` para desplegar en Azure App Service cada vez que haces push a `main`.
+
+### 1. Crear recursos en Azure
+1. Crea un Web App (Linux, Python 3.11)
+2. En el Web App configura Startup Command:
+
+```bash
+gunicorn -w 2 -k uvicorn.workers.UvicornWorker app.main:app
+```
+
+### 2. Configurar secretos en GitHub
+En el repositorio, agrega estos secrets:
+- `AZURE_WEBAPP_NAME`: nombre del Web App en Azure
+- `AZURE_WEBAPP_PUBLISH_PROFILE`: contenido del Publish Profile descargado desde Azure
+
+### 3. Ejecutar despliegue
+1. Haz push a la rama `main`
+2. Revisa la ejecución del workflow en la pestaña Actions
+3. Verifica la app desplegada en la URL del Web App
