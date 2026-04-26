@@ -112,7 +112,25 @@ jobs:
 
       - name: Deploy zip package
         run: |
-          az webapp deployment source config-zip \
+          az webapp deploy \
             --resource-group "$AZURE_RESOURCE_GROUP" \
             --name "$AZURE_WEBAPP_NAME" \
-            --src release.zip
+            --src-path release.zip \
+            --type zip \
+            --track-status true
+
+      - name: Show web app URL
+        run: |
+          WEBAPP_HOSTNAME="$(az webapp show \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --name "$AZURE_WEBAPP_NAME" \
+            --query defaultHostName -o tsv)"
+
+          WEBAPP_URL="https://$WEBAPP_HOSTNAME"
+          echo "Web app URL: $WEBAPP_URL"
+          echo "WEBAPP_URL=$WEBAPP_URL" >> "$GITHUB_ENV"
+
+          {
+            echo "### Web App URL"
+            echo "$WEBAPP_URL"
+          } >> "$GITHUB_STEP_SUMMARY"

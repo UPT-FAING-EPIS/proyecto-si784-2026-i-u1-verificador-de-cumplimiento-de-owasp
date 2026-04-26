@@ -125,4 +125,5 @@ gunicorn -w 2 -k uvicorn.workers.UvicornWorker app.main:app
 ### 4. Ejecutar despliegue
 1. Haz push a la rama `main`
 2. Revisa la ejecución del workflow en la pestaña Actions
-3. Verifica la app desplegada en la URL del Web App
+3. En la ejecución, revisa el paso `Show web app URL` o el resumen del job para copiar el enlace público
+4. Verifica la app desplegada en la URL del Web App
