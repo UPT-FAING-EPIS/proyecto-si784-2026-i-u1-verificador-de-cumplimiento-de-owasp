@@ -55,11 +55,17 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Validate required variables
+      - name: Resolve web app name
         run: |
           if [ -z "$AZURE_WEBAPP_NAME" ]; then
-            echo "Missing repository variable AZURE_WEBAPP_NAME"
-            exit 1
+            BASE_NAME="$(echo "${GITHUB_REPOSITORY##*/}" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-')"
+            BASE_NAME="${BASE_NAME:-owasp-verificator}"
+            GENERATED_NAME="${BASE_NAME}-${GITHUB_REPOSITORY_ID}"
+            GENERATED_NAME="$(echo "$GENERATED_NAME" | cut -c1-60 | sed 's/-$//')"
+            echo "AZURE_WEBAPP_NAME=$GENERATED_NAME" >> "$GITHUB_ENV"
+            echo "AZURE_WEBAPP_NAME was not provided. Using generated name: $GENERATED_NAME"
+          else
+            echo "Using provided AZURE_WEBAPP_NAME: $AZURE_WEBAPP_NAME"
           fi
 
       - name: Ensure resource group exists

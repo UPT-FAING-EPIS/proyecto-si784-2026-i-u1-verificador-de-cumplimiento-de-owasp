@@ -107,7 +107,7 @@ Ejemplo del formato esperado:
 
 ### 2. Configurar variables del repositorio
 En `Settings > Secrets and variables > Actions > Variables`, agrega:
-- `AZURE_WEBAPP_NAME` (obligatoria, debe ser globalmente única)
+- `AZURE_WEBAPP_NAME` (opcional: si no existe, el workflow genera una automáticamente usando el nombre del repo + `repository_id`)
 - `AZURE_RESOURCE_GROUP` (opcional, default: `rg-owasp-verificator`)
 - `AZURE_APP_SERVICE_PLAN` (opcional, default: `asp-owasp-verificator`)
 - `AZURE_LOCATION` (opcional, default: `eastus`)
