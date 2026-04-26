@@ -88,22 +88,41 @@ APP_ENV=development
 
 ## Despliegue en Azure con GitHub Actions
 
-El repositorio incluye workflow en `.github/workflows/azure-webapp.yml` para desplegar en Azure App Service cada vez que haces push a `main`.
+El repositorio incluye workflow en `.github/workflows/azure-webapp.yml` que crea recursos en Azure automáticamente (si no existen) y luego despliega en App Service cada vez que haces push a `main`.
 
-### 1. Crear recursos en Azure
-1. Crea un Web App (Linux, Python 3.11)
-2. En el Web App configura Startup Command:
+### 1. Configurar autenticación Azure en GitHub
+Agrega este secret en el repositorio:
+- `AZURE_CREDENTIALS`: JSON de un Service Principal con permisos sobre la suscripción o resource group
+
+Ejemplo del formato esperado:
+
+```json
+{
+	"clientId": "<appId>",
+	"clientSecret": "<password>",
+	"subscriptionId": "<subscription-id>",
+	"tenantId": "<tenant-id>"
+}
+```
+
+### 2. Configurar variables del repositorio
+En `Settings > Secrets and variables > Actions > Variables`, agrega:
+- `AZURE_WEBAPP_NAME` (obligatoria, debe ser globalmente única)
+- `AZURE_RESOURCE_GROUP` (opcional, default: `rg-owasp-verificator`)
+- `AZURE_APP_SERVICE_PLAN` (opcional, default: `asp-owasp-verificator`)
+- `AZURE_LOCATION` (opcional, default: `eastus`)
+
+### 3. Qué crea automáticamente el workflow
+- Resource Group
+- App Service Plan Linux (SKU B1)
+- Web App Python 3.11
+- Startup command:
 
 ```bash
 gunicorn -w 2 -k uvicorn.workers.UvicornWorker app.main:app
 ```
 
-### 2. Configurar secretos en GitHub
-En el repositorio, agrega estos secrets:
-- `AZURE_WEBAPP_NAME`: nombre del Web App en Azure
-- `AZURE_WEBAPP_PUBLISH_PROFILE`: contenido del Publish Profile descargado desde Azure
-
-### 3. Ejecutar despliegue
+### 4. Ejecutar despliegue
 1. Haz push a la rama `main`
 2. Revisa la ejecución del workflow en la pestaña Actions
 3. Verifica la app desplegada en la URL del Web App
