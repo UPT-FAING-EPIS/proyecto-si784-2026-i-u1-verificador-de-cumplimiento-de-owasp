@@ -1,51 +1,128 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/MQUb8mG3)
-[![Open in Codespaces](https://classroom.github.com/assets/launch-codespace-2972f46106e565e64193e422d61a12cf1da4916b45550586e14ef0a7c637dd04.svg)](https://classroom.github.com/open-in-codespaces?assignment_repo_id=23320843)
+# OWASP Verificator
 
-# Sistema Verificador de Cumplimiento OWASP
+Proyecto base en Python para evaluar cumplimiento OWASP de forma simple y ampliable.
 
-Este repositorio contiene el proyecto académico del curso *Calidad y Pruebas de Software* para la Universidad Privada de Tacna, desarrollado como un verificador de cumplimiento básico basado en OWASP.
+## Documentación
+- Requisitos funcionales y no funcionales: [docs/requirements.md](docs/requirements.md)
+- Roadmap del proyecto: [docs/roadmap.md](docs/roadmap.md)
 
-## Contenido del repositorio
-
-- `FD01-Informe-Factibilidad.md`: Informe de factibilidad del proyecto.
-- `FD02-Informe-Vision .md`: Documento de visión del proyecto.
-- `FD03-Informe-Especificacion-Requerimientos.md`: Documento de especificación de requerimientos (SRS).
-- `FD04-Informe-Arquitectura-de-Software.md`: Documento de arquitectura de software (SAD).
-- `FD05-Informe-ProyectoFinal.md`: Informe final del proyecto.
-- `FD06-PropuestaProyecto.md`: Propuesta de proyecto.
-- `OWASPVerificator/`: Aplicación web desarrollada en FastAPI para análisis básico de código y URLs.
-
-## Descripción del proyecto
-
-El sistema permite analizar:
-- Código fuente en busca de patrones de riesgo comunes (ej.: secretos expuestos, uso de `eval`, validación de entrada insuficiente).
-- URLs para identificar cabeceras de seguridad HTTP faltantes.
-
-Los resultados se guardan en una base de datos y se muestran en reportes con hallazgos y puntaje de seguridad.
-
-## Tecnologías usadas
-
-- Python 3
+## Stack
 - FastAPI
-- SQLAlchemy
-- Requests
+- Uvicorn / Gunicorn
 - Jinja2
-- MySQL o base de datos compatible
+- CSS puro
 
-## Cómo ejecutar la aplicación
+## Funcionalidad inicial
+- Dashboard de ejecuciones
+- Análisis por URL
+- Análisis por texto de código
+- Historial en memoria de scans y hallazgos
+- Reglas iniciales para OWASP Top 10
+- API REST para análisis y reportes
 
-1. Instalar dependencias en el directorio `OWASPVerificator`:
-   ```bash
-   cd OWASPVerificator
-   pip install -r requirements.txt
-   ```
-2. Configurar la variable de entorno `DATABASE_URL` si se usa una base de datos distinta a la predeterminada.
-3. Ejecutar la aplicación:
-   ```bash
-   uvicorn app.main:app --reload
-   ```
-4. Abrir el navegador en `http://127.0.0.1:8000/analyze`.
+## Endpoints API
+- `POST /analyze/api` para ejecutar análisis con JSON
+- `GET /reports/api` para listar reportes
+- `GET /reports/api/{scan_id}` para detalle de un reporte
+- `GET /health` para estado del servicio
 
-## Notas
+## Requisitos
+- Python 3.11+
 
-La aplicación es un prototipo académico que se puede extender con nuevas reglas OWASP y mejoras en el análisis.
+## Configuración
+1. Copia `.env.example` a `.env`
+2. Instala dependencias:
+
+```bash
+pip install -r requirements.txt
+```
+
+3. Ejecuta la app:
+
+```bash
+uvicorn app.main:app --reload
+```
+
+## Cómo probar que funciona
+
+### 1. Prueba rápida del motor de análisis
+Ejecuta un análisis de texto con una muestra que contenga patrones inseguros. Si el motor funciona, debe devolver hallazgos y un puntaje menor a 100.
+
+### 2. Prueba de la interfaz web
+1. Abre `http://127.0.0.1:8000`
+2. Entra a la pantalla de análisis
+3. Pega un fragmento de código con `password =` o `eval(`
+4. Envía el formulario
+5. Verifica que te redirige a un reporte con hallazgos
+
+### 3. Historial temporal (sin base de datos)
+1. Ejecuta más de un análisis desde la web
+2. Vuelve al dashboard
+3. Verifica que aparecen los análisis recientes
+4. Reinicia la app y confirma que el historial se limpia (almacenamiento en memoria)
+
+### 4. Resultado esperado
+- El dashboard muestra el análisis realizado
+- El reporte muestra hallazgos y score
+- El historial existe mientras la app esté en ejecución
+
+### 5. Pruebas automáticas
+Ejecuta:
+
+```bash
+python -m pytest -q
+```
+
+Resultado actual esperado: `4 passed`
+
+## Variables de entorno
+- `APP_TITLE`: nombre de la aplicación
+- `APP_ENV`: entorno de ejecución
+
+Ejemplo:
+
+```env
+APP_TITLE=OWASP Verificator
+APP_ENV=development
+```
+
+## Despliegue en Azure con GitHub Actions
+
+El repositorio incluye workflow en `.github/workflows/azure-webapp.yml` que crea recursos en Azure automáticamente (si no existen) y luego despliega en App Service cada vez que haces push a `main`.
+
+### 1. Configurar autenticación Azure en GitHub
+Agrega este secret en el repositorio:
+- `AZURE_CREDENTIALS`: JSON de un Service Principal con permisos sobre la suscripción o resource group
+
+Ejemplo del formato esperado:
+
+```json
+{
+	"clientId": "<appId>",
+	"clientSecret": "<password>",
+	"subscriptionId": "<subscription-id>",
+	"tenantId": "<tenant-id>"
+}
+```
+
+### 2. Configurar variables del repositorio
+En `Settings > Secrets and variables > Actions > Variables`, agrega:
+- `AZURE_WEBAPP_NAME` (obligatoria, debe ser globalmente única)
+- `AZURE_RESOURCE_GROUP` (opcional, default: `rg-owasp-verificator`)
+- `AZURE_APP_SERVICE_PLAN` (opcional, default: `asp-owasp-verificator`)
+- `AZURE_LOCATION` (opcional, default: `eastus`)
+
+### 3. Qué crea automáticamente el workflow
+- Resource Group
+- App Service Plan Linux (SKU B1)
+- Web App Python 3.11
+- Startup command:
+
+```bash
+gunicorn -w 2 -k uvicorn.workers.UvicornWorker app.main:app
+```
+
+### 4. Ejecutar despliegue
+1. Haz push a la rama `main`
+2. Revisa la ejecución del workflow en la pestaña Actions
+3. Verifica la app desplegada en la URL del Web App
