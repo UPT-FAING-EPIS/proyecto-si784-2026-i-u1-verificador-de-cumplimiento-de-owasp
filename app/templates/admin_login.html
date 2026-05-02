@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero">
+    <div>
+        <p class="eyebrow">Area Restringida</p>
+        <h2>Acceso Administrador</h2>
+        <p style="margin-top: 12px; opacity: 0.95; font-size: 1rem;">Ingresa la contrasena para abrir el panel administrativo.</p>
+    </div>
+    <a class="button button-secondary" href="/">Volver</a>
+</section>
+
+<section class="card" style="max-width: 560px; margin: 0 auto;">
+    <h3>🛡️ Verificacion de Admin</h3>
+
+    {% if error %}
+    <div style="margin-top: 14px; padding: 12px 14px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.12); color: #fca5a5; font-weight: 600;">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="post" action="/admin/login" style="margin-top: 16px;">
+        <div>
+            <label for="password">Contrasena de administrador</label>
+            <input id="password" type="password" name="password" placeholder="Escribe la contrasena" required>
+        </div>
+        <button class="button" type="submit">Ingresar al panel</button>
+    </form>
+
+    <p style="margin-top: 14px; color: #9ca3af; font-size: 0.9rem;">
+        Usa la variable de entorno ADMIN_DASHBOARD_PASSWORD para configurar la contrasena en produccion.
+    </p>
+</section>
+{% endblock %}

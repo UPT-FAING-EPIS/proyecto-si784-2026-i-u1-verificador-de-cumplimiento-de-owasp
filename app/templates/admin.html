@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero">
+    <div>
+        <p class="eyebrow">Panel de Administrador</p>
+        <h2>Dashboard de Control</h2>
+        <p style="margin-top: 12px; opacity: 0.95; font-size: 1rem;">Estadísticas globales y gestión del sistema</p>
+    </div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <a class="button button-secondary" href="/">← Volver</a>
+        <a class="button" href="/admin/logout">⎋ Cerrar sesión</a>
+    </div>
+</section>
+
+<!-- Statistics Grid -->
+<section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 40px;">
+    <div style="background: linear-gradient(135deg, rgba(0, 102, 204, 0.15) 0%, rgba(0, 212, 255, 0.05) 100%); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 12px; padding: 24px; box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);">
+        <p style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">📊 Total Escaneos</p>
+        <p style="font-size: 2.5rem; font-weight: 700; color: #00d4ff;">{{ stats.total_scans }}</p>
+    </div>
+    
+    <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 24px; box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);">
+        <p style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">✅ Score Promedio</p>
+        <p style="font-size: 2.5rem; font-weight: 700; color: #86efac;">{{ stats.avg_score }}/100</p>
+    </div>
+    
+    <div style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.05) 100%); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 24px; box-shadow: 0 0 20px rgba(239, 68, 68, 0.1);">
+        <p style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">🔴 Críticos</p>
+        <p style="font-size: 2.5rem; font-weight: 700; color: #fca5a5;">{{ stats.high_severity }}</p>
+    </div>
+    
+    <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 24px; box-shadow: 0 0 20px rgba(245, 158, 11, 0.1);">
+        <p style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">📍 Total Hallazgos</p>
+        <p style="font-size: 2.5rem; font-weight: 700; color: #fcd34d;">{{ stats.total_findings }}</p>
+    </div>
+</section>
+
+<!-- Charts Section -->
+<section class="card">
+    <h3>📈 Gráfico de Tendencias de Scores</h3>
+    <canvas id="trendsChart" style="max-height: 300px; margin-top: 20px;"></canvas>
+</section>
+
+<!-- Risk Matrix -->
+<section class="card">
+    <h3>🎯 Matriz de Riesgo (Severidad vs Frecuencia)</h3>
+    <div style="margin-top: 20px; overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: rgba(0, 102, 204, 0.1);">
+                    <th style="padding: 12px; text-align: left; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff; font-weight: 600;">Severidad</th>
+                    <th style="padding: 12px; text-align: center; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff; font-weight: 600;">Muy Crítico (>10)</th>
+                    <th style="padding: 12px; text-align: center; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff; font-weight: 600;">Crítico (5-10)</th>
+                    <th style="padding: 12px; text-align: center; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff; font-weight: 600;">Moderado (2-5)</th>
+                    <th style="padding: 12px; text-align: center; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff; font-weight: 600;">Bajo (1-2)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for severity, row_data in risk_matrix.items() %}
+                <tr>
+                    <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); font-weight: 600; color: 
+                        {% if severity == 'high' %}#fca5a5
+                        {% elif severity == 'medium' %}#fbbf24
+                        {% else %}#86efac
+                        {% endif %}">
+                        {{ severity|upper }}
+                    </td>
+                    {% for count in row_data %}
+                    <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); text-align: center; 
+                        background: {% if count > 0 %}rgba(
+                            {% if count > 5 %}239, 68, 68
+                            {% elif count > 2 %}245, 158, 11
+                            {% else %}16, 185, 129
+                            {% endif %}, 0.1){% endif %}">
+                        {{ count }}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- API Tokens -->
+<section class="card">
+    <h3>🔑 Gestión de Tokens API</h3>
+    <div style="margin-top: 20px;">
+        <div style="background: rgba(0, 102, 204, 0.05); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+            <p style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 8px;">Tokens disponibles para integración:</p>
+            <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem;">curl -H "X-API-Key: demo-token-12345" \
+  https://verificador.azure.com/health</pre>
+        </div>
+        
+        {% if tokens %}
+        <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+            <thead>
+                <tr style="background: rgba(0, 102, 204, 0.1);">
+                    <th style="padding: 12px; text-align: left; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff;">Token</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff;">Usuario</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff;">Creado</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff;">Último Uso</th>
+                    <th style="padding: 12px; text-align: center; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff;">Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for token in tokens %}
+                <tr>
+                    <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); font-family: monospace; color: #e5e7eb;">{{ token.token }}</td>
+                    <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb;">{{ token.user }}</td>
+                    <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #9ca3af; font-size: 0.9rem;">{{ token.created_at[:10] }}</td>
+                    <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #9ca3af; font-size: 0.9rem;">{{ token.last_used[:10] }}</td>
+                    <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); text-align: center;">
+                        <span style="padding: 4px 8px; background: rgba(16, 185, 129, 0.2); color: #86efac; border-radius: 4px; font-size: 0.85rem;">
+                            {% if token.is_active %}Activo{% else %}Inactivo{% endif %}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Recent Access Log -->
+<section class="card">
+    <h3>🔍 Log de Accesos Recientes</h3>
+    <div style="margin-top: 20px; max-height: 400px; overflow-y: auto;">
+        {% if accesses %}
+        <ul style="list-style: none; padding: 0; margin: 0;">
+            {% for access in accesses[:20] %}
+            <li style="padding: 12px; border-bottom: 1px solid rgba(0, 212, 255, 0.1); display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
+                <div style="flex: 1;">
+                    <span style="color: #00d4ff; font-weight: 600;">{{ access.path }}</span>
+                    <br/>
+                    <span style="color: #9ca3af; font-size: 0.85rem;">{{ access.ip }} · {{ access.timestamp }}</span>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p style="color: #9ca3af;">Sin registros de acceso aún.</p>
+        {% endif %}
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@latest/dist/chart.min.js"></script>
+<script>
+    // Trends Chart
+    const ctx = document.getElementById('trendsChart').getContext('2d');
+    const scans = {{ scans_data|tojson }};
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: scans.map((s, i) => `#${s.id}`),
+            datasets: [{
+                label: 'Score de Seguridad',
+                data: scans.map(s => s.score),
+                borderColor: '#00d4ff',
+                backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: '#00d4ff',
+                pointBorderColor: '#0066cc',
+                pointRadius: 5,
+                pointHoverRadius: 7,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    labels: { color: '#e5e7eb' }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: { color: '#9ca3af' },
+                    grid: { color: 'rgba(0, 212, 255, 0.1)' }
+                },
+                x: {
+                    ticks: { color: '#9ca3af' },
+                    grid: { color: 'rgba(0, 212, 255, 0.1)' }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

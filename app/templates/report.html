@@ -8,7 +8,11 @@
     </div>
     <div style="text-align: right;">
         <p style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Puntuación de Seguridad</p>
-        <p class="score" style="margin: 0; font-size: 3.5rem;">{{ scan.score }}</p>
+        <p class="score" style="margin: 0 0 16px 0; font-size: 3.5rem;">{{ scan.score }}</p>
+        <div style="display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap;">
+            <a href="/reports/{{ scan.id }}/export-pdf" class="button" style="padding: 8px 14px; font-size: 0.9rem;">📄 PDF</a>
+            <a href="/reports/{{ scan.id }}/export-json" class="button" style="padding: 8px 14px; font-size: 0.9rem;">📋 JSON</a>
+        </div>
     </div>
 </section>
 

@@ -5,6 +5,8 @@ from urllib.parse import urlparse
 
 import requests
 
+import requests
+from app.services.cve_analyzer import analyze_for_cves
 
 @dataclass
 class Finding:
@@ -17,28 +19,84 @@ class Finding:
 
 RULES = [
     {
-        "rule_id": "OWASP-A02",
-        "title": "Posible exposición de secretos",
+        "rule_id": "OWASP-A01",
+        "title": "Control de Acceso Roto",
         "severity": "high",
-        "remediation": "Eliminar secretos del repo; usar variables de entorno/secret manager; rotar credenciales.",
-        "patterns": [r"password\s*=", r"api[_-]?key", r"secret", r"token"],
-        "description": "Se detectaron patrones que suelen corresponder a credenciales o secretos en el contenido analizado.",
+        "remediation": "1. Verificar permisos en cada endpoint\n2. Usar decoradores de autenticación (@require_auth)\n3. Validar rol del usuario antes de operaciones\n4. Implementar RBAC (Role-Based Access Control)",
+        "patterns": [r"@app\.get\(", r"@app\.post\(", r"def\s+\w+\(.*request"],
+        "description": "Se detectaron endpoints sin validación explícita de permisos o autenticación.",
+    },
+    {
+        "rule_id": "OWASP-A02",
+        "title": "Fallas Criptográficas - Exposición de Secretos",
+        "severity": "high",
+        "remediation": "1. Nunca hardcodear secretos\n2. Usar variables de entorno (os.getenv())\n3. Implementar secret manager (Azure Key Vault, HashiCorp Vault)\n4. Rotar credenciales regularmente",
+        "patterns": [r"password\s*=\s*[\"']", r"api[_-]?key\s*=\s*[\"']", r"secret\s*=\s*[\"']", r"token\s*=\s*[\"']", r"credential"],
+        "description": "Secretos, contraseñas o claves hardcodeadas detectadas en el código.",
     },
     {
         "rule_id": "OWASP-A03",
-        "title": "Uso de funciones peligrosas",
+        "title": "Inyección de Código",
         "severity": "high",
-        "remediation": "Evitar eval/exec; usar funciones seguras y validación de entrada; usar listas blancas.",
-        "patterns": [r"eval\(", r"exec\(", r"pickle\.loads\(", r"subprocess\.Popen\("],
-        "description": "Se detectaron llamadas que pueden facilitar inyección de código o ejecución insegura.",
+        "remediation": "1. Evitar eval(), exec(), pickle.loads()\n2. Usar funciones seguras alternativas\n3. Validar y sanear TODA entrada de usuario\n4. Usar ORM para consultas SQL",
+        "patterns": [r"eval\(", r"exec\(", r"pickle\.loads\(", r"__import__", r"compile\("],
+        "description": "Se detectaron funciones que permiten inyección de código o ejecución dinámica insegura.",
     },
     {
         "rule_id": "OWASP-A04",
-        "title": "Validación de entrada insuficiente",
+        "title": "Diseño Inseguro",
         "severity": "medium",
-        "remediation": "Validar y sanear toda entrada; usar esquemas/validators y parámetros tipados.",
-        "patterns": [r"request\.args", r"request\.form", r"input\("],
-        "description": "Se detectó manejo de entrada sin validación explícita visible en el texto analizado.",
+        "remediation": "1. Diseñar con seguridad en mente desde el inicio\n2. Usar threat modeling\n3. Implementar rate limiting y timeouts\n4. Validar flujos de negocio",
+        "patterns": [r"todo|TODO|fixme|FIXME|hack|HACK|insecure"],
+        "description": "Se detectaron comentarios que sugieren lógica insegura o falta de validación de negocio.",
+    },
+    {
+        "rule_id": "OWASP-A05",
+        "title": "Configuración Incorrecta de Seguridad",
+        "severity": "medium",
+        "remediation": "1. Agregar cabeceras HTTP de seguridad (CSP, HSTS, X-Frame-Options)\n2. Deshabilitar debug en producción\n3. Usar HTTPS obligatorio\n4. Configurar CORS restrictivo",
+        "patterns": [r"debug\s*=\s*True", r"SECRET_KEY\s*=\s*[\"']", r"CORS"],
+        "description": "Configuración de seguridad insuficiente detectada (debug activo, secretos expuestos).",
+    },
+    {
+        "rule_id": "OWASP-A06",
+        "title": "Componentes Vulnerables y Desactualizados",
+        "severity": "medium",
+        "remediation": "1. Mantener dependencias actualizadas\n2. Usar `pip audit` para verificar vulnerabilidades\n3. Revisar CVEs regularmente\n4. Usar herramientas como OWASP Dependency-Check",
+        "patterns": [r"import\s+requests|import\s+flask|import\s+django|import\s+crypto"],
+        "description": "Se detectaron librerías importadas (verificar versiones y CVEs de dependencias).",
+    },
+    {
+        "rule_id": "OWASP-A07",
+        "title": "Fallas de Autenticación",
+        "severity": "high",
+        "remediation": "1. Implementar autenticación fuerte (JWT, OAuth2, SAML)\n2. Hash de contraseñas (bcrypt, argon2)\n3. MFA cuando sea posible\n4. Gestión segura de sesiones",
+        "patterns": [r"password.*==.*password", r"if user_id|if username|login", r"def auth"],
+        "description": "Lógica de autenticación detectada sin implementación clara de seguridad.",
+    },
+    {
+        "rule_id": "OWASP-A08",
+        "title": "Fallas de Integridad de Software y Datos",
+        "severity": "medium",
+        "remediation": "1. Implementar integridad de código (firma digital)\n2. Usar HTTPS para todas las descargas\n3. Verificar checksums de artefactos\n4. Usar CI/CD seguro",
+        "patterns": [r"fetch|download|import.*http|requests\.get"],
+        "description": "Se detectaron descargas o importaciones de código que podrían ser interceptadas.",
+    },
+    {
+        "rule_id": "OWASP-A09",
+        "title": "Fallas en Logging y Monitoreo",
+        "severity": "low",
+        "remediation": "1. Implementar logging de eventos de seguridad\n2. Monitorear intentos fallidos de autenticación\n3. Alertas para actividades sospechosas\n4. Retención de logs adecuada",
+        "patterns": [r"except.*:|except\s*pass", r"try:"],
+        "description": "Manejo de excepciones sin logging visible (podrían ocultarse eventos de seguridad).",
+    },
+    {
+        "rule_id": "OWASP-A10",
+        "title": "Server-Side Request Forgery (SSRF)",
+        "severity": "high",
+        "remediation": "1. Validar y whitelist URLs de destino\n2. Evitar User-Supplied URLs en requests\n3. Usar Network segmentation\n4. Deshabilitar acceso a IPs privadas",
+        "patterns": [r"requests\.get\(.*\)", r"urllib.*open\(.*\)", r"requests\.post\(.*\)"],
+        "description": "Se detectaron llamadas HTTP que podrían ser explotadas para SSRF.",
     },
 ]
 
@@ -47,7 +105,7 @@ WEIGHTS = {"high": 30, "medium": 15, "low": 5}
 
 REMEDIATIONS = {r["rule_id"]: r.get("remediation", "") for r in RULES}
 
-# Add remediations for URL scan findings (A05, A06)
+# Additional remediations for URL scan findings
 REMEDIATIONS.update({
     "OWASP-A05": "1. Agregar cabeceras de seguridad en tu middleware/servidor:\n"
                   "   - Content-Security-Policy: define de dónde se pueden cargar recursos\n"
@@ -79,6 +137,10 @@ def scan_code(content: str) -> list[Finding]:
                     )
                 )
                 break
+        # Add CVE analysis
+        cve_findings = analyze_for_cves(content)
+        findings.extend(cve_findings)
+    
     return findings
 
 
