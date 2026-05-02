@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 
 from app.config import get_settings
 from app.routers.analysis import router as analysis_router
@@ -9,7 +10,10 @@ from app.store import scan_store
 
 settings = get_settings()
 app = FastAPI(title=settings.app_title)
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+# Ruta absoluta para archivos estáticos
+static_dir = Path(__file__).parent / "static"
+app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
 @app.middleware("http")
 async def access_logger(request: Request, call_next):

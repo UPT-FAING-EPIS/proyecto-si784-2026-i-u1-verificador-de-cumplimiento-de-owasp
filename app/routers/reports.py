@@ -1,3 +1,4 @@
+from pathlib import Path
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -6,7 +7,8 @@ from app.schemas import ScanOut
 from app.store import scan_store
 
 router = APIRouter(prefix="/reports")
-templates = Jinja2Templates(directory="app/templates")
+templates_dir = Path(__file__).parent.parent / "templates"
+templates = Jinja2Templates(directory=str(templates_dir))
 
 
 @router.get("/api/{scan_id}", response_model=ScanOut)
