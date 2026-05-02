@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero">
+    <div>
+        <p class="eyebrow">Sistema</p>
+        <h2>Monitoreo de Accesos</h2>
+    </div>
+</section>
+
+<section class="card">
+    <h3>Quién está usando la página</h3>
+    <p>Log de los últimos accesos al sistema. Se muestra la ruta visitada, IP del cliente, y hora.</p>
+    
+    {% if accesses %}
+    <div style="margin-top: 20px;">
+        {% for log in accesses %}
+        <div class="access-log">
+            <div class="access-log-path">{{ log['path'] }}</div>
+            <div class="access-log-ip">IP: {{ log['ip'] }}</div>
+            <div class="access-log-time">{{ log['created_at'][:19] }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="padding: 20px; background: rgba(59, 130, 246, 0.1); border-radius: 8px; color: #60a5fa;">
+        <p><strong>No hay accesos registrados aún.</strong> Los accesos se registran cuando alguien visita una página.</p>
+    </div>
+    {% endif %}
+</section>
+
+<section class="card">
+    <h3>Estadísticas</h3>
+    <p><strong>Total de accesos:</strong> {{ accesses|length }}</p>
+</section>
+
+{% endblock %}

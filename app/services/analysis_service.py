@@ -1,5 +1,5 @@
 from app.models import Finding, Scan
-from app.services.scanner import calculate_score, scan_code, scan_url
+from app.services.scanner import calculate_score, scan_code, scan_url, penalty_for, remediation_for
 from app.store import scan_store
 
 
@@ -22,6 +22,15 @@ def execute_scan(target_type: str, target_value: str) -> Scan:
         )
         for finding in findings
     ]
+
+    # attach penalty and remediation to stored findings
+    for sf in stored_findings:
+        try:
+            sf.penalty = penalty_for(sf)
+            sf.remediation = remediation_for(sf.rule_id)
+        except Exception:
+            sf.penalty = 0
+            sf.remediation = ""
 
     scan = Scan(
         id=0,

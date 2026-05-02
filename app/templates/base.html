@@ -8,14 +8,16 @@
 </head>
 <body>
     <header class="topbar">
-        <div>
-            <p class="eyebrow">OWASP Verificator</p>
-            <h1>Verificador simple de cumplimiento</h1>
+        <div class="topbar-inner">
+            <h1>🔒 OWASP Verificator</h1>
+            <nav>
+                <a href="/">Dashboard</a>
+                <a href="/analyze">Analizar</a>
+                <a href="/owasp">Wiki OWASP</a>
+                <a href="/monitoring">Monitoreo</a>
+                <a href="/about">Acerca de</a>
+            </nav>
         </div>
-        <nav>
-            <a href="/">Dashboard</a>
-            <a href="/analyze">Analizar</a>
-        </nav>
     </header>
     <main class="container">
         {% block content %}{% endblock %}

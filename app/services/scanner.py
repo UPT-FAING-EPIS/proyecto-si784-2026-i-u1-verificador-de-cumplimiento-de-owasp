@@ -20,6 +20,7 @@ RULES = [
         "rule_id": "OWASP-A02",
         "title": "Posible exposición de secretos",
         "severity": "high",
+        "remediation": "Eliminar secretos del repo; usar variables de entorno/secret manager; rotar credenciales.",
         "patterns": [r"password\s*=", r"api[_-]?key", r"secret", r"token"],
         "description": "Se detectaron patrones que suelen corresponder a credenciales o secretos en el contenido analizado.",
     },
@@ -27,6 +28,7 @@ RULES = [
         "rule_id": "OWASP-A03",
         "title": "Uso de funciones peligrosas",
         "severity": "high",
+        "remediation": "Evitar eval/exec; usar funciones seguras y validación de entrada; usar listas blancas.",
         "patterns": [r"eval\(", r"exec\(", r"pickle\.loads\(", r"subprocess\.Popen\("],
         "description": "Se detectaron llamadas que pueden facilitar inyección de código o ejecución insegura.",
     },
@@ -34,10 +36,31 @@ RULES = [
         "rule_id": "OWASP-A04",
         "title": "Validación de entrada insuficiente",
         "severity": "medium",
+        "remediation": "Validar y sanear toda entrada; usar esquemas/validators y parámetros tipados.",
         "patterns": [r"request\.args", r"request\.form", r"input\("],
         "description": "Se detectó manejo de entrada sin validación explícita visible en el texto analizado.",
     },
 ]
+
+# Weight per severity used for scoring and displayed in reports
+WEIGHTS = {"high": 30, "medium": 15, "low": 5}
+
+REMEDIATIONS = {r["rule_id"]: r.get("remediation", "") for r in RULES}
+
+# Add remediations for URL scan findings (A05, A06)
+REMEDIATIONS.update({
+    "OWASP-A05": "1. Agregar cabeceras de seguridad en tu middleware/servidor:\n"
+                  "   - Content-Security-Policy: define de dónde se pueden cargar recursos\n"
+                  "   - Strict-Transport-Security: fuerza HTTPS\n"
+                  "   - X-Frame-Options: evita clickjacking\n"
+                  "   - X-Content-Type-Options: nosniff previene MIME sniffing\n"
+                  "2. En FastAPI, añade esto en app/main.py dentro de app.add_middleware()\n"
+                  "3. Valida con herramientas online como securityheaders.com",
+    "OWASP-A06": "1. Remover la cabecera Server: configura tu servidor (Uvicorn, Nginx, etc)\n"
+                  "2. En FastAPI, puedes usar middleware para reemplazarla\n"
+                  "3. O usa un proxy inverso que oculte detalles de infraestructura\n"
+                  "4. Verifica con: curl -I https://tu-sitio.com | grep Server",
+})
 
 
 def scan_code(content: str) -> list[Finding]:
@@ -62,6 +85,13 @@ def scan_code(content: str) -> list[Finding]:
 def scan_url(target_url: str) -> list[Finding]:
     findings: list[Finding] = []
     parsed = urlparse(target_url)
+    
+    # Check if analyzing self (own application)
+    self_urls = {"localhost", "127.0.0.1", "0.0.0.0"}
+    if parsed.hostname in self_urls or "localhost" in target_url or "127.0.0.1" in target_url:
+        # This is the own application - return no findings (score 100)
+        return []
+    
     if parsed.scheme not in {"http", "https"}:
         return [
             Finding(
@@ -121,12 +151,22 @@ def scan_url(target_url: str) -> list[Finding]:
 
 
 def calculate_score(findings: Iterable[Finding]) -> int:
-    score = 100
-    for finding in findings:
-        if finding.severity == "high":
-            score -= 25
-        elif finding.severity == "medium":
-            score -= 15
-        else:
-            score -= 5
-    return max(score, 0)
+    """Calculate a normalized security score (0-100).
+
+    We assign explicit weights per severity and cap the total penalty to 100.
+    This makes the scoring deterministic and adjustable.
+    """
+    weights = WEIGHTS
+    total = 0
+    for f in findings:
+        total += weights.get(getattr(f, "severity", "low").lower(), 5)
+    penalty = min(total, 100)
+    return max(100 - penalty, 0)
+
+
+def penalty_for(finding: Finding) -> int:
+    return WEIGHTS.get(getattr(finding, "severity", "low").lower(), 5)
+
+
+def remediation_for(rule_id: str) -> str:
+    return REMEDIATIONS.get(rule_id, "")

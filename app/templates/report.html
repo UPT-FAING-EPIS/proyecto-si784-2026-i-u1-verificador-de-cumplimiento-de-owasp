@@ -2,32 +2,113 @@
 {% block content %}
 <section class="hero">
     <div>
-        <p class="eyebrow">Reporte #{{ scan.id }}</p>
-        <h2>Resultado del análisis</h2>
+        <p class="eyebrow">Análisis de Seguridad #{{ scan.id }}</p>
+        <h2>Reporte de Vulnerabilidades</h2>
+        <p style="margin-top: 12px; opacity: 0.95; font-size: 1rem;">Generado: {{ scan.created_at.strftime('%d/%m/%Y %H:%M:%S') }}</p>
     </div>
-    <p class="score">Score {{ scan.score }}</p>
+    <div style="text-align: right;">
+        <p style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Puntuación de Seguridad</p>
+        <p class="score" style="margin: 0; font-size: 3.5rem;">{{ scan.score }}</p>
+    </div>
 </section>
 
-<section class="card">
-    <h3>Objetivo</h3>
-    <p>{{ scan.target_type }} · {{ scan.target_value }}</p>
+<!-- Summary Section -->
+<section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 32px;">
+    <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 20px; text-align: center;">
+        <p style="color: #9ca3af; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; font-weight: 600;">Hallazgos Totales</p>
+        <p style="font-size: 2rem; font-weight: 700; color: #fca5a5;">{{ scan.findings|length }}</p>
+    </div>
+    
+    <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 20px; text-align: center;">
+        <p style="color: #9ca3af; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; font-weight: 600;">🔴 Críticos</p>
+        <p style="font-size: 2rem; font-weight: 700; color: #fca5a5;">{{ scan.findings|selectattr('severity', 'equalto', 'high')|list|length }}</p>
+    </div>
+    
+    <div style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 20px; text-align: center;">
+        <p style="color: #9ca3af; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; font-weight: 600;">🟡 Medios</p>
+        <p style="font-size: 2rem; font-weight: 700; color: #fbbf24;">{{ scan.findings|selectattr('severity', 'equalto', 'medium')|list|length }}</p>
+    </div>
+    
+    <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 20px; text-align: center;">
+        <p style="color: #9ca3af; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; font-weight: 600;">🟢 Bajos</p>
+        <p style="font-size: 2rem; font-weight: 700; color: #86efac;">{{ scan.findings|selectattr('severity', 'equalto', 'low')|list|length }}</p>
+    </div>
 </section>
 
+<!-- Target Info -->
 <section class="card">
-    <h3>Hallazgos</h3>
+    <h3>📍 Objetivo Analizado</h3>
+    <div style="background: rgba(0, 102, 204, 0.05); padding: 16px; border-radius: 8px; border-left: 4px solid #00d4ff; margin-top: 16px;">
+        <p style="margin: 0; font-size: 0.9rem; color: #9ca3af; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Tipo:</p>
+        <p style="margin: 0; font-weight: 600; color: #e5e7eb; font-size: 1.05rem; text-transform: capitalize;">{{ scan.target_type }}</p>
+        <p style="margin: 16px 0 6px 0; font-size: 0.9rem; color: #9ca3af; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Contenido:</p>
+        <div style="background: rgba(0, 0, 0, 0.2); padding: 12px; border-radius: 6px; font-family: monospace; color: #e5e7eb; font-size: 0.9rem; word-break: break-all; max-height: 150px; overflow-y: auto;">{{ scan.target_value[:500] }}{% if scan.target_value|length > 500 %}...{% endif %}</div>
+    </div>
+</section>
+
+<!-- Findings -->
+<section class="card">
+    <h3 style="margin-bottom: 24px;">🔍 Vulnerabilidades Detectadas</h3>
     {% if scan.findings %}
     <ul class="findings">
         {% for finding in scan.findings %}
         <li>
-            <strong>{{ finding.rule_id }} - {{ finding.title }}</strong>
-            <span>{{ finding.severity }}</span>
-            <p>{{ finding.description }}</p>
-            <small>{{ finding.evidence }}</small>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                <div style="flex: 1;">
+                    <strong style="font-size: 1.1rem; color: #ffffff;">{{ finding.rule_id }} - {{ finding.title }}</strong>
+                    <div style="margin-top: 8px; display: flex; gap: 12px; flex-wrap: wrap;">
+                        {% if finding.severity == 'high' %}
+                            <span class="severity-high">🔴 CRÍTICA</span>
+                        {% elif finding.severity == 'medium' %}
+                            <span class="severity-medium">🟡 MEDIA</span>
+                        {% else %}
+                            <span class="severity-low">🟢 BAJA</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="finding-penalty">-{{ finding.penalty }} pts</div>
+            </div>
+            
+            <div style="margin: 16px 0; padding: 14px; background: rgba(0, 102, 204, 0.1); border-left: 4px solid #00d4ff; border-radius: 6px;">
+                <strong style="color: #00d4ff; display: block; margin-bottom: 8px;">❌ El Problema:</strong>
+                <p style="margin: 0; color: #e5e7eb; line-height: 1.6;">{{ finding.description }}</p>
+            </div>
+            
+            {% if finding.evidence %}
+            <div style="margin: 16px 0;">
+                <strong style="color: #e5e7eb; display: block; margin-bottom: 8px;">📄 Evidencia Detectada:</strong>
+                <div class="code-block" style="margin-top: 8px;">{{ finding.evidence }}</div>
+            </div>
+            {% endif %}
+            
+            {% if finding.remediation %}
+            <div style="margin: 16px 0; padding: 16px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px;">
+                <strong style="color: #86efac; display: block; margin-bottom: 12px; font-size: 1.05rem;">✅ Solución Recomendada:</strong>
+                <div style="color: #e5e7eb; line-height: 1.8; white-space: pre-wrap; font-size: 0.95rem;">{{ finding.remediation }}</div>
+            </div>
+            {% endif %}
         </li>
         {% endfor %}
     </ul>
     {% else %}
-    <p>No se detectaron hallazgos en este análisis.</p>
+    <div style="padding: 32px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%); border: 2px solid rgba(16, 185, 129, 0.3); border-radius: 8px; text-align: center;">
+        <p style="font-size: 1.3rem; color: #86efac; font-weight: 600; margin: 0;">✨ ¡Sin vulnerabilidades detectadas!</p>
+        <p style="color: #9ca3af; margin-top: 8px;">El código/URL cumple con los estándares de seguridad OWASP.</p>
+    </div>
     {% endif %}
+</section>
+
+<!-- Recommendations -->
+<section class="card">
+    <h3>📋 Recomendaciones Generales</h3>
+    <ul style="margin-top: 16px; margin-left: 20px; color: #e5e7eb; line-height: 1.8;">
+        <li>Realiza escaneos periódicos de seguridad en tu código</li>
+        <li>Mantén todas las dependencias y librerías actualizadas</li>
+        <li>Implementa validación de entrada en todos los puntos de acceso</li>
+        <li>Usa variables de entorno para manejar credenciales sensibles</li>
+        <li>Configura cabeceras HTTP de seguridad en tu servidor</li>
+        <li>Realiza code review con enfoque en seguridad</li>
+        <li>Consulta la <a href="/owasp" style="color: #00d4ff; font-weight: 600;">Wiki OWASP</a> para más detalles sobre cada vulnerabilidad</li>
+    </ul>
 </section>
 {% endblock %}

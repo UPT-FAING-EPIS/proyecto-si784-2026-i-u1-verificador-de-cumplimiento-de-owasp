@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero">
+    <div>
+        <p class="eyebrow">Información del Proyecto</p>
+        <h2>Verificador de Cumplimiento OWASP</h2>
+        <p style="margin-top: 12px; opacity: 0.95; font-size: 1rem;">Sistema inteligente de análisis automático de seguridad</p>
+    </div>
+</section>
+
+<section class="card">
+    <h3>🎯 Objetivo del Sistema</h3>
+    <p style="line-height: 1.8; margin-top: 12px;">
+        El Verificador de Cumplimiento OWASP es una herramienta educativa avanzada diseñada para analizar código fuente y URLs en busca de vulnerabilidades de seguridad basadas en los estándares OWASP Top 10. Proporciona a desarrolladores y estudiantes una forma automática y eficiente de identificar problemas de seguridad comunes y recibir recomendaciones específicas para remediarlos.
+    </p>
+</section>
+
+<section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 32px;">
+    <div class="card">
+        <h4 style="margin-top: 0;">🔬 Análisis Automático</h4>
+        <p>Motor de análisis que utiliza patrones regex y reglas heurísticas para detectar vulnerabilidades comunes en código Python, JavaScript y otros lenguajes de programación.</p>
+    </div>
+    
+    <div class="card">
+        <h4 style="margin-top: 0;">📊 Puntuación Inteligente</h4>
+        <p>Sistema de scoring basado en severidad que calcula una puntuación de 0-100. Las vulnerabilidades de alta severidad deducen más puntos que las de baja severidad.</p>
+    </div>
+    
+    <div class="card">
+        <h4 style="margin-top: 0;">✅ Soluciones Paso a Paso</h4>
+        <p>Cada hallazgo incluye guías prácticas detalladas que explican cómo remediar el problema, con ejemplos de código seguro.</p>
+    </div>
+    
+    <div class="card">
+        <h4 style="margin-top: 0;">📚 Wiki Educativa</h4>
+        <p>Documentación completa sobre cada tipo de vulnerabilidad, incluyendo explicaciones del riesgo, técnicas de explotación y prácticas seguras.</p>
+    </div>
+    
+    <div class="card">
+        <h4 style="margin-top: 0;">📡 Monitoreo en Tiempo Real</h4>
+        <p>Sistema de logging que registra todos los accesos al sistema, mostrando IP, ruta y timestamp para auditoría y análisis de uso.</p>
+    </div>
+    
+    <div class="card">
+        <h4 style="margin-top: 0;">🔐 URL Scanning</h4>
+        <p>Análisis de URLs activas que verifica la presencia de cabeceras HTTP de seguridad críticas y expone información de infraestructura.</p>
+    </div>
+</section>
+
+<section class="card">
+    <h3>🚀 Características Principales</h3>
+    
+    <div style="margin-top: 20px;">
+        <h4 style="color: #00d4ff; margin-bottom: 12px;">Detección de Vulnerabilidades</h4>
+        <ul style="margin-left: 20px; color: #e5e7eb; line-height: 1.8;">
+            <li><strong>OWASP-A02: Exposición de Secretos</strong> - Detecta contraseñas, API keys y tokens hardcodeados</li>
+            <li><strong>OWASP-A03: Funciones Peligrosas</strong> - Identifica eval(), exec(), pickle.loads() y subprocess inseguros</li>
+            <li><strong>OWASP-A04: Validación Insuficiente</strong> - Verifica manejo inseguro de entrada de usuario</li>
+            <li><strong>OWASP-A05: Headers Faltantes</strong> - Comprueba cabeceras de seguridad HTTP críticas</li>
+            <li><strong>OWASP-A06: Divulgación de Info</strong> - Expone headers del servidor que revelan tecnología usada</li>
+        </ul>
+    </div>
+    
+    <div style="margin-top: 24px;">
+        <h4 style="color: #00d4ff; margin-bottom: 12px;">Dashboard y Reportes</h4>
+        <ul style="margin-left: 20px; color: #e5e7eb; line-height: 1.8;">
+            <li><strong>Panel de Control</strong> - Estadísticas en tiempo real (total análisis, promedio score, hallazgos críticos)</li>
+            <li><strong>Reportes Detallados</strong> - Información completa por análisis con problema, evidencia y solución</li>
+            <li><strong>Historial de Escaneos</strong> - Acceso a todos los análisis realizados anteriormente</li>
+            <li><strong>Monitoreo de Accesos</strong> - Log de quién accede al sistema, cuándo y desde dónde</li>
+        </ul>
+    </div>
+    
+    <div style="margin-top: 24px;">
+        <h4 style="color: #00d4ff; margin-bottom: 12px;">Interfaz de Usuario</h4>
+        <ul style="margin-left: 20px; color: #e5e7eb; line-height: 1.8;">
+            <li><strong>Diseño Moderno</strong> - Interfaz oscura profesional con gradientes y efectos visuales</li>
+            <li><strong>Responsive</strong> - Compatible con dispositivos móviles, tablets y desktops</li>
+            <li><strong>Accesibilidad</strong> - Colores y contraste diseñados para máxima legibilidad</li>
+        </ul>
+    </div>
+</section>
+
+<section class="card">
+    <h3>🏗️ Arquitectura Técnica</h3>
+    <div style="background: rgba(0, 102, 204, 0.05); padding: 20px; border-radius: 8px; border-left: 4px solid #00d4ff; margin-top: 16px;">
+        <p style="margin: 0 0 12px 0;"><strong style="color: #00d4ff;">Backend:</strong> <span style="color: #e5e7eb;">FastAPI con Python 3.11+</span></p>
+        <p style="margin: 0 0 12px 0;"><strong style="color: #00d4ff;">Frontend:</strong> <span style="color: #e5e7eb;">Jinja2 Templates + CSS3 Moderno</span></p>
+        <p style="margin: 0 0 12px 0;"><strong style="color: #00d4ff;">Almacenamiento:</strong> <span style="color: #e5e7eb;">In-Memory Store (sin base de datos externa)</span></p>
+        <p style="margin: 0;"><strong style="color: #00d4ff;">Análisis:</strong> <span style="color: #e5e7eb;">Regex-based pattern matching + heurísticas de seguridad</span></p>
+    </div>
+</section>
+
+<section class="card">
+    <h3>📈 Casos de Uso</h3>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 16px;">
+        <div style="padding: 16px; background: rgba(0, 102, 204, 0.05); border-radius: 8px; border-left: 3px solid #00d4ff;">
+            <p style="font-weight: 600; color: #00d4ff; margin-bottom: 8px;">👨‍💻 Desarrolladores</p>
+            <p style="font-size: 0.9rem; color: #9ca3af;">Verificar código antes de commits para identificar y remediar vulnerabilidades tempranamente</p>
+        </div>
+        
+        <div style="padding: 16px; background: rgba(0, 102, 204, 0.05); border-radius: 8px; border-left: 3px solid #00d4ff;">
+            <p style="font-weight: 600; color: #00d4ff; margin-bottom: 8px;">🎓 Estudiantes</p>
+            <p style="font-size: 0.9rem; color: #9ca3af;">Aprender sobre vulnerabilidades OWASP de forma práctica con feedback inmediato</p>
+        </div>
+        
+        <div style="padding: 16px; background: rgba(0, 102, 204, 0.05); border-radius: 8px; border-left: 3px solid #00d4ff;">
+            <p style="font-weight: 600; color: #00d4ff; margin-bottom: 8px;">🔒 Equipo de Seguridad</p>
+            <p style="font-size: 0.9rem; color: #9ca3af;">Realizar auditorías automáticas de seguridad como parte del pipeline CI/CD</p>
+        </div>
+        
+        <div style="padding: 16px; background: rgba(0, 102, 204, 0.05); border-radius: 8px; border-left: 3px solid #00d4ff;">
+            <p style="font-weight: 600; color: #00d4ff; margin-bottom: 8px;">🎯 Code Review</p>
+            <p style="font-size: 0.9rem; color: #9ca3af;">Automatizar parte del proceso de revisión de código enfocándose en seguridad</p>
+        </div>
+        
+        <div style="padding: 16px; background: rgba(0, 102, 204, 0.05); border-radius: 8px; border-left: 3px solid #00d4ff;">
+            <p style="font-weight: 600; color: #00d4ff; margin-bottom: 8px;">📚 Educación</p>
+            <p style="font-size: 0.9rem; color: #9ca3af;">Demostración en clase de vulnerabilidades comunes y cómo detectarlas</p>
+        </div>
+        
+        <div style="padding: 16px; background: rgba(0, 102, 204, 0.05); border-radius: 8px; border-left: 3px solid #00d4ff;">
+            <p style="font-weight: 600; color: #00d4ff; margin-bottom: 8px;">🚀 Startups</p>
+            <p style="font-size: 0.9rem; color: #9ca3af;">Solución económica y efectiva para verificar seguridad de aplicaciones nuevas</p>
+        </div>
+    </div>
+</section>
+
+<section class="card">
+    <h3>📊 Métricas y Evaluación</h3>
+    <p style="margin-top: 12px; line-height: 1.8;">
+        El sistema utiliza un algoritmo de puntuación transparente que calcula una puntuación de 0 a 100 basada en:
+    </p>
+    <ul style="margin: 16px 0 0 20px; color: #e5e7eb; line-height: 1.8;">
+        <li><strong>Severidad:</strong> Vulnerabilidades HIGH (-30 pts), MEDIUM (-15 pts), LOW (-5 pts)</li>
+        <li><strong>Acumulativo:</strong> La puntuación desciende hasta un mínimo de 0</li>
+        <li><strong>Interpretación:</strong> 90-100 = Excelente | 70-89 = Aceptable | 50-69 = Necesita mejora | &lt;50 = Crítico</li>
+    </ul>
+</section>
+
+<section class="card" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(124, 58, 237, 0.05) 100%); border: 1px solid rgba(0, 212, 255, 0.3);">
+    <h3 style="margin-top: 0;">🌟 Llamada a la Acción</h3>
+    <p style="margin-top: 12px; line-height: 1.8;">
+        Comienza ahora a analizar tu código o URLs. El sistema te proporcionará retroalimentación inmediata con recomendaciones específicas para mejorar la seguridad de tu aplicación.
+    </p>
+    <a href="/analyze" class="button" style="margin-top: 16px;">Realizar Análisis →</a>
+</section>
+{% endblock %}

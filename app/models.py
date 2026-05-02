@@ -9,6 +9,8 @@ class Finding:
     severity: str
     description: str
     evidence: str
+    penalty: int = 0
+    remediation: str = ""
 
 
 @dataclass

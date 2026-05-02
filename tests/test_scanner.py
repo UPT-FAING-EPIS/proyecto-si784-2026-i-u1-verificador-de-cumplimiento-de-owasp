@@ -15,4 +15,5 @@ def test_calculate_score_reduces_by_severity():
     findings = scan_code(content)
     score = calculate_score(findings)
 
-    assert score == 50
+    # two high severity findings -> penalty 30+30 -> score 40 (weights: high=30)
+    assert score == 40
