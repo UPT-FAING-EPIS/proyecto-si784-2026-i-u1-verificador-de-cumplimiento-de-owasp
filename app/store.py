@@ -3,6 +3,8 @@ from datetime import datetime, timezone
 from typing import Optional
 import os
 import uuid
+import json
+from pathlib import Path
 
 from app.models import Scan, Finding
 
@@ -25,7 +27,17 @@ class InMemoryScanStore:
         self._api_tokens: dict[str, APIToken] = {}
         self._admin_sessions: dict[str, dict] = {}
         self._github_token: str | None = None
+        # prepare persistent data directory and files
+        self._data_path = Path(os.getenv("APP_DATA_PATH", Path(__file__).parent.parent)) / "data"
+        self._data_path.mkdir(parents=True, exist_ok=True)
+        self._scans_file = self._data_path / "scans.json"
+        self._meta_file = self._data_path / "meta.json"
         self._init_tokens()
+        # try loading persisted scans
+        try:
+            self._load_persisted()
+        except Exception:
+            pass
 
     def _init_tokens(self):
         """Initialize API tokens from environment variables."""
@@ -120,6 +132,10 @@ class InMemoryScanStore:
             scan.id = self._next_id
             self._next_id += 1
             self._scans.insert(0, scan)
+            try:
+                self._persist()
+            except Exception:
+                pass
             return scan
 
     def get_scan(self, scan_id: int) -> Optional[Scan]:
@@ -138,6 +154,71 @@ class InMemoryScanStore:
             self._scans.clear()
             self._next_id = 1
             self._accesses.clear()
+            try:
+                self._persist()
+            except Exception:
+                pass
+
+    def _persist(self) -> None:
+        """Persist scans and meta (next id) to disk as JSON."""
+        data = []
+        for s in self._scans:
+            data.append({
+                "id": s.id,
+                "target_type": s.target_type,
+                "target_value": s.target_value,
+                "status": s.status,
+                "score": s.score,
+                "created_at": s.created_at.isoformat(),
+                "findings": [
+                    {
+                        "rule_id": f.rule_id,
+                        "title": f.title,
+                        "severity": f.severity,
+                        "description": f.description,
+                        "evidence": f.evidence,
+                        "penalty": getattr(f, 'penalty', 0),
+                        "remediation": getattr(f, 'remediation', ''),
+                    }
+                    for f in s.findings
+                ],
+            })
+        tmp = self._scans_file.with_suffix(".tmp")
+        with tmp.open("w", encoding="utf-8") as fh:
+            json.dump({"scans": data, "next_id": self._next_id}, fh, ensure_ascii=False, indent=2)
+        tmp.replace(self._scans_file)
+
+    def _load_persisted(self) -> None:
+        """Load persisted scans from disk if available."""
+        if not self._scans_file.exists():
+            return
+        with self._scans_file.open("r", encoding="utf-8") as fh:
+            payload = json.load(fh)
+        scans = payload.get("scans", [])
+        loaded = []
+        from app.models import Scan, Finding
+        from datetime import datetime
+        for s in scans:
+            findings = []
+            for f in s.get("findings", []):
+                findings.append(Finding(
+                    rule_id=f.get("rule_id"),
+                    title=f.get("title"),
+                    severity=f.get("severity"),
+                    description=f.get("description"),
+                    evidence=f.get("evidence"),
+                    penalty=f.get("penalty", 0),
+                    remediation=f.get("remediation", ""),
+                ))
+            created_at = None
+            try:
+                created_at = datetime.fromisoformat(s.get("created_at"))
+            except Exception:
+                created_at = datetime.now(timezone.utc)
+            loaded.append(Scan(id=s.get("id", 0), target_type=s.get("target_type", ""), target_value=s.get("target_value", ""), status=s.get("status", ""), score=s.get("score", 0), created_at=created_at, findings=findings))
+        with self._lock:
+            self._scans = loaded
+            self._next_id = int(payload.get("next_id", max([c.id for c in loaded], default=0) + 1))
 
     # Access log methods for in-memory store
     def log_access(self, path: str, ip: str, user_agent: str, user: str | None = None, timestamp: str | None = None) -> None:

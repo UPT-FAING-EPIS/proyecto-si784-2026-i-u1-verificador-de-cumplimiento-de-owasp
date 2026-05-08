@@ -9,7 +9,14 @@ from app.services.scanner import (
     remediation_for,
 )
 from app.services.github_integration import create_issues_for_findings
+import threading
+import logging
+from urllib.parse import urlparse
+
+logger = logging.getLogger("analysis_service")
 from app.store import scan_store
+import json
+from datetime import datetime
 
 
 def execute_scan(target_type: str, target_value: str, create_issues: bool = False, github_token: str | None = None) -> Scan:
@@ -126,17 +133,49 @@ def execute_scan(target_type: str, target_value: str, create_issues: bool = Fals
     created_scan = scan_store.create_scan(scan)
 
     # If requested and target was a GitHub repo, attempt to create issues
-    try:
-        if create_issues and target_type == "github_repo":
+    if create_issues and target_type == "github_repo":
+        try:
             # parse owner/repo
-            parsed = __import__('urllib.parse').urlparse(target_value)
+            parsed = urlparse(target_value)
             parts = parsed.path.strip('/').split('/')
             if len(parts) >= 2:
                 owner = parts[0]
                 repo = parts[1].replace('.git', '')
-                # create issues with token from store (if available)
-                create_issues_for_findings(owner, repo, stored_findings, github_token=effective_github_token)
-    except Exception:
-        pass
+
+                # run issue creation in background to avoid blocking the request
+                def _bg_create():
+                    try:
+                        created = create_issues_for_findings(owner, repo, stored_findings, github_token=effective_github_token)
+                        # Persist a result log for visibility
+                        try:
+                            results_path = scan_store._data_path / 'issue_results.json'
+                            entry = {
+                                'scan_id': created_scan.id if 'created_scan' in locals() else None,
+                                'owner': owner,
+                                'repo': repo,
+                                'created': len(created),
+                                'issues': [i.get('html_url') for i in created if isinstance(i, dict) and i.get('html_url')],
+                                'timestamp': datetime.now(timezone.utc).isoformat(),
+                            }
+                            # append to file
+                            existing = []
+                            if results_path.exists():
+                                try:
+                                    with results_path.open('r', encoding='utf-8') as fh:
+                                        existing = json.load(fh)
+                                except Exception:
+                                    existing = []
+                            existing.append(entry)
+                            with results_path.open('w', encoding='utf-8') as fh:
+                                json.dump(existing, fh, ensure_ascii=False, indent=2)
+                        except Exception:
+                            logger.exception("Failed to write issue_results.json")
+                    except Exception:
+                        logger.exception("Background issue creation failed for %s/%s", owner, repo)
+
+                t = threading.Thread(target=_bg_create, daemon=True)
+                t.start()
+        except Exception:
+            logger.exception("Failed to enqueue background issue creation")
 
     return created_scan
