@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title if title else 'OWASP Verificator' }}</title>
-    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/styles.css?v={{ request.app.state.asset_version }}">
 </head>
 <body>
     <header class="topbar">
@@ -17,6 +17,7 @@
                     <a href="/reports/compare">Comparar</a>
                     <a href="/owasp">Wiki OWASP</a>
                     <a href="/monitoring">Monitoreo</a>
+                    <a href="/api-tutorial">API Tutorial</a>
                     <a href="/about">Acerca de</a>
                 </nav>
             </div>

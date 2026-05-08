@@ -14,11 +14,12 @@
     {% if accesses %}
     <div style="margin-top: 20px;">
         {% for log in accesses %}
+            {% if log['ip'] != '169.254.130.1' %}
         <div class="access-log">
-            <div class="access-log-path">{{ log['path'] }}</div>
             <div class="access-log-ip">IP: {{ log['ip'] }}</div>
             <div class="access-log-time">{{ log['created_at'][:19] }}</div>
         </div>
+            {% endif %}
         {% endfor %}
     </div>
     {% else %}

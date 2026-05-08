@@ -1,7 +1,9 @@
-from fastapi import FastAPI, Request, HTTPException, Header
+from fastapi import FastAPI, Request, HTTPException, Header, Form
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from typing import Optional
+from datetime import datetime, timezone
+import os
 
 from app.config import get_settings
 from app.routers.analysis import router as analysis_router
@@ -18,19 +20,36 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+# Asset version used to bust browser cache after each deploy.
+# You can set ASSET_VERSION in your deployment pipeline (recommended).
+app.state.asset_version = os.getenv("ASSET_VERSION") or datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+
 # Ruta absoluta para archivos estáticos
 static_dir = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
 @app.middleware("http")
 async def access_logger(request: Request, call_next):
-    client = request.client.host if request.client else "unknown"
+    # Prefer X-Forwarded-For or X-Real-IP when behind proxies; fallback to request.client
+    xff = request.headers.get("x-forwarded-for") or request.headers.get("X-Real-IP")
+    if xff:
+        client_ip = xff.split(",")[0].strip()
+    else:
+        client_ip = request.client.host if request.client else "unknown"
     ua = request.headers.get("user-agent", "")
     try:
-        scan_store.log_access(path=str(request.url.path), ip=client, user_agent=ua)
+        scan_store.log_access(path=str(request.url.path), ip=client_ip, user_agent=ua)
     except Exception:
         pass
     response = await call_next(request)
+
+    # Avoid stale HTML after deployment; assets are cache-busted via version query.
+    content_type = (response.headers.get("content-type") or "").lower()
+    if "text/html" in content_type:
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+
     return response
 
 @app.get("/health")
@@ -40,12 +59,12 @@ def health_check():
 
 
 @app.post("/api/token")
-def generate_api_token(user: str):
+def generate_api_token(username: str = Form(...)):
     """Genera un nuevo token API para el usuario especificado."""
-    if not user or len(user) < 2:
-        raise HTTPException(status_code=400, detail="Usuario inválido")
-    token = scan_store.generate_token(user)
-    return {"token": token, "user": user, "message": "Token generado exitosamente"}
+    if not username or len(username.strip()) < 2:
+        raise HTTPException(status_code=400, detail="Nombre de usuario inválido")
+    token = scan_store.generate_token(username.strip())
+    return {"token": token, "user": username.strip(), "message": "Token generado exitosamente"}
 
 
 @app.get("/api/validate-token")

@@ -4,8 +4,9 @@ from pydantic import BaseModel, Field
 
 
 class AnalyzeRequest(BaseModel):
-    target_type: str = Field(pattern="^(code|url)$")
+    target_type: str = Field(pattern="^(code|url|archivo|github_repo)$")
     target_value: str
+    create_issues: bool = False
 
 
 class FindingOut(BaseModel):

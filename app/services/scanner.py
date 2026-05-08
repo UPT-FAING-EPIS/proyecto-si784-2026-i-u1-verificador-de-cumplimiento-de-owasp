@@ -1,10 +1,11 @@
 import re
+import zipfile
+import io
 from dataclasses import dataclass
 from typing import Iterable
 from urllib.parse import urlparse
 
-import requests
-
+import os
 import requests
 from app.services.cve_analyzer import analyze_for_cves
 
@@ -212,6 +213,152 @@ def scan_url(target_url: str) -> list[Finding]:
     return findings
 
 
+def scan_github_repo(repo_url: str, github_token: str | None = None) -> list[Finding]:
+    """Descarga y analiza un repositorio de GitHub"""
+    findings: list[Finding] = []
+    
+    try:
+        # Parsear URL de GitHub (ej: https://github.com/owner/repo)
+        parsed = urlparse(repo_url)
+        if "github.com" not in parsed.netloc:
+            return [
+                Finding(
+                    rule_id="OWASP-A01",
+                    title="URL de GitHub inválida",
+                    severity="medium",
+                    description="La URL debe ser de un repositorio de GitHub válido.",
+                    evidence=repo_url,
+                )
+            ]
+        
+        path_parts = parsed.path.strip("/").split("/")
+        if len(path_parts) < 2:
+            return [
+                Finding(
+                    rule_id="OWASP-A01",
+                    title="URL de repositorio inválida",
+                    severity="medium",
+                    description="Formato inválido. Usa: https://github.com/owner/repo",
+                    evidence=repo_url,
+                )
+            ]
+        
+        owner = path_parts[0]
+        repo = path_parts[1].replace(".git", "")
+
+        # Support single-file blob/raw URLs: https://github.com/owner/repo/blob/branch/path
+        if 'blob' in path_parts:
+            try:
+                blob_idx = path_parts.index('blob')
+                branch = path_parts[blob_idx + 1]
+                file_path = '/'.join(path_parts[blob_idx + 2:])
+                raw_url = f"https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{file_path}"
+                headers = None
+                # Use provided token first, fallback to env var
+                token = github_token or os.getenv('GITHUB_TOKEN')
+                if token:
+                    headers = {"Authorization": f"token {token}"}
+                r = requests.get(raw_url, headers=headers, timeout=15)
+                if r.status_code != 200:
+                    return [
+                        Finding(
+                            rule_id="OWASP-A01",
+                            title="No se pudo descargar el archivo especificado",
+                            severity="medium",
+                            description="El archivo en el repositorio no está disponible.",
+                            evidence=f"Status: {r.status_code}",
+                        )
+                    ]
+                content = r.content.decode('utf-8', errors='replace')
+                file_findings = scan_code(content)
+                for finding in file_findings:
+                    finding.evidence = f"Archivo: {file_path}\n{finding.evidence}"
+                findings.extend(file_findings)
+                return findings
+            except Exception:
+                pass
+
+        # Descargar el repositorio como ZIP
+        zip_url = f"https://github.com/{owner}/{repo}/archive/refs/heads/main.zip"
+        headers = None
+        # Use provided token first, fallback to env var
+        token = github_token or os.getenv('GITHUB_TOKEN')
+        if token:
+            headers = {"Authorization": f"token {token}"}
+        response = requests.get(zip_url, headers=headers, timeout=15)
+
+        # Si main no existe, intentar con master
+        if response.status_code == 404:
+            zip_url = f"https://github.com/{owner}/{repo}/archive/refs/heads/master.zip"
+            response = requests.get(zip_url, headers=headers, timeout=15)
+
+        if response.status_code != 200:
+            return [
+                Finding(
+                    rule_id="OWASP-A01",
+                    title="No se pudo descargar el repositorio",
+                    severity="medium",
+                    description="El repositorio no está disponible o es privado.",
+                    evidence=f"Status: {response.status_code}",
+                )
+            ]
+
+        # Extraer y analizar archivos
+        code_extensions = {".py", ".js", ".java", ".cpp", ".c", ".go", ".rb", ".php", ".ts", ".tsx", ".jsx", ".vue", ".cs", ".swift"}
+        file_count = 0
+
+        with zipfile.ZipFile(io.BytesIO(response.content)) as zip_file:
+            for file_info in zip_file.filelist:
+                if any(file_info.filename.endswith(ext) for ext in code_extensions):
+                    try:
+                        content = zip_file.read(file_info).decode('utf-8', errors='replace')
+                        # Analizar el archivo
+                        file_findings = scan_code(content)
+
+                        # Agregar el nombre del archivo a cada hallazgo
+                        for finding in file_findings:
+                            finding.evidence = f"Archivo: {file_info.filename}\n{finding.evidence}"
+
+                        findings.extend(file_findings)
+                        file_count += 1
+                    except (UnicodeDecodeError, Exception):
+                        pass
+
+        if file_count == 0:
+            return [
+                Finding(
+                    rule_id="OWASP-A01",
+                    title="No se encontraron archivos de código",
+                    severity="low",
+                    description="El repositorio no contiene archivos de código en formatos soportados.",
+                    evidence=f"Extensiones buscadas: {', '.join(code_extensions)}",
+                )
+            ]
+        
+    except requests.RequestException as exc:
+        return [
+            Finding(
+                rule_id="OWASP-A01",
+                title="Error al descargar el repositorio",
+                severity="medium",
+                description="No se pudo conectar a GitHub.",
+                evidence=str(exc),
+            )
+        ]
+    except Exception as exc:
+        return [
+            Finding(
+                rule_id="OWASP-A01",
+                title="Error al procesar el repositorio",
+                severity="medium",
+                description="Ocurrió un error durante el análisis.",
+                evidence=str(exc),
+            )
+        ]
+    
+    return findings
+
+
 def calculate_score(findings: Iterable[Finding]) -> int:
     """Calculate a normalized security score (0-100).
 
@@ -230,5 +377,33 @@ def penalty_for(finding: Finding) -> int:
     return WEIGHTS.get(getattr(finding, "severity", "low").lower(), 5)
 
 
-def remediation_for(rule_id: str) -> str:
-    return REMEDIATIONS.get(rule_id, "")
+def detect_frameworks(content: str) -> set:
+    """Detecta frameworks comunes en el contenido del código."""
+    fw = set()
+    txt = content.lower()
+    if re.search(r"\bfastapi\b", txt):
+        fw.add("fastapi")
+    if re.search(r"\bflask\b", txt):
+        fw.add("flask")
+    if re.search(r"\bdjango\b", txt):
+        fw.add("django")
+    return fw
+
+
+def remediation_for(rule_id: str, frameworks: set | None = None) -> str:
+    """Genera una recomendación base y adapta según framework detectado."""
+    base = REMEDIATIONS.get(rule_id, "")
+    adapted = base
+    if frameworks:
+        if "fastapi" in frameworks:
+            if rule_id == "OWASP-A05":
+                adapted = "En FastAPI: agrega middleware que establezca cabeceras de seguridad (usar `Starlette` middleware).\n" + adapted
+            if rule_id == "OWASP-A06":
+                adapted = "En FastAPI: configura Uvicorn/productor reverse-proxy para ocultar cabecera Server.\n" + adapted
+        if "flask" in frameworks:
+            if rule_id == "OWASP-A05":
+                adapted = "En Flask: utiliza `Flask-Talisman` o establecer manualmente cabeceras de seguridad en `after_request`.\n" + adapted
+        if "django" in frameworks:
+            if rule_id == "OWASP-A05":
+                adapted = "En Django: configurar `SECURE_*` settings (HSTS, Content Security Policy a través de middleware).\n" + adapted
+    return adapted

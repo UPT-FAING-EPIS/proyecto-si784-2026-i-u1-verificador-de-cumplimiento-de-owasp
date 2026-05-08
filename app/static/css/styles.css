@@ -1,20 +1,17 @@
 :root {
-    --primary: #0066cc;
-    --primary-dark: #003d99;
-    --primary-light: #001f66;
-    --accent: #00d4ff;
-    --accent-secondary: #7c3aed;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
-    --text-dark: #e5e7eb;
-    --text-light: #9ca3af;
-    --border: #2d3748;
-    --card-bg: #0f1419;
-    --card-border: #1a2332;
-    --bg-main: #08091f;
-    --shadow: 0 8px 16px rgba(0, 102, 204, 0.1), 0 2px 4px rgba(0, 0, 0, 0.4);
-    --glow: 0 0 20px rgba(0, 212, 255, 0.15);
+    /* Corporate SOC palette - sober, technical */
+    --bg-main: #0b0e12; /* near-black */
+    --panel-bg: #0f1417; /* dark panel */
+    --panel-border: #1b2226; /* subtle border */
+    --muted: #9aa3a8; /* muted text */
+    --text: #dbe6ea; /* primary text */
+    --accent: #2b7baf; /* steel blue */
+    --accent-2: #8a6b2f; /* amber accent for warnings */
+    --success: #2aa26b;
+    --danger: #c94a3a;
+    --glass: rgba(255,255,255,0.02);
+    --radius-sm: 6px;
+    --radius-md: 8px;
 }
 
 * {
@@ -28,45 +25,40 @@ html {
 }
 
 body {
-    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
-    background: linear-gradient(135deg, #08091f 0%, #0f1419 50%, #1a1f3a 100%);
-    color: var(--text-dark);
-    line-height: 1.6;
+    font-family: 'Segoe UI', 'IBM Plex Sans', 'Roboto Condensed', sans-serif;
+    background: var(--bg-main);
+    background-image: none;
+    color: var(--text);
+    line-height: 1.45;
     position: relative;
+    overflow-x: hidden;
 }
 
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-        radial-gradient(circle at 20% 50%, rgba(0, 102, 204, 0.08) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: -1;
+/* Hard-disable gradient backgrounds across frontend to avoid white flash artifacts */
+[style*="linear-gradient"],
+[style*="radial-gradient"] {
+    background-image: none !important;
+    box-shadow: none !important;
 }
+
+/* remove decorative backgrounds for a technical look */
 
 .topbar {
-    background: linear-gradient(90deg, var(--primary) 0%, var(--accent-secondary) 100%);
-    box-shadow: var(--shadow);
+    background: var(--panel-bg);
     position: sticky;
     top: 0;
     z-index: 100;
-    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    border-bottom: 1px solid var(--panel-border);
 }
 
 .topbar-inner {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 24px;
-    padding: 16px 32px;
+    gap: 12px;
+    padding: 12px 20px;
     max-width: 1400px;
     margin: 0 auto;
-    flex-wrap: wrap;
 }
 
 .topbar-left {
@@ -77,14 +69,10 @@ body::before {
 }
 
 .topbar h1 {
-    color: white;
-    font-size: 1.5rem;
+    color: var(--text);
+    font-size: 1.125rem;
     font-weight: 700;
-    letter-spacing: -0.5px;
-    background: linear-gradient(90deg, #fff 0%, #00d4ff 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    letter-spacing: -0.2px;
 }
 
 .topbar-nav {
@@ -94,16 +82,15 @@ body::before {
 }
 
 .topbar-nav a {
-    color: white;
+    color: var(--muted);
     text-decoration: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    transition: background 0.12s ease, color 0.12s ease;
+    font-weight: 600;
     font-size: 0.9rem;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    position: relative;
+    border: 1px solid transparent;
 }
 
 .topbar-nav a::before {
@@ -113,14 +100,14 @@ body::before {
     left: 0;
     width: 0;
     height: 2px;
-    background: linear-gradient(90deg, var(--accent), transparent);
+    background: var(--accent);
     transition: width 0.3s ease;
 }
 
 .topbar-nav a:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: var(--accent);
-    transform: translateY(-2px);
+    background: rgba(255,255,255,0.02);
+    color: var(--text);
+    border-color: rgba(255,255,255,0.03);
 }
 
 .topbar-nav a:hover::before {
@@ -137,16 +124,16 @@ body::before {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    color: white;
+    gap: 8px;
+    color: var(--text);
     text-decoration: none;
-    padding: 8px 12px;
-    border-radius: 999px;
+    padding: 6px 12px;
+    border-radius: 6px;
     font-size: 0.85rem;
     font-weight: 700;
     letter-spacing: 0.2px;
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    transition: all 0.25s ease;
+    border: 1px solid var(--panel-border);
+    transition: background 0.12s ease;
 }
 
 .topbar-action-docs {
@@ -165,34 +152,25 @@ body::before {
 .container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 40px 32px;
+    padding: 24px 20px;
 }
 
 .hero {
-    background: linear-gradient(135deg, rgba(0, 102, 204, 0.15) 0%, rgba(124, 58, 237, 0.1) 100%);
-    border: 1px solid rgba(0, 212, 255, 0.2);
-    border-radius: 16px;
-    padding: 60px 40px;
-    margin-bottom: 40px;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-md);
+    padding: 28px 20px;
+    margin-bottom: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: white;
-    box-shadow: var(--glow), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    color: var(--text);
     position: relative;
-    overflow: hidden;
 }
 
 .hero::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -20%;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
-    border-radius: 50%;
-    pointer-events: none;
+    /* removed bright decorative spotlight to avoid white flashes */
+    display: none;
 }
 
 .hero > div {
@@ -201,10 +179,9 @@ body::before {
 }
 
 .hero h2 {
-    font-size: 2.5rem;
-    margin-bottom: 12px;
+    font-size: 1.6rem;
+    margin-bottom: 6px;
     font-weight: 700;
-    letter-spacing: -1px;
 }
 
 .hero p {
@@ -222,15 +199,13 @@ body::before {
 }
 
 .card {
-    background: linear-gradient(135deg, var(--card-bg) 0%, rgba(15, 20, 25, 0.8) 100%);
-    border: 1px solid var(--card-border);
-    border-radius: 12px;
-    padding: 28px;
-    margin-bottom: 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-sm);
+    padding: 18px;
+    margin-bottom: 18px;
+    transition: border-color 0.12s ease, transform 0.12s ease;
     position: relative;
-    overflow: hidden;
 }
 
 .card::before {
@@ -240,30 +215,25 @@ body::before {
     left: 0;
     width: 100%;
     height: 1px;
-    background: linear-gradient(90deg, rgba(0, 212, 255, 0.5), transparent);
+    background: rgba(255,255,255,0.03);
 }
 
 .card:hover {
-    border-color: rgba(0, 212, 255, 0.4);
-    box-shadow: var(--glow), 0 8px 24px rgba(0, 0, 0, 0.4);
-    transform: translateY(-4px);
+    border-color: rgba(255,255,255,0.04);
 }
 
 .card h3 {
-    margin-bottom: 16px;
-    color: var(--text-dark);
-    font-size: 1.3rem;
-    background: linear-gradient(90deg, #fff, var(--accent));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    margin-bottom: 12px;
+    color: var(--text);
+    font-size: 1.05rem;
 }
 
 .card h4 {
-    color: var(--accent);
-    margin-top: 20px;
-    margin-bottom: 12px;
+    color: var(--muted);
+    margin-top: 12px;
+    margin-bottom: 8px;
     font-weight: 600;
+    font-size: 0.95rem;
 }
 
 .card p {
@@ -277,24 +247,21 @@ body::before {
 .card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 28px;
+    gap: 18px;
 }
 
 .button {
     display: inline-block;
-    padding: 12px 28px;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--accent-secondary) 100%);
+    padding: 8px 16px;
+    background: var(--accent);
     color: white;
-    border: none;
-    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.03);
+    border-radius: 6px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background 0.12s ease, transform 0.08s ease;
     text-decoration: none;
     font-size: 0.95rem;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
 }
 
 .button::before {
@@ -304,13 +271,13 @@ body::before {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    display: none;
     transition: left 0.5s;
 }
 
 .button:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--glow), 0 8px 20px rgba(0, 102, 204, 0.4);
+    transform: translateY(-1px);
+    background: #235f85;
 }
 
 .button:hover::before {
@@ -318,41 +285,40 @@ body::before {
 }
 
 .button-secondary {
-    background: linear-gradient(135deg, rgba(0, 102, 204, 0.2) 0%, rgba(124, 58, 237, 0.15) 100%);
-    color: var(--accent);
-    border: 1px solid rgba(0, 212, 255, 0.3);
-    box-shadow: none;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--panel-border);
 }
 
 .button-secondary:hover {
     border-color: var(--accent);
-    background: linear-gradient(135deg, rgba(0, 102, 204, 0.3) 0%, rgba(124, 58, 237, 0.2) 100%);
+    background: rgba(43, 123, 175, 0.16);
 }
 
 form {
     display: grid;
-    gap: 20px;
+    gap: 12px;
 }
 
 label {
     font-weight: 600;
-    color: var(--accent);
+    color: var(--muted);
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
+    font-size: 0.78rem;
+    letter-spacing: 0.6px;
 }
 
 input, textarea, select {
     width: 100%;
-    padding: 14px 16px;
-    border: 1px solid var(--card-border);
-    border-radius: 10px;
-    background: rgba(0, 102, 204, 0.05);
-    color: #e5e7eb;
-    font-size: 1rem;
-    transition: all 0.3s;
+    padding: 10px 12px;
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    background: var(--glass);
+    color: var(--text);
+    font-size: 0.95rem;
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
     font-family: inherit;
 }
 
@@ -369,8 +335,8 @@ select option {
 input:focus, textarea:focus, select:focus {
     outline: none;
     border-color: var(--accent);
-    background: rgba(0, 102, 204, 0.08);
-    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+    background: rgba(43,123,175,0.04);
+    box-shadow: 0 0 0 3px rgba(43,123,175,0.06);
 }
 
 select:focus {
@@ -386,17 +352,85 @@ select:focus {
 }
 
 .code-block {
-    background: rgba(0, 0, 0, 0.4);
-    padding: 16px;
-    border-radius: 8px;
-    border: 1px solid rgba(0, 212, 255, 0.2);
+    background: #061017;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid var(--panel-border);
     font-family: 'Courier New', monospace;
-    font-size: 0.9rem;
-    color: var(--accent);
+    font-size: 0.88rem;
+    color: #b8dbe9;
     overflow: auto;
-    max-height: 400px;
+    max-height: 420px;
     white-space: pre-wrap;
     word-wrap: break-word;
+}
+
+/* Tables and lists should look technical and compact */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.table th, .table td {
+    padding: 8px 10px;
+    border: 1px solid var(--panel-border);
+    font-size: 0.92rem;
+    color: var(--muted);
+}
+.table th {
+    background: #0e1416;
+    color: var(--text);
+    text-align: left;
+    font-weight: 700;
+}
+
+/* Small utility tweaks for denser layout */
+.eyebrow { font-size: 0.75rem; }
+.hero p, .card p { font-size: 0.95rem; color: var(--muted); }
+.truncate { max-width: 100%; }
+
+/* Compact input variant for URLs and repo fields */
+.input-compact {
+    padding: 8px 10px;
+    font-size: 0.95rem;
+    max-width: 100%;
+}
+
+/* Small switch-style checkbox */
+.switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+.switch input[type="checkbox"] { display: none; }
+.switch .slider {
+    width: 44px;
+    height: 22px;
+    background: var(--panel-border);
+    border-radius: 12px;
+    position: relative;
+    transition: background 0.12s ease;
+    border: 1px solid rgba(255,255,255,0.02);
+}
+.switch .slider::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    transform: translateX(0);
+    transition: transform 0.12s ease, background 0.12s ease;
+}
+.switch input[type="checkbox"]:checked + .slider {
+    background: var(--accent);
+}
+.switch input[type="checkbox"]:checked + .slider::after {
+    transform: translateX(22px);
+    background: #ffffff;
 }
 
 .findings {
@@ -406,11 +440,11 @@ select:focus {
 }
 
 .findings li {
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid var(--card-border);
-    background: linear-gradient(135deg, rgba(0, 102, 204, 0.05) 0%, rgba(124, 58, 237, 0.03) 100%);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 14px;
+    border-radius: 6px;
+    border: 1px solid var(--panel-border);
+    background: transparent;
+    transition: border-color 0.12s ease, background 0.12s ease;
     position: relative;
     overflow: hidden;
 }
@@ -422,13 +456,12 @@ select:focus {
     left: 0;
     width: 4px;
     height: 100%;
-    background: linear-gradient(180deg, var(--accent), var(--accent-secondary));
+    background: var(--accent);
 }
 
 .findings li:hover {
     border-color: var(--accent);
-    background: linear-gradient(135deg, rgba(0, 102, 204, 0.08) 0%, rgba(124, 58, 237, 0.05) 100%);
-    box-shadow: var(--glow);
+    background: rgba(43,123,175,0.03);
 }
 
 .findings strong {
@@ -465,14 +498,11 @@ select:focus {
 .score {
     font-size: 3rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #86efac, var(--accent));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #86efac;
 }
 
 .score-badge {
-    background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+    background: var(--success);
     color: white;
     padding: 24px 36px;
     border-radius: 12px;
@@ -490,7 +520,7 @@ select:focus {
 }
 
 .finding-penalty {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0.1) 100%);
+    background: rgba(239, 68, 68, 0.16);
     color: #fca5a5;
     padding: 8px 14px;
     border-radius: 8px;
@@ -500,32 +530,32 @@ select:focus {
 }
 
 .finding-remediation {
-    margin-top: 16px;
-    padding: 16px;
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    border-radius: 8px;
-    color: #86efac;
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(43,123,175,0.03);
+    border: 1px solid rgba(43,123,175,0.06);
+    border-radius: 6px;
+    color: var(--muted);
     font-size: 0.95rem;
 }
 
 .access-log {
-    background: linear-gradient(135deg, rgba(0, 102, 204, 0.05) 0%, rgba(124, 58, 237, 0.03) 100%);
-    border: 1px solid var(--card-border);
-    border-radius: 10px;
-    padding: 14px;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    padding: 10px;
     margin: 10px 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-size: 0.9rem;
     gap: 16px;
-    transition: all 0.2s;
+    transition: border-color 0.12s ease, background 0.12s ease;
 }
 
 .access-log:hover {
     border-color: var(--accent);
-    background: linear-gradient(135deg, rgba(0, 102, 204, 0.08) 0%, rgba(124, 58, 237, 0.05) 100%);
+    background: rgba(43,123,175,0.03);
 }
 
 .access-log-path {
@@ -536,12 +566,11 @@ select:focus {
 }
 
 .access-log-ip {
-    color: var(--text-light);
+    color: var(--muted);
     font-size: 0.9rem;
-    padding: 0 8px;
-    background: rgba(0, 102, 204, 0.1);
+    padding: 4px 8px;
+    background: rgba(255,255,255,0.02);
     border-radius: 6px;
-    padding: 6px 12px;
 }
 
 .access-log-time {

@@ -52,6 +52,19 @@ def admin_logout(request: Request):
     return response
 
 
+@router.post("/admin/github-token", response_class=HTMLResponse)
+def save_github_token(request: Request, github_token: str = Form(...)):
+    """Save GitHub token from admin panel."""
+    if not scan_store.validate_admin_session(request.cookies.get("admin_session")):
+        return RedirectResponse(url="/admin/login", status_code=303)
+    
+    # Save token to store
+    scan_store.set_github_token(github_token if github_token.strip() else None)
+    
+    # Redirect back to admin dashboard
+    return RedirectResponse(url="/admin", status_code=303)
+
+
 @router.get("/admin", response_class=HTMLResponse)
 def admin_dashboard(request: Request):
     """Dashboard de administrador con estadísticas y control."""
@@ -109,8 +122,21 @@ def admin_dashboard(request: Request):
             "tokens": tokens,
             "accesses": accesses,
             "scans_data": [{"id": s.id, "score": s.score} for s in scans[-10:]],
+            "github_token_configured": scan_store.has_github_token(),
         },
     )
+
+
+@router.get("/api-tutorial", response_class=HTMLResponse)
+def api_tutorial(request: Request):
+    """Página con tutorial de integración de la API."""
+    return templates.TemplateResponse(
+        request=request,
+        name="api_tutorial.html",
+        context={"request": request},
+    )
+
+
 @router.get("/", response_class=HTMLResponse)
 def dashboard(request: Request):
     scans = scan_store.list_scans()
@@ -151,5 +177,17 @@ def owasp_wiki(request: Request):
 
 @router.get("/monitoring", response_class=HTMLResponse)
 def monitoring_accesses(request: Request):
-    accesses = scan_store.list_accesses(limit=100)
-    return templates.TemplateResponse(request=request, name="monitoring.html", context={"request": request, "accesses": accesses})
+    # Fetch recent accesses and deduplicate by IP (keep most recent per IP)
+    accesses = scan_store.list_accesses(limit=1000)
+    seen = set()
+    unique_accesses = []
+    for a in accesses:
+        ip = a.get("ip")
+        if not ip:
+            continue
+        if ip in seen:
+            continue
+        seen.add(ip)
+        unique_accesses.append(a)
+
+    return templates.TemplateResponse(request=request, name="monitoring.html", context={"request": request, "accesses": unique_accesses})

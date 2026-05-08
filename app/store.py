@@ -24,6 +24,7 @@ class InMemoryScanStore:
         self._accesses: list[dict] = []
         self._api_tokens: dict[str, APIToken] = {}
         self._admin_sessions: dict[str, dict] = {}
+        self._github_token: str | None = None
         self._init_tokens()
 
     def _init_tokens(self):
@@ -97,6 +98,22 @@ class InMemoryScanStore:
             return
         with self._lock:
             self._admin_sessions.pop(session_id, None)
+
+    def set_github_token(self, token: str | None) -> None:
+        """Save GitHub token for private repo analysis and issue creation."""
+        cleaned = token.strip() if token else None
+        with self._lock:
+            self._github_token = cleaned if cleaned else None
+
+    def get_github_token(self) -> str | None:
+        """Return configured GitHub token (if any)."""
+        with self._lock:
+            return self._github_token
+
+    def has_github_token(self) -> bool:
+        """Whether a GitHub token is configured in memory."""
+        with self._lock:
+            return bool(self._github_token)
 
     def create_scan(self, scan: Scan) -> Scan:
         with self._lock:
