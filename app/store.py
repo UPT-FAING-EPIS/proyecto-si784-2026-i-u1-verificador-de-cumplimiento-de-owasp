@@ -4,6 +4,7 @@ from typing import Optional
 import os
 import uuid
 import json
+import sqlite3
 from pathlib import Path
 
 from app.models import Scan, Finding
@@ -30,9 +31,11 @@ class InMemoryScanStore:
         # prepare persistent data directory and files
         self._data_path = Path(os.getenv("APP_DATA_PATH", Path(__file__).parent.parent)) / "data"
         self._data_path.mkdir(parents=True, exist_ok=True)
+        self._db_path = self._data_path / "scans.sqlite3"
         self._scans_file = self._data_path / "scans.json"
         self._meta_file = self._data_path / "meta.json"
         self._init_tokens()
+        self._init_db()
         # try loading persisted scans
         try:
             self._load_persisted()
@@ -136,6 +139,10 @@ class InMemoryScanStore:
                 self._persist()
             except Exception:
                 pass
+            try:
+                self._persist_sqlite(scan)
+            except Exception:
+                pass
             return scan
 
     def get_scan(self, scan_id: int) -> Optional[Scan]:
@@ -156,6 +163,10 @@ class InMemoryScanStore:
             self._accesses.clear()
             try:
                 self._persist()
+            except Exception:
+                pass
+            try:
+                self._clear_sqlite()
             except Exception:
                 pass
 
@@ -190,6 +201,12 @@ class InMemoryScanStore:
 
     def _load_persisted(self) -> None:
         """Load persisted scans from disk if available."""
+        if self._db_path.exists():
+            try:
+                self._load_sqlite()
+                return
+            except Exception:
+                pass
         if not self._scans_file.exists():
             return
         with self._scans_file.open("r", encoding="utf-8") as fh:
@@ -219,6 +236,99 @@ class InMemoryScanStore:
         with self._lock:
             self._scans = loaded
             self._next_id = int(payload.get("next_id", max([c.id for c in loaded], default=0) + 1))
+
+    def _init_db(self) -> None:
+        """Create SQLite schema on first run."""
+        with sqlite3.connect(self._db_path) as conn:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS scans (
+                    id INTEGER PRIMARY KEY,
+                    target_type TEXT NOT NULL,
+                    target_value TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    score INTEGER NOT NULL,
+                    created_at TEXT NOT NULL,
+                    findings_json TEXT NOT NULL
+                )
+                """
+            )
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_scans_created_at ON scans(created_at DESC)")
+            conn.commit()
+
+    def _persist_sqlite(self, scan: Scan) -> None:
+        findings = [
+            {
+                "rule_id": f.rule_id,
+                "title": f.title,
+                "severity": f.severity,
+                "description": f.description,
+                "evidence": f.evidence,
+                "penalty": getattr(f, "penalty", 0),
+                "remediation": getattr(f, "remediation", ""),
+            }
+            for f in scan.findings
+        ]
+        with sqlite3.connect(self._db_path) as conn:
+            conn.execute(
+                """
+                INSERT OR REPLACE INTO scans (id, target_type, target_value, status, score, created_at, findings_json)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    scan.id,
+                    scan.target_type,
+                    scan.target_value,
+                    scan.status,
+                    scan.score,
+                    scan.created_at.isoformat(),
+                    json.dumps(findings, ensure_ascii=False),
+                ),
+            )
+            conn.commit()
+
+    def _load_sqlite(self) -> None:
+        from app.models import Scan, Finding
+        with sqlite3.connect(self._db_path) as conn:
+            rows = conn.execute(
+                "SELECT id, target_type, target_value, status, score, created_at, findings_json FROM scans ORDER BY id DESC"
+            ).fetchall()
+        loaded = []
+        max_id = 0
+        from datetime import datetime
+        for row in rows:
+            scan_id, target_type, target_value, status, score, created_at, findings_json = row
+            max_id = max(max_id, int(scan_id))
+            findings = []
+            try:
+                findings_data = json.loads(findings_json or "[]")
+            except Exception:
+                findings_data = []
+            for f in findings_data:
+                findings.append(Finding(
+                    rule_id=f.get("rule_id"),
+                    title=f.get("title"),
+                    severity=f.get("severity"),
+                    description=f.get("description"),
+                    evidence=f.get("evidence"),
+                    penalty=f.get("penalty", 0),
+                    remediation=f.get("remediation", ""),
+                ))
+            try:
+                created_dt = datetime.fromisoformat(created_at)
+            except Exception:
+                created_dt = datetime.now(timezone.utc)
+            loaded.append(Scan(id=scan_id, target_type=target_type, target_value=target_value, status=status, score=score, created_at=created_dt, findings=findings))
+        with self._lock:
+            self._scans = loaded
+            self._next_id = max_id + 1 if max_id else 1
+
+    def _clear_sqlite(self) -> None:
+        if not self._db_path.exists():
+            return
+        with sqlite3.connect(self._db_path) as conn:
+            conn.execute("DELETE FROM scans")
+            conn.commit()
 
     # Access log methods for in-memory store
     def log_access(self, path: str, ip: str, user_agent: str, user: str | None = None, timestamp: str | None = None) -> None:
