@@ -1,0 +1,327 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero">
+    <div>
+        <p class="eyebrow">Integración</p>
+        <h2>Tutorial: API del Sistema</h2>
+        <p style="margin-top: 12px; opacity: 0.95; font-size: 1rem;">Aprende a integrar el sistema en otros proyectos</p>
+    </div>
+    <a class="button button-secondary" href="/">← Volver</a>
+</section>
+
+<!-- Token Generation Section -->
+<section class="card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%); border: 1px solid rgba(16, 185, 129, 0.3); margin-bottom: 40px;">
+    <h3>🔑 Dos Tipos de Tokens</h3>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+        <!-- API Token -->
+        <div style="background: rgba(0, 102, 204, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); padding: 16px; border-radius: 8px;">
+            <h4 style="color: #00d4ff; margin-top: 0;">1️⃣ Token API (Servidor)</h4>
+            <p style="color: #e5e7eb; font-size: 0.9rem; margin: 8px 0;">Para autenticarte en el servidor y usar la API.</p>
+            <p style="color: #9ca3af; font-size: 0.85rem; margin: 8px 0;"><strong>Generado por:</strong> El servidor (abajo ⬇️)</p>
+            <p style="color: #9ca3af; font-size: 0.85rem; margin: 8px 0;"><strong>Se usa en:</strong></p>
+            <ul style="color: #9ca3af; font-size: 0.85rem; margin: 4px 0; padding-left: 16px;">
+                <li>Header <code>X-API-Key</code></li>
+                <li>Peticiones a <code>/analyze/api</code></li>
+                <li>Autenticación básica</li>
+            </ul>
+        </div>
+        
+        <!-- GitHub Token -->
+        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 16px; border-radius: 8px;">
+            <h4 style="color: #10b981; margin-top: 0;">2️⃣ Token GitHub (Tu Cuenta)</h4>
+            <p style="color: #e5e7eb; font-size: 0.9rem; margin: 8px 0;">Para acceder a tus repositorios privados en GitHub.</p>
+            <p style="color: #9ca3af; font-size: 0.85rem; margin: 8px 0;"><strong>Generado por:</strong> GitHub (en tu cuenta)</p>
+            <p style="color: #9ca3af; font-size: 0.85rem; margin: 8px 0;"><strong>Se usa en:</strong></p>
+            <ul style="color: #9ca3af; font-size: 0.85rem; margin: 4px 0; padding-left: 16px;">
+                <li>Parámetro <code>github_token</code></li>
+                <li>Repos privados</li>
+                <li>Crear issues automáticamente</li>
+            </ul>
+        </div>
+    </div>
+    
+    <h4 style="color: #00d4ff; margin-top: 20px;">Genera tu Token API del Servidor</h4>
+    <p style="color: #9ca3af; margin-bottom: 16px;">Necesitas este token para usar la API. Ingresa tu nombre de usuario y generaremos uno para ti.</p>
+    
+    {% if generated_token %}
+        <div style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 6px; padding: 16px; margin-bottom: 16px;">
+            <p style="color: #10b981; font-weight: 600; margin-bottom: 8px;">✅ Token generado para: <strong>{{ token_user }}</strong></p>
+            <div style="background: #1a1f3a; padding: 12px; border-radius: 6px; margin-bottom: 12px; position: relative;">
+                <code style="color: #00d4ff; font-family: monospace; word-break: break-all;">{{ generated_token }}</code>
+                <button onclick="navigator.clipboard.writeText('{{ generated_token }}'); alert('Token copiado al portapapeles');" style="position: absolute; right: 12px; top: 12px; padding: 6px 12px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">Copiar</button>
+            </div>
+            <p style="color: #10b981; font-size: 0.9rem;">⚠️ <strong>Guarda este token en un lugar seguro.</strong> No podrás verlo de nuevo. Si lo pierdes, genera uno nuevo.</p>
+        </div>
+    {% elif error %}
+        <div style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); border-radius: 6px; padding: 12px; margin-bottom: 16px; color: #fca5a5;">
+            ❌ {{ error }}
+        </div>
+    {% endif %}
+    
+    <form id="tokenForm" style="display: flex; gap: 12px; align-items: flex-end;">
+        <div style="flex: 1;">
+            <label style="display: block; margin-bottom: 8px;">Tu nombre de usuario</label>
+            <input type="text" id="usernameInput" placeholder="p.ej: mi-app, usuario123" required style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc;">
+        </div>
+        <button class="button" type="submit" style="margin-bottom: 0;">🔐 Generar Token</button>
+    </form>
+    
+    <script>
+        document.getElementById('tokenForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('usernameInput').value.trim();
+            
+            if (!username) {
+                alert('Por favor ingresa un nombre de usuario');
+                return;
+            }
+            
+            try {
+                const formData = new FormData();
+                formData.append('username', username);
+                
+                const response = await fetch('/api/token', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    alert('Error: ' + (error.detail || 'No se pudo generar el token'));
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                // Mostrar el token generado
+                const resultDiv = document.getElementById('tokenResult');
+                resultDiv.innerHTML = `
+                    <div style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 6px; padding: 16px; margin-bottom: 16px;">
+                        <p style="color: #10b981; font-weight: 600; margin-bottom: 8px;">✅ Token generado para: <strong>${data.user}</strong></p>
+                        <div style="background: #1a1f3a; padding: 12px; border-radius: 6px; margin-bottom: 12px; position: relative;">
+                            <code style="color: #00d4ff; font-family: monospace; word-break: break-all;">${data.token}</code>
+                            <button onclick="navigator.clipboard.writeText('${data.token}'); alert('Token copiado al portapapeles');" style="position: absolute; right: 12px; top: 12px; padding: 6px 12px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">Copiar</button>
+                        </div>
+                        <p style="color: #10b981; font-size: 0.9rem;">⚠️ <strong>Guarda este token en un lugar seguro.</strong> No podrás verlo de nuevo. Si lo pierdes, genera uno nuevo.</p>
+                        <p style="color: #9ca3af; font-size: 0.9rem; margin-top: 12px;"><strong>Nota:</strong> Este es tu token API para autenticarte en este servidor. Úsalo en el header <code>X-API-Key</code> de tus peticiones.</p>
+                    </div>
+                `;
+                
+            } catch (error) {
+                alert('Error al generar token: ' + error.message);
+            }
+        });
+    </script>
+
+    <div id="tokenResult"></div>
+
+<!-- API Integration Tutorial -->
+<section class="card">
+    <h3>🚀 Tutorial: Integración de API en Otro Sistema</h3>
+    <div style="margin-top: 20px;">
+        <div style="background: rgba(0, 102, 204, 0.05); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+            <h4 style="color: #00d4ff; margin-top: 0;">Paso 1: Obtener Token API</h4>
+            <p style="color: #e5e7eb; margin: 8px 0;"><strong>Ya lo hiciste arriba 👆</strong> - Ingresa tu nombre de usuario en la sección "Genera tu Token API" y copia el token que se genere.</p>
+            <p style="color: #e5e7eb; margin: 12px 0 0 0;"><strong>O genera uno directamente con curl:</strong></p>
+            <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">curl -X POST http://localhost:8000/api/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=mi-app"
+
+Respuesta:
+{
+  "generated_token": "550e8400-e29b-41d4-a716-446655440000",
+  "token_user": "mi-app"
+}</pre>
+        </div>
+        
+        <div style="background: rgba(0, 102, 204, 0.05); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+            <h4 style="color: #00d4ff; margin-top: 0;">Paso 2: Usa el Token en tus Peticiones</h4>
+            <p style="color: #e5e7eb; margin: 8px 0;">Incluye el token en el header <code>X-API-Key</code> de cada petición:</p>
+            <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">X-API-Key: tu-token-aqui
+Content-Type: application/json</pre>
+        </div>
+        
+        <div style="background: rgba(0, 102, 204, 0.05); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+            <h4 style="color: #00d4ff; margin-top: 0;">Paso 3: Realizar Análisis de Seguridad</h4>
+            <p style="color: #e5e7eb; margin: 8px 0;"><strong>Analizar Código:</strong></p>
+            <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">curl -X POST https://tu-verificador.com/analyze/api \
+  -H "X-API-Key: tu-token-aqui" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "target_type": "code",
+    "target_value": "import os\npassword = \"hardcoded123\""
+  }'</pre>
+
+            <p style="color: #e5e7eb; margin: 16px 0 8px 0;"><strong>Analizar URL:</strong></p>
+            <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">curl -X POST https://tu-verificador.com/analyze/api \
+  -H "X-API-Key: tu-token-aqui" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "target_type": "url",
+    "target_value": "https://example.com"
+  }'</pre>
+
+            <p style="color: #e5e7eb; margin: 16px 0 8px 0;"><strong>Analizar Repositorio GitHub:</strong></p>
+            <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">curl -X POST https://tu-verificador.com/analyze/api \
+  -H "X-API-Key: tu-token-aqui" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "target_type": "github_repo",
+    "target_value": "https://github.com/owner/repo"
+  }'</pre>
+        </div>
+        
+        <div style="background: rgba(16, 185, 129, 0.1); padding: 16px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.3); margin-bottom: 16px;">
+            <h4 style="color: #86efac; margin-top: 0;">✅ Respuesta Exitosa</h4>
+            <p style="color: #e5e7eb; margin: 8px 0;">El análisis devuelve un JSON con los resultados de seguridad:</p>
+            <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">{
+  "id": 1,
+  "target_type": "code",
+  "target_value": "...",
+  "status": "completed",
+  "score": 75,
+  "findings": [
+    {
+      "rule_id": "OWASP-A02",
+      "title": "Fallas Criptográficas",
+      "severity": "high",
+      "description": "Secretos hardcodeados detectados",
+      "evidence": "password = \"hardcoded123\""
+    }
+  ]
+}</pre>
+        </div>
+
+        <div style="background: rgba(239, 68, 68, 0.1); padding: 16px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3);">
+            <h4 style="color: #fca5a5; margin-top: 0;">❌ Manejo de Errores</h4>
+            <p style="color: #e5e7eb; margin: 8px 0;"><strong>Token inválido:</strong></p>
+            <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">HTTP 401 Unauthorized
+{
+  "detail": "Token inválido o expirado"
+}</pre>
+
+            <p style="color: #e5e7eb; margin: 16px 0 8px 0;"><strong>Parámetros inválidos:</strong></p>
+            <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">HTTP 400 Bad Request
+{
+  "detail": "target_type debe ser 'code', 'url', 'archivo' o 'github_repo'"
+}</pre>
+        </div>
+    </div>
+</section>
+
+<!-- Endpoints Reference -->
+<section class="card">
+    <h3>📚 Referencia de Endpoints</h3>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+        <thead>
+            <tr style="background: rgba(0, 102, 204, 0.1);">
+                <th style="padding: 12px; text-align: left; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff;">Método</th>
+                <th style="padding: 12px; text-align: left; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff;">Endpoint</th>
+                <th style="padding: 12px; text-align: left; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff;">Descripción</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff; font-weight: 600;">POST</td>
+                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb; font-family: monospace;">/analyze/api</td>
+                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb;">Realizar análisis de seguridad</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff; font-weight: 600;">GET</td>
+                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb; font-family: monospace;">/reports/api</td>
+                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb;">Listar todos los reportes</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff; font-weight: 600;">GET</td>
+                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb; font-family: monospace;">/reports/api/{scan_id}</td>
+                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb;">Obtener reporte específico</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff; font-weight: 600;">GET</td>
+                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb; font-family: monospace;">/health</td>
+                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb;">Verificar estado del servicio</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff; font-weight: 600;">POST</td>
+                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb; font-family: monospace;">/api/token</td>
+                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb;">Generar token API</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- Examples in Different Languages -->
+<section class="card">
+    <h3>💻 Ejemplos en Diferentes Lenguajes</h3>
+    
+    <div style="margin-top: 20px;">
+        <h4 style="color: #00d4ff;">Python</h4>
+        <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem;">import requests
+
+url = "https://tu-verificador.com/analyze/api"
+headers = {
+    "X-API-Key": "tu-token-aqui",
+    "Content-Type": "application/json"
+}
+payload = {
+    "target_type": "code",
+    "target_value": "import os\npassword = 'secret'"
+}
+
+response = requests.post(url, json=payload, headers=headers)
+result = response.json()
+print(f"Score: {result['score']}")
+print(f"Hallazgos: {len(result['findings'])}")</pre>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <h4 style="color: #00d4ff;">JavaScript/Node.js</h4>
+        <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem;">const fetch = require('node-fetch');
+
+const url = 'https://tu-verificador.com/analyze/api';
+const options = {
+  method: 'POST',
+  headers: {
+    'X-API-Key': 'tu-token-aqui',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    target_type: 'code',
+    target_value: 'const password = "secret";'
+  })
+};
+
+fetch(url, options)
+  .then(res => res.json())
+  .then(data => {
+    console.log(`Score: ${data.score}`);
+    console.log(`Hallazgos: ${data.findings.length}`);
+  });</pre>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <h4 style="color: #00d4ff;">Java</h4>
+        <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem;">import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.URI;
+
+HttpClient client = HttpClient.newHttpClient();
+String url = "https://tu-verificador.com/analyze/api";
+
+HttpRequest request = HttpRequest.newBuilder()
+  .uri(URI.create(url))
+  .header("X-API-Key", "tu-token-aqui")
+  .header("Content-Type", "application/json")
+  .POST(HttpRequest.BodyPublishers.ofString(
+    "{\"target_type\":\"code\",\"target_value\":\"String password = \\\"secret\\\";\"}"))
+  .build();
+
+HttpResponse<String> response = client.send(request, 
+  HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());</pre>
+    </div>
+</section>
+
+{% endblock %}

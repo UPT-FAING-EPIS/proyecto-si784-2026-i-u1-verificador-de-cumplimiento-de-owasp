@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OWASP Compliance Verification System — Presentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 16px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    :root {
+      --accent: #6366f1;
+      --accent-light: #818cf8;
+      --accent-glow: rgba(99, 102, 241, 0.3);
+      --green: #34d399;
+      --red: #f87171;
+      --orange: #fb923c;
+      --cyan: #22d3ee;
+      --pink: #f472b6;
+      --surface: rgba(255, 255, 255, 0.04);
+      --surface-hover: rgba(255, 255, 255, 0.08);
+      --border: rgba(255, 255, 255, 0.08);
+      --text-primary: #f4f4f5;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+    }
+
+    /* ===== PROGRESS BAR ===== */
+    .progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--cyan), var(--pink));
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    /* ===== COUNTER ===== */
+    .slide-counter {
+      position: fixed;
+      bottom: 28px;
+      right: 40px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      z-index: 100;
+    }
+
+    .slide-counter .current {
+      color: var(--accent-light);
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    /* ===== NAV HINT ===== */
+    .nav-hint {
+      position: fixed;
+      bottom: 28px;
+      left: 40px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      opacity: 0.6;
+    }
+
+    .nav-hint kbd {
+      padding: 2px 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      min-width: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ===== BG ===== */
+    .bg-glow {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .bg-glow-1 {
+      width: 600px;
+      height: 600px;
+      background: var(--accent);
+      top: -200px;
+      right: -100px;
+      opacity: 0.12;
+    }
+
+    .bg-glow-2 {
+      width: 500px;
+      height: 500px;
+      background: var(--cyan);
+      bottom: -200px;
+      left: -100px;
+      opacity: 0.12;
+    }
+
+    /* ===== SLIDES ===== */
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 80px;
+      opacity: 0;
+      transform: translateX(60px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+      pointer-events: none;
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    .slide.exit-left {
+      opacity: 0;
+      transform: translateX(-60px);
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    .slide-tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--accent-light);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .slide-tag::before {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 2px;
+      background: var(--accent);
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h1 .accent {
+      background: linear-gradient(135deg, var(--accent-light), var(--cyan));
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--accent-light);
+      margin-bottom: 10px;
+      margin-top: 20px;
+    }
+
+    p,
+    li {
+      font-size: 1rem;
+      line-height: 1.75;
+      color: var(--text-secondary);
+    }
+
+    p {
+      margin-bottom: 14px;
+    }
+
+    .subtitle {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+      max-width: 750px;
+    }
+
+    .highlight-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+      padding: 18px 22px;
+      margin: 16px 0;
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .highlight-box.green {
+      border-left-color: var(--green);
+    }
+
+    /* ===== LAYOUT ===== */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 16px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.3s;
+    }
+
+    .card:hover {
+      background: var(--surface-hover);
+      transform: translateY(-2px);
+    }
+
+    .card-icon {
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .card h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 0;
+    }
+
+    /* ===== TABLES ===== */
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 12px 0;
+      font-size: 0.88rem;
+    }
+
+    thead th {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--accent-light);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    thead th:first-child {
+      border-radius: 8px 0 0 0;
+    }
+
+    thead th:last-child {
+      border-radius: 0 8px 0 0;
+    }
+
+    tbody td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover td {
+      background: var(--surface);
+    }
+
+    .check {
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .cross {
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    .warn {
+      color: var(--orange);
+      font-weight: 700;
+    }
+
+    /* ===== LISTS ===== */
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    ul li {
+      position: relative;
+      padding-left: 22px;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+    }
+
+    ul li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: var(--accent-light);
+      font-weight: 700;
+    }
+
+    /* ===== OWASP TOP 10 GRID ===== */
+    .owasp-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .owasp-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .owasp-item:hover {
+      background: var(--surface-hover);
+      transform: translateY(-3px);
+      border-color: var(--accent);
+    }
+
+    .owasp-code {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--accent-light);
+      letter-spacing: 0.05em;
+    }
+
+    .owasp-icon {
+      font-size: 1.3rem;
+      margin: 6px 0;
+      display: block;
+    }
+
+    .owasp-name {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    /* ===== TIMELINE ===== */
+    .timeline {
+      display: flex;
+      gap: 0;
+      margin: 24px 0;
+      position: relative;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 32px;
+      left: 20px;
+      right: 20px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--cyan), var(--green), var(--pink));
+      z-index: 0;
+    }
+
+    .tl-item {
+      flex: 1;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .tl-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      margin: 24px auto 12px;
+      border: 3px solid;
+    }
+
+    .tl-item:nth-child(1) .tl-dot {
+      border-color: var(--accent);
+      background: rgba(99, 102, 241, 0.3);
+    }
+
+    .tl-item:nth-child(2) .tl-dot {
+      border-color: var(--cyan);
+      background: rgba(34, 211, 238, 0.3);
+    }
+
+    .tl-item:nth-child(3) .tl-dot {
+      border-color: var(--green);
+      background: rgba(52, 211, 153, 0.3);
+    }
+
+    .tl-item:nth-child(4) .tl-dot {
+      border-color: var(--pink);
+      background: rgba(244, 114, 182, 0.3);
+    }
+
+    .tl-week {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+    }
+
+    .tl-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-top: 4px;
+    }
+
+    .tl-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    /* ===== BUDGET ===== */
+    .budget-total {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(34, 211, 238, 0.1));
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 16px;
+      padding: 28px 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 20px 0;
+    }
+
+    .budget-total-label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .budget-total-value {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-light), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ===== TITLE SLIDE ===== */
+    .title-slide {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .title-slide h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      margin-bottom: 16px;
+    }
+
+    .title-slide .subtitle {
+      text-align: center;
+      max-width: 650px;
+    }
+
+    .title-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 8px 24px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 32px;
+    }
+
+    .shield-icon {
+      font-size: 3.5rem;
+      margin-bottom: 20px;
+      display: block;
+      filter: drop-shadow(0 0 30px var(--accent-glow));
+    }
+
+    .team-names {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-top: 18px;
+      line-height: 1.8;
+    }
+
+    .team-names strong {
+      color: var(--text-primary);
+    }
+
+    /* ===== QUOTE ===== */
+    .quote {
+      font-size: 1.3rem;
+      font-style: italic;
+      color: var(--text-secondary);
+      border-left: 3px solid var(--accent);
+      padding-left: 24px;
+      margin: 28px 0;
+      line-height: 1.6;
+    }
+
+    .quote-author {
+      font-size: 0.85rem;
+      font-style: normal;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .slide-scrollable {
+      justify-content: flex-start;
+      padding-top: 50px;
+      padding-bottom: 50px;
+    }
+
+    /* ===== PILLS ===== */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      border: 1px solid;
+    }
+
+    .pill-accent {
+      color: var(--accent-light);
+      border-color: rgba(99, 102, 241, 0.3);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .pill-green {
+      color: var(--green);
+      border-color: rgba(52, 211, 153, 0.3);
+      background: rgba(52, 211, 153, 0.1);
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .slide.active .animate-in {
+      animation: fadeInUp 0.5s ease forwards;
+    }
+
+    .slide.active .delay-1 {
+      animation-delay: 0.1s;
+      opacity: 0;
+    }
+
+    .slide.active .delay-2 {
+      animation-delay: 0.2s;
+      opacity: 0;
+    }
+
+    .slide.active .delay-3 {
+      animation-delay: 0.3s;
+      opacity: 0;
+    }
+
+    .slide.active .delay-4 {
+      animation-delay: 0.4s;
+      opacity: 0;
+    }
+
+    .slide.active .delay-5 {
+      animation-delay: 0.5s;
+      opacity: 0;
+    }
+
+    @media (max-width: 900px) {
+      .slide {
+        padding: 32px;
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .grid-3 {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .owasp-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+  <div class="progress-bar" id="progressBar"></div>
+  <div class="slide-counter"><span class="current" id="currentSlide">1</span> / <span id="totalSlides">10</span></div>
+  <div class="nav-hint"><kbd>←</kbd> <kbd>→</kbd> to navigate</div>
+
+  <div class="slides-wrapper" id="slidesWrapper">
+
+    <!-- ============ SLIDE 1: TITLE ============ -->
+    <div class="slide title-slide active" data-slide="0">
+      <span class="shield-icon animate-in delay-1">🛡️</span>
+      <h1 class="animate-in delay-2">OWASP Compliance<br>Verification System</h1>
+      <p class="subtitle animate-in delay-3">An innovative tool that helps keep websites and applications <strong>safe
+          from hackers</strong> by automatically checking for security problems.</p>
+      <div class="team-names animate-in delay-4">
+        <strong>Team Members:</strong><br>
+        Gerardo Concha &nbsp;·&nbsp; Victoria Laravello &nbsp;·&nbsp; Leandro Hurtado
+      </div>
+      <div class="title-badge animate-in delay-5">
+        Universidad Privada de Tacna · Faculty of Engineering · 2026
+      </div>
+    </div>
+
+    <!-- ============ SLIDE 2: WHAT IS OWASP ============ -->
+    <div class="slide slide-scrollable" data-slide="1">
+      <div class="slide-tag animate-in delay-1">Slide 2</div>
+      <h1 class="animate-in delay-1">What is <span class="accent">OWASP</span>?</h1>
+      <p class="subtitle animate-in delay-2"><strong>OWASP</strong> stands for <strong>Open Web Application Security
+          Project</strong>. It is an international <strong>non-profit organization</strong> that works to make software
+        and websites more secure.</p>
+
+      <div class="grid-2 animate-in delay-2">
+        <div>
+          <h3>Key Facts</h3>
+          <table>
+            <tbody>
+              <tr>
+                <td style="font-weight:600;color:var(--text-primary)">🌍 Founded</td>
+                <td>2001</td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;color:var(--text-primary)">🏛️ Type</td>
+                <td>Non-profit organization (free for everyone)</td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;color:var(--text-primary)">🎯 Goal</td>
+                <td>Help people build safer websites and apps</td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;color:var(--text-primary)">👥 Community</td>
+                <td>Thousands of experts around the world</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3>What is the OWASP Top 10?</h3>
+          <p>It is a <strong style="color:var(--accent-light)">list of the 10 most dangerous security problems</strong>
+            found in websites. Think of it as a "checklist" that helps developers know what to fix first.</p>
+          <div class="highlight-box">💡 Our project checks websites and code against this list
+            <strong>automatically</strong>, so developers don't have to do it by hand.
+          </div>
+        </div>
+      </div>
+
+      <h3 class="animate-in delay-3">The 10 Most Common Security Risks</h3>
+      <div class="owasp-grid animate-in delay-3">
+        <div class="owasp-item"><span class="owasp-code">A01</span><span class="owasp-icon">🔓</span><span
+            class="owasp-name">Broken Access Control</span></div>
+        <div class="owasp-item"><span class="owasp-code">A02</span><span class="owasp-icon">🔐</span><span
+            class="owasp-name">Weak Encryption</span></div>
+        <div class="owasp-item"><span class="owasp-code">A03</span><span class="owasp-icon">💉</span><span
+            class="owasp-name">Code Injection</span></div>
+        <div class="owasp-item"><span class="owasp-code">A04</span><span class="owasp-icon">🏗️</span><span
+            class="owasp-name">Insecure Design</span></div>
+        <div class="owasp-item"><span class="owasp-code">A05</span><span class="owasp-icon">⚙️</span><span
+            class="owasp-name">Bad Configuration</span></div>
+        <div class="owasp-item"><span class="owasp-code">A06</span><span class="owasp-icon">📦</span><span
+            class="owasp-name">Outdated Software</span></div>
+        <div class="owasp-item"><span class="owasp-code">A07</span><span class="owasp-icon">🪪</span><span
+            class="owasp-name">Login Problems</span></div>
+        <div class="owasp-item"><span class="owasp-code">A08</span><span class="owasp-icon">🧬</span><span
+            class="owasp-name">Data Tampering</span></div>
+        <div class="owasp-item"><span class="owasp-code">A09</span><span class="owasp-icon">📝</span><span
+            class="owasp-name">No Activity Logs</span></div>
+        <div class="owasp-item"><span class="owasp-code">A10</span><span class="owasp-icon">🌐</span><span
+            class="owasp-name">Fake Requests</span></div>
+      </div>
+    </div>
+
+    <!-- ============ SLIDE 3: MAIN OBJECTIVE ============ -->
+    <div class="slide" data-slide="2">
+      <div class="slide-tag animate-in delay-1">Slide 3</div>
+      <h1 class="animate-in delay-1">Main <span class="accent">Objective</span></h1>
+      <p class="subtitle animate-in delay-2">To create a tool that <strong>automatically checks</strong> if a website or
+        program is safe, based on international security standards.</p>
+
+      <h3 class="animate-in delay-3">Specific Goals</h3>
+      <div class="grid-2 animate-in delay-3">
+        <div>
+          <div class="card" style="margin-bottom:12px">
+            <h4>🔍 Find Security Problems</h4>
+            <p>Scan websites and code to detect the most common vulnerabilities</p>
+          </div>
+          <div class="card" style="margin-bottom:12px">
+            <h4>📊 Generate Reports</h4>
+            <p>Create easy-to-read reports that show what is wrong and how to fix it</p>
+          </div>
+          <div class="card">
+            <h4>💡 Give Recommendations</h4>
+            <p>Suggest solutions for each problem found so developers can improve their work</p>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:12px">
+            <h4>🖥️ Easy to Use</h4>
+            <p>Provide a simple web interface that anyone can use — no expert knowledge needed</p>
+          </div>
+          <div class="card">
+            <h4>🎓 Improve Software Quality</h4>
+            <p>Help students and professionals build better, safer programs</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SLIDE 4: PROBLEM ============ -->
+    <div class="slide" data-slide="3">
+      <div class="slide-tag animate-in delay-1">Slide 4</div>
+      <h1 class="animate-in delay-1">Problem <span class="accent">Definition</span></h1>
+      <p class="subtitle animate-in delay-2">Every year, millions of websites get hacked because they have security
+        problems that nobody checked for.</p>
+
+      <div class="grid-2 animate-in delay-3">
+        <div>
+          <h3>Why Does This Happen?</h3>
+          <div class="card" style="margin-bottom:10px">
+            <h4>🔴 Developers don't know about security</h4>
+            <p>Most programmers are never taught how to protect their websites</p>
+          </div>
+          <div class="card" style="margin-bottom:10px">
+            <h4>🔴 No free tools available</h4>
+            <p>Professional security tools cost thousands of dollars per year</p>
+          </div>
+          <div class="card" style="margin-bottom:10px">
+            <h4>🔴 Checking by hand is too slow</h4>
+            <p>Manually reviewing code for problems takes days or even weeks</p>
+          </div>
+          <div class="card">
+            <h4>🔴 Students have no practice</h4>
+            <p>Universities don't provide simple tools to learn about cybersecurity</p>
+          </div>
+        </div>
+        <div>
+          <h3>What Can Go Wrong?</h3>
+          <ul style="margin-top:12px; font-size: 1rem;">
+            <li>📉 <strong>Personal data gets stolen</strong> — names, passwords, credit cards</li>
+            <li>🚫 <strong>Hackers get access</strong> — they can control the entire system</li>
+            <li>⚠️ <strong>Websites crash</strong> — users can't access the service</li>
+            <li>💸 <strong>Companies lose money</strong> — lawsuits, fines, lost customers</li>
+          </ul>
+          <div class="highlight-box" style="margin-top:24px">
+            <em>"There is no simple, free tool for students to quickly check if their websites are safe."</em><br><br>
+            <strong style="color:var(--accent-light)">That's exactly what our project solves.</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SLIDE 5: INNOVATION ============ -->
+    <div class="slide" data-slide="4">
+      <div class="slide-tag animate-in delay-1">Slide 5</div>
+      <h1 class="animate-in delay-1">Our <span class="accent">Innovation</span></h1>
+      <p class="subtitle animate-in delay-2">We built a tool that works in two ways — it can check written code AND live
+        websites for security problems, all in one place.</p>
+
+      <div class="grid-3 animate-in delay-3">
+        <div class="card">
+          <span class="card-icon">🔍</span>
+          <h4>Two Types of Analysis</h4>
+          <p>You can paste your code OR enter a website address — the tool checks both for security issues</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">📊</span>
+          <h4>Automatic Reports</h4>
+          <p>Get a safety score from 0 to 100, with a clear list of problems and how to fix each one</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">🌐</span>
+          <h4>Works Online</h4>
+          <p>Access it from any computer with a web browser — no installation needed</p>
+        </div>
+      </div>
+
+      <h3 class="animate-in delay-4">How Is It Different From Other Tools?</h3>
+      <table class="animate-in delay-4">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Our Tool</th>
+            <th>Others</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text-primary)">Free to use</td>
+            <td class="check">✅ Yes</td>
+            <td class="cross">❌ Most cost $1000+/year</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text-primary)">Checks written code</td>
+            <td class="check">✅ Yes</td>
+            <td class="cross">❌ Most don't</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text-primary)">Checks live websites</td>
+            <td class="check">✅ Yes</td>
+            <td class="check">✅ Yes</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text-primary)">Easy to understand</td>
+            <td class="check">✅ Simple interface</td>
+            <td class="warn">⚠️ Very complex</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text-primary)">Good for students</td>
+            <td class="check">✅ Designed for learning</td>
+            <td class="cross">❌ Made for experts</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ============ SLIDE 6: HYPOTHESIS ============ -->
+    <div class="slide" data-slide="5">
+      <div class="slide-tag animate-in delay-1">Slide 6</div>
+      <h1 class="animate-in delay-1"><span class="accent">Hypothesis</span></h1>
+
+      <div class="highlight-box animate-in delay-2"
+        style="border-left-color:var(--cyan); font-size:1.05rem; line-height: 1.8;">
+        "If we create a <strong style="color:var(--cyan)">free, easy-to-use tool</strong> that automatically checks
+        websites for security problems, then students and developers will be able to <strong
+          style="color:var(--cyan)">find and fix these problems much faster</strong> — reducing security risks by at
+        least 60% compared to doing it manually."
+      </div>
+
+      <div class="grid-2 animate-in delay-3">
+        <div>
+          <h3>What We're Testing</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>What</th>
+                <th>Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Our security checker tool</td>
+                <td><span class="pill pill-accent">What we change</span></td>
+              </tr>
+              <tr>
+                <td>How many problems are found early</td>
+                <td><span class="pill pill-green">What we measure</span></td>
+              </tr>
+              <tr>
+                <td>Time saved vs manual checking</td>
+                <td><span class="pill pill-green">What we measure</span></td>
+              </tr>
+              <tr>
+                <td>Fewer hacking incidents after using it</td>
+                <td><span class="pill pill-green">What we measure</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3>What We Expect to Prove</h3>
+          <ul>
+            <li>The tool detects <strong style="color:var(--green)">at least 8 out of 10</strong> types of security
+              risks</li>
+            <li>Checking time is <strong style="color:var(--green)">reduced by 80%</strong> compared to doing it by hand
+            </li>
+            <li>Any user with basic computer skills can <strong style="color:var(--green)">use it alone</strong></li>
+            <li>The results are <strong style="color:var(--green)">accurate and useful</strong></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SLIDE 7: PROJECT MODEL ============ -->
+    <div class="slide" data-slide="6">
+      <div class="slide-tag animate-in delay-1">Slide 7</div>
+      <h1 class="animate-in delay-1">Project <span class="accent">Model</span></h1>
+      <p class="subtitle animate-in delay-2">We built this project step by step, adding new features in each phase —
+        like building a house floor by floor.</p>
+
+      <h3 class="animate-in delay-2">How Our System Works (simplified)</h3>
+      <div class="animate-in delay-2">
+        <div class="card" style="margin-bottom:8px; display:flex; align-items:center; gap:16px;">
+          <span style="font-size:1.5rem">🖥️</span>
+          <div>
+            <h4 style="margin-bottom:2px">The User Interface</h4>
+            <p>A website where you type your code or enter a web address</p>
+          </div>
+        </div>
+        <div style="text-align:center; font-size:1.2rem; color:var(--text-muted); margin: 4px 0;">⬇️</div>
+        <div class="card" style="margin-bottom:8px; display:flex; align-items:center; gap:16px;">
+          <span style="font-size:1.5rem">🔍</span>
+          <div>
+            <h4 style="margin-bottom:2px">The Analysis Engine</h4>
+            <p>The "brain" that reads your code or website and looks for security problems</p>
+          </div>
+        </div>
+        <div style="text-align:center; font-size:1.2rem; color:var(--text-muted); margin: 4px 0;">⬇️</div>
+        <div class="card" style="display:flex; align-items:center; gap:16px;">
+          <span style="font-size:1.5rem">📊</span>
+          <div>
+            <h4 style="margin-bottom:2px">The Report</h4>
+            <p>A clear summary with a safety score, list of issues found, and advice on how to fix them</p>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="animate-in delay-3">Our Team Roles</h3>
+      <div class="grid-3 animate-in delay-3">
+        <div class="card" style="text-align:center">
+          <span class="card-icon">👨‍💻</span>
+          <h4>Gerardo Concha</h4>
+          <p>Developer & leader</p>
+        </div>
+        <div class="card" style="text-align:center">
+          <span class="card-icon">👩‍💻</span>
+          <h4>Victoria Laravello</h4>
+          <p>Developer & designer</p>
+        </div>
+        <div class="card" style="text-align:center">
+          <span class="card-icon">👨‍💻</span>
+          <h4>Leandro Hurtado</h4>
+          <p>Developer & tester</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SLIDE 8: SCHEDULE ============ -->
+    <div class="slide" data-slide="7">
+      <div class="slide-tag animate-in delay-1">Slide 8</div>
+      <h1 class="animate-in delay-1">Project <span class="accent">Schedule</span></h1>
+      <p class="subtitle animate-in delay-2">We completed the project in 4 weeks, with clear goals for each week.</p>
+
+      <div class="timeline animate-in delay-3">
+        <div class="tl-item">
+          <span class="tl-week">Week 1</span>
+          <div class="tl-dot"></div>
+          <span class="tl-title">📋 Research</span>
+          <span class="tl-desc">Study the OWASP standards and plan what the tool should do</span>
+        </div>
+        <div class="tl-item">
+          <span class="tl-week">Week 2</span>
+          <div class="tl-dot"></div>
+          <span class="tl-title">✏️ Design</span>
+          <span class="tl-desc">Design how the system should look and work</span>
+        </div>
+        <div class="tl-item">
+          <span class="tl-week">Week 3</span>
+          <div class="tl-dot"></div>
+          <span class="tl-title">💻 Build</span>
+          <span class="tl-desc">Write the code and create the website interface</span>
+        </div>
+        <div class="tl-item">
+          <span class="tl-week">Week 4</span>
+          <div class="tl-dot"></div>
+          <span class="tl-title">🧪 Test & Launch</span>
+          <span class="tl-desc">Test everything, fix errors, write documentation, and publish online</span>
+        </div>
+      </div>
+
+      <h3 class="animate-in delay-4">Key Deliverables</h3>
+      <div class="grid-2 animate-in delay-4">
+        <div>
+          <ul>
+            <li>📄 <strong>Week 1:</strong> Research report and project plan</li>
+            <li>📐 <strong>Week 2:</strong> System design and technical decisions</li>
+          </ul>
+        </div>
+        <div>
+          <ul>
+            <li>🚀 <strong>Week 3:</strong> Working prototype of the tool</li>
+            <li>🎯 <strong>Week 4:</strong> Final version, documentation, and live demo</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SLIDE 9: BUDGET ============ -->
+    <div class="slide slide-scrollable" data-slide="8">
+      <div class="slide-tag animate-in delay-1">Slide 9</div>
+      <h1 class="animate-in delay-1">Resources & <span class="accent">Budget</span></h1>
+      <p class="subtitle animate-in delay-2">How much does it cost to build this project?</p>
+
+      <div class="budget-total animate-in delay-2">
+        <span class="budget-total-label">💰 Total Investment</span>
+        <span class="budget-total-value">S/ 11,890</span>
+      </div>
+
+      <div class="grid-2 animate-in delay-3">
+        <div>
+          <h3>Where the Money Goes</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th style="text-align:right">Amount (S/)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>👥 Team salaries (3 developers × 6 months)</td>
+                <td style="text-align:right; font-weight:600">9,600</td>
+              </tr>
+              <tr>
+                <td>📦 Supplies (paper, materials)</td>
+                <td style="text-align:right">890</td>
+              </tr>
+              <tr>
+                <td>💡 Internet & electricity</td>
+                <td style="text-align:right">1,140</td>
+              </tr>
+              <tr>
+                <td>☁️ Web hosting & domain name</td>
+                <td style="text-align:right">260</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3>Is It Worth It?</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Question</th>
+                <th>Answer</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Do benefits exceed costs?</td>
+                <td><span class="check" style="font-size:0.85rem">✅ Yes — by 51%</span></td>
+              </tr>
+              <tr>
+                <td>Expected annual savings</td>
+                <td style="font-weight:600; color:var(--cyan)">S/ 18,000</td>
+              </tr>
+              <tr>
+                <td>Is the project viable?</td>
+                <td><span class="check" style="font-size:0.85rem">✅ Yes — economically sound</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="highlight-box green" style="margin-top:14px">
+            <strong>Good news:</strong> All the software we used is <strong>free and open source</strong>, so the only
+            real costs are the team's time and basic utilities.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SLIDE 10: CLOSING ============ -->
+    <div class="slide title-slide" data-slide="9">
+      <span class="shield-icon animate-in delay-1">🎯</span>
+      <h1 class="animate-in delay-2">Thank You!</h1>
+      <div class="quote animate-in delay-3">
+        "Security is not a product, but a process."
+        <div class="quote-author">— Bruce Schneier, cybersecurity expert</div>
+      </div>
+      <p class="subtitle animate-in delay-4">Our tool makes that process <strong style="color:var(--accent-light)">easy, automatic, and free</strong> for everyone.</p>
+
+      <div class="animate-in delay-4" style="margin-top: 20px;">
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 10px;">🌐 Try our live system right now:</p>
+        <a href="https://proyecto-si784-2026-i-u1-verificador-de-cumplimiento-de-owas.azurewebsites.net" target="_blank" style="display: inline-flex; align-items: center; gap: 10px; padding: 14px 32px; background: linear-gradient(135deg, var(--accent), #4f46e5); border: 1px solid var(--accent-light); border-radius: 100px; color: #fff; text-decoration: none; font-size: 1rem; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 0 30px var(--accent-glow);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 0 40px rgba(99,102,241,0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 0 30px rgba(99,102,241,0.3)'">🚀 Open Live Demo</a>
+      </div>
+
+      <div class="title-badge animate-in delay-5">
+        Gerardo Concha · Victoria Laravello · Leandro Hurtado — UPT 2026
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let currentIndex = 0;
+    document.getElementById('totalSlides').textContent = totalSlides;
+
+    function goToSlide(index) {
+      if (index < 0 || index >= totalSlides) return;
+      slides.forEach((slide, i) => {
+        slide.classList.remove('active', 'exit-left');
+        if (i < index) slide.classList.add('exit-left');
+      });
+      slides[index].classList.add('active');
+      currentIndex = index;
+      document.getElementById('currentSlide').textContent = index + 1;
+      document.getElementById('progressBar').style.width = ((index + 1) / totalSlides * 100) + '%';
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); goToSlide(currentIndex + 1); }
+      else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); goToSlide(currentIndex - 1); }
+      else if (e.key === 'Home') { e.preventDefault(); goToSlide(0); }
+      else if (e.key === 'End') { e.preventDefault(); goToSlide(totalSlides - 1); }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('a, button, input, table')) return;
+      const x = e.clientX;
+      if (x < window.innerWidth * 0.35) goToSlide(currentIndex - 1);
+      else if (x > window.innerWidth * 0.65) goToSlide(currentIndex + 1);
+    });
+
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
+    document.addEventListener('touchend', (e) => {
+      const diff = touchStartX - e.changedTouches[0].screenX;
+      if (Math.abs(diff) > 50) { diff > 0 ? goToSlide(currentIndex + 1) : goToSlide(currentIndex - 1); }
+    });
+
+    goToSlide(0);
+  </script>
+</body>
+
+</html>

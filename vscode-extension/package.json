@@ -1,0 +1,39 @@
+{
+  "name": "owasp-verificator",
+  "displayName": "OWASP Verificator",
+  "description": "Analizador de cumplimiento de OWASP en tiempo real para tu código.",
+  "version": "0.1.0",
+  "publisher": "Gerardo95",
+  "sponsor": {
+    "url": "https://www.paypal.com/donate/?hosted_button_id=MASK8JSBNSZPQ"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Linters"
+  ],
+  "activationEvents": [],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "owasp-verificator.scanFile",
+        "title": "OWASP: Analizar archivo actual"
+      }
+    ],
+    "configuration": {
+      "title": "OWASP Verificator",
+      "properties": {
+        "owaspVerificator.pythonPath": {
+          "type": "string",
+          "default": "python",
+          "description": "Ruta al ejecutable de Python para correr el analizador."
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "@vscode/vsce": "^3.9.2"
+  }
+}

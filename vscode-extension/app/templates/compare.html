@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero">
+    <div>
+        <p class="eyebrow">Comparación de Escaneos</p>
+        <h2>Antes vs Después</h2>
+        <p style="margin-top: 12px; opacity: 0.95; font-size: 1rem;">Compara dos análisis para ver mejoras o regresiones de seguridad.</p>
+    </div>
+    <a class="button" href="/">← Dashboard</a>
+</section>
+
+<section class="card">
+    <h3>Seleccionar Escaneos</h3>
+    <form method="get" action="/reports/compare" style="margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; align-items: end;">
+        <div>
+            <label for="left_id">Escaneo Base (Antes)</label>
+            <select id="left_id" name="left_id" required>
+                <option value="">Selecciona escaneo</option>
+                {% for scan in scans %}
+                <option value="{{ scan.id }}" {% if left_id == scan.id %}selected{% endif %}>
+                    #{{ scan.id }} · {{ scan.target_type|upper }} · Score {{ scan.score }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label for="right_id">Escaneo Comparado (Después)</label>
+            <select id="right_id" name="right_id" required>
+                <option value="">Selecciona escaneo</option>
+                {% for scan in scans %}
+                <option value="{{ scan.id }}" {% if right_id == scan.id %}selected{% endif %}>
+                    #{{ scan.id }} · {{ scan.target_type|upper }} · Score {{ scan.score }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button class="button" type="submit">Comparar</button>
+    </form>
+</section>
+
+{% if comparison %}
+<section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+    <div class="card" style="margin: 0;">
+        <h3 style="margin-top: 0;">Delta Score</h3>
+        <p style="font-size: 2rem; font-weight: 700; color: {% if comparison.score_delta >= 0 %}#86efac{% else %}#fca5a5{% endif %};">
+            {% if comparison.score_delta >= 0 %}+{% endif %}{{ comparison.score_delta }}
+        </p>
+    </div>
+    <div class="card" style="margin: 0;">
+        <h3 style="margin-top: 0;">Delta Hallazgos</h3>
+        <p style="font-size: 2rem; font-weight: 700; color: {% if comparison.findings_delta <= 0 %}#86efac{% else %}#fca5a5{% endif %};">
+            {% if comparison.findings_delta >= 0 %}+{% endif %}{{ comparison.findings_delta }}
+        </p>
+    </div>
+    <div class="card" style="margin: 0;">
+        <h3 style="margin-top: 0;">Escaneo Base</h3>
+        <p style="color: #9ca3af;">#{{ comparison.left.id }} · Score {{ comparison.left.score }} · {{ comparison.left.findings|length }} hallazgos</p>
+    </div>
+    <div class="card" style="margin: 0;">
+        <h3 style="margin-top: 0;">Escaneo Comparado</h3>
+        <p style="color: #9ca3af;">#{{ comparison.right.id }} · Score {{ comparison.right.score }} · {{ comparison.right.findings|length }} hallazgos</p>
+    </div>
+</section>
+
+<section class="card">
+    <h3>Reglas Nuevas (empeoró)</h3>
+    {% if comparison.added_rules %}
+    <ul class="findings" style="margin-top: 12px;">
+        {% for rule in comparison.added_rules %}
+        <li><strong style="color: #fca5a5;">{{ rule }}</strong></li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p style="color: #86efac; margin-top: 12px;">No hay reglas nuevas. Bien.</p>
+    {% endif %}
+</section>
+
+<section class="card">
+    <h3>Reglas Corregidas (mejoró)</h3>
+    {% if comparison.fixed_rules %}
+    <ul class="findings" style="margin-top: 12px;">
+        {% for rule in comparison.fixed_rules %}
+        <li><strong style="color: #86efac;">{{ rule }}</strong></li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p style="color: #9ca3af; margin-top: 12px;">No se corrigieron reglas entre ambos escaneos.</p>
+    {% endif %}
+</section>
+
+<section class="card">
+    <h3>Reglas Persistentes</h3>
+    {% if comparison.persistent_rules %}
+    <ul class="findings" style="margin-top: 12px;">
+        {% for rule in comparison.persistent_rules %}
+        <li><strong style="color: #fbbf24;">{{ rule }}</strong></li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p style="color: #9ca3af; margin-top: 12px;">No hay reglas persistentes.</p>
+    {% endif %}
+</section>
+{% endif %}
+{% endblock %}
