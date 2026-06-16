@@ -2,8 +2,9 @@
   "name": "owasp-verificator",
   "displayName": "OWASP Verificator",
   "description": "Analizador de cumplimiento de OWASP en tiempo real para tu código.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "Gerardo95",
+  "icon": "icon.png",
   "sponsor": {
     "url": "https://www.paypal.com/donate/?hosted_button_id=MASK8JSBNSZPQ"
   },
@@ -16,10 +17,32 @@
   "activationEvents": [],
   "main": "./extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "owasp-verificator-sidebar",
+          "title": "OWASP Verificator",
+          "icon": "owasp-activity-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "owasp-verificator-sidebar": [
+        {
+          "type": "webview",
+          "id": "owasp-verificator-sidebar-view",
+          "name": "OWASP Verificator"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "owasp-verificator.scanFile",
         "title": "OWASP: Analizar archivo actual"
+      },
+      {
+        "command": "owasp-verificator.scanWorkspace",
+        "title": "OWASP: Escanear todo el Workspace"
       }
     ],
     "configuration": {
@@ -29,6 +52,22 @@
           "type": "string",
           "default": "python",
           "description": "Ruta al ejecutable de Python para correr el analizador."
+        },
+        "owaspVerificator.language": {
+          "type": "string",
+          "enum": ["es", "en", "auto"],
+          "default": "es",
+          "description": "Idioma del análisis. 'es' fuerza español, 'en' fuerza inglés, y 'auto' detecta el idioma de VS Code."
+        },
+        "owaspVerificator.showDiagnostics": {
+          "type": "boolean",
+          "default": true,
+          "description": "Mostrar advertencias y líneas subrayadas en el editor de código (Panel de Problemas). Desactívalo si prefieres usar únicamente el Dashboard."
+        },
+        "owaspVerificator.enableAIScan": {
+          "type": "boolean",
+          "default": true,
+          "description": "Permite activar o desactivar la auditoría de seguridad asistida por IA en tiempo real utilizando los modelos de lenguaje disponibles en VS Code (e.g. Copilot o Gemini)."
         }
       }
     }
