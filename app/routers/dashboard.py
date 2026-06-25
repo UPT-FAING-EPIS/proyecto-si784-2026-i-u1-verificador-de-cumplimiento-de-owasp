@@ -191,3 +191,13 @@ def monitoring_accesses(request: Request):
         unique_accesses.append(a)
 
     return templates.TemplateResponse(request=request, name="monitoring.html", context={"request": request, "accesses": unique_accesses})
+
+
+@router.get("/integraciones", response_class=HTMLResponse)
+def integraciones(request: Request):
+    """Página de guía: extensión VS Code, Skills para IA y librería API."""
+    return templates.TemplateResponse(
+        request=request,
+        name="integraciones.html",
+        context={"request": request, "title": "Integraciones & Herramientas"},
+    )

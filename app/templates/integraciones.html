@@ -1,0 +1,954 @@
+{% extends 'base.html' %}
+{% block content %}
+{% set WEB_URL = 'http://38.250.116.71:8000' %}
+{% set API_URL = 'http://38.250.116.71:8001' %}
+{% set EXT_URL = 'https://marketplace.visualstudio.com/items?itemName=Gerardo95.owasp-verificator' %}
+
+<style>
+  /* ══ Fuente y reset ══ */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  .ig-wrap { font-family: 'Inter', sans-serif; }
+
+  /* ══ Hero ══ */
+  .ig-hero {
+    background: linear-gradient(135deg, #0a1628 0%, #0f1e40 50%, #0a1628 100%);
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 16px;
+    padding: 40px 36px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .ig-hero::before {
+    content: '';
+    position: absolute; top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(0,212,255,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .ig-hero h1 {
+    font-size: 2rem; font-weight: 800;
+    background: linear-gradient(135deg, #fff 0%, #8ab4f8 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 10px;
+  }
+  .ig-hero p { color: #9ca3af; font-size: 1rem; max-width: 600px; }
+
+  /* ══ Tabs principales ══ */
+  .ig-tabs {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    background: rgba(10,22,40,0.8);
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 12px; padding: 6px; margin-bottom: 24px;
+  }
+  .ig-tab-btn {
+    flex: 1; min-width: 130px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px 16px; border-radius: 8px;
+    border: none; background: transparent;
+    color: #6b7280; font-size: 0.9rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+  .ig-tab-btn:hover { background: rgba(0,212,255,0.08); color: #e5e7eb; }
+  .ig-tab-btn.active {
+    background: rgba(0,212,255,0.12);
+    color: #00d4ff; box-shadow: 0 0 0 1px rgba(0,212,255,0.3);
+  }
+  .ig-tab-btn .ig-tab-icon { font-size: 1.2rem; }
+
+  /* ══ Paneles de tab ══ */
+  .ig-panel { display: none; animation: igFade 0.2s ease; }
+  .ig-panel.active { display: block; }
+  @keyframes igFade { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ══ Cards de paso ══ */
+  .ig-steps { display: flex; flex-direction: column; gap: 16px; }
+  .ig-step {
+    display: flex; gap: 20px; align-items: flex-start;
+    background: rgba(15,30,64,0.6);
+    border: 1px solid rgba(0,212,255,0.12);
+    border-radius: 12px; padding: 20px 24px;
+    transition: border-color 0.2s;
+  }
+  .ig-step:hover { border-color: rgba(0,212,255,0.3); }
+  .ig-step-num {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, #0066cc, #00d4ff);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; font-weight: 800; color: #fff;
+  }
+  .ig-step-body { flex: 1; }
+  .ig-step-title {
+    font-size: 1rem; font-weight: 700; color: #e5e7eb; margin-bottom: 6px;
+  }
+  .ig-step-desc { font-size: 0.875rem; color: #9ca3af; line-height: 1.6; margin-bottom: 12px; }
+  .ig-step-desc strong { color: #e5e7eb; }
+
+  /* ══ Code blocks ══ */
+  .ig-code-wrap { position: relative; margin-top: 8px; }
+  .ig-code-head {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #060d1a; border: 1px solid rgba(0,212,255,0.15);
+    border-bottom: none; padding: 7px 14px; border-radius: 8px 8px 0 0;
+  }
+  .ig-code-lang {
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px; color: #4b5563;
+  }
+  .ig-copy-btn {
+    display: flex; align-items: center; gap: 5px;
+    background: rgba(0,212,255,0.06); border: 1px solid rgba(0,212,255,0.2);
+    color: #6b7280; padding: 3px 10px; border-radius: 4px;
+    font-size: 0.75rem; cursor: pointer; transition: all 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+  .ig-copy-btn:hover { background: rgba(0,212,255,0.12); color: #00d4ff; }
+  .ig-copy-btn.ok { color: #10b981; border-color: rgba(16,185,129,0.4); }
+  .ig-code-pre {
+    background: #060d1a; border: 1px solid rgba(0,212,255,0.15);
+    border-top: none; border-radius: 0 0 8px 8px;
+    padding: 14px 16px; overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem; line-height: 1.75;
+    color: #d1d5db; margin: 0;
+  }
+
+  /* ══ Botones de acción ══ */
+  .ig-btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .ig-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: 8px; border: none;
+    font-size: 0.875rem; font-weight: 600; cursor: pointer;
+    text-decoration: none; transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+  .ig-btn-primary {
+    background: linear-gradient(135deg, #0066cc, #00d4ff);
+    color: #fff;
+  }
+  .ig-btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .ig-btn-secondary {
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.3);
+    color: #00d4ff;
+  }
+  .ig-btn-secondary:hover { background: rgba(0,212,255,0.15); }
+  .ig-btn-vscode {
+    background: linear-gradient(135deg, #1a1a2e, #007acc);
+    color: #fff; border: 1px solid rgba(0,122,204,0.5);
+  }
+  .ig-btn-vscode:hover { opacity: 0.9; transform: translateY(-1px); }
+  .ig-btn-cursor {
+    background: linear-gradient(135deg, #1a1a2e, #7c3aed);
+    color: #fff; border: 1px solid rgba(124,58,237,0.5);
+  }
+  .ig-btn-cursor:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  /* ══ Info/warn boxes ══ */
+  .ig-info {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: rgba(0,102,204,0.08);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 8px; padding: 12px 16px;
+    font-size: 0.85rem; color: #9ca3af; margin-bottom: 16px;
+  }
+  .ig-warn {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.25);
+    border-radius: 8px; padding: 12px 16px;
+    font-size: 0.85rem; color: #9ca3af; margin-bottom: 16px;
+  }
+  .ig-success {
+    background: rgba(16,185,129,0.08);
+    border: 1px solid rgba(16,185,129,0.25);
+    border-radius: 8px; padding: 14px 18px;
+    font-size: 0.875rem; color: #86efac; margin-bottom: 16px;
+  }
+  .ig-info strong, .ig-warn strong { color: #e5e7eb; }
+
+  /* ══ Skills grid ══ */
+  .ig-skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px; margin-top: 16px;
+  }
+  .ig-skill-card {
+    background: rgba(10,22,40,0.8);
+    border: 1px solid rgba(0,212,255,0.12);
+    border-radius: 10px; padding: 16px;
+    transition: all 0.2s;
+  }
+  .ig-skill-card:hover {
+    border-color: rgba(0,212,255,0.3);
+    transform: translateY(-2px);
+  }
+  .ig-skill-head {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+  }
+  .ig-skill-icon {
+    width: 32px; height: 32px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0;
+  }
+  .ig-skill-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem; font-weight: 700; color: #00d4ff;
+  }
+  .ig-method-pill {
+    font-size: 0.65rem; font-weight: 700;
+    padding: 2px 7px; border-radius: 3px; margin-left: auto;
+    text-transform: uppercase; flex-shrink: 0;
+  }
+  .ig-method-post { background: rgba(0,102,204,0.15); color: #60a5fa; border: 1px solid rgba(96,165,250,0.2); }
+  .ig-method-get  { background: rgba(16,185,129,0.1); color: #34d399; border: 1px solid rgba(52,211,153,0.2); }
+  .ig-skill-desc { font-size: 0.8rem; color: #6b7280; line-height: 1.5; }
+  .ig-skill-endpoint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; color: #4b5563;
+    margin-top: 8px; padding-top: 8px;
+    border-top: 1px solid rgba(0,212,255,0.07);
+  }
+
+  /* ══ Section titles ══ */
+  .ig-section-title {
+    font-size: 1.15rem; font-weight: 700; color: #e5e7eb;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+  }
+  .ig-divider { border: none; border-top: 1px solid rgba(0,212,255,0.1); margin: 24px 0; }
+
+  /* ══ IDE install card ══ */
+  .ig-ide-card {
+    background: rgba(10,22,40,0.7);
+    border: 1px solid rgba(0,212,255,0.12);
+    border-radius: 12px; padding: 20px 24px; margin-bottom: 16px;
+  }
+  .ig-ide-head {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 14px;
+  }
+  .ig-ide-logo {
+    width: 44px; height: 44px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .ig-ide-name { font-size: 1rem; font-weight: 700; color: #e5e7eb; }
+  .ig-ide-sub  { font-size: 0.8rem; color: #6b7280; margin-top: 1px; }
+  .ig-feature-list {
+    list-style: none; padding: 0; margin: 12px 0 0;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+  }
+  .ig-feature-list li {
+    font-size: 0.825rem; color: #9ca3af;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .ig-feature-list li::before { content: '✓'; color: #10b981; font-weight: 700; }
+
+  /* ══ Responsive ══ */
+  @media (max-width: 640px) {
+    .ig-hero h1 { font-size: 1.5rem; }
+    .ig-tab-btn { font-size: 0.78rem; padding: 9px 10px; }
+    .ig-feature-list { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="ig-wrap">
+
+<!-- ══ HERO ══════════════════════════════════════════════════════════ -->
+<div class="ig-hero">
+  <p style="color:#00d4ff;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px">Guía de Integración</p>
+  <h1>Herramientas para desarrolladores</h1>
+  <p>Todo lo que necesitas para usar el verificador de seguridad OWASP desde tu editor, tus scripts o un agente de IA. Instrucciones paso a paso, sin tecnicismos.</p>
+</div>
+
+<!-- ══ TABS ═══════════════════════════════════════════════════════════ -->
+<div class="ig-tabs">
+  <button class="ig-tab-btn active" onclick="igTab(this,'vscode')">
+    <span class="ig-tab-icon">🔌</span> Extensión VS Code
+  </button>
+  <button class="ig-tab-btn" onclick="igTab(this,'skills')">
+    <span class="ig-tab-icon">🤖</span> Skills para IA
+  </button>
+  <button class="ig-tab-btn" onclick="igTab(this,'libreapi')">
+    <span class="ig-tab-icon">📦</span> API / Librería
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- TAB 1: EXTENSIÓN VS CODE                                         -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="ig-panel active" id="panel-vscode">
+
+  <div class="ig-info">
+    <span style="font-size:1.2rem">💡</span>
+    <span><strong>¿Qué hace?</strong> La extensión analiza tu código automáticamente mientras lo escribes y te muestra advertencias de seguridad OWASP directamente en el editor, sin salir de él.</span>
+  </div>
+
+  <!-- IDE cards -->
+  <div class="ig-section-title">⬇️ Elige tu editor e instálala</div>
+
+  <div class="ig-ide-card">
+    <div class="ig-ide-head">
+      <div class="ig-ide-logo" style="background:rgba(0,122,204,0.15)">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="#007acc"><path d="M23.15 2.587L18.21.21a1.494 1.494 0 0 0-1.705.29l-9.46 8.63-4.12-3.128a.999.999 0 0 0-1.276.057L.327 7.261A1 1 0 0 0 .326 8.74L3.899 12 .326 15.26a1 1 0 0 0 .001 1.479L1.65 17.94a.999.999 0 0 0 1.276.057l4.12-3.128 9.46 8.63a1.492 1.492 0 0 0 1.704.29l4.942-2.377A1.5 1.5 0 0 0 24 19.988V4.013a1.5 1.5 0 0 0-.85-1.426zm-5.146 14.861L10.826 12l7.178-5.448v10.896z"/></svg>
+      </div>
+      <div>
+        <div class="ig-ide-name">Visual Studio Code</div>
+        <div class="ig-ide-sub">OWASP Verificator v0.2.0 · Publisher: Gerardo95</div>
+      </div>
+    </div>
+    <ul class="ig-feature-list">
+      <li>Análisis en tiempo real mientras escribes</li>
+      <li>Subrayado de líneas con problemas</li>
+      <li>Panel lateral con vulnerabilidades</li>
+      <li>Escaneo de todo el workspace</li>
+      <li>Soporte Python, JS, Java, PHP y más</li>
+      <li>Descripción y remediación de cada OWASP</li>
+    </ul>
+    <div class="ig-btn-row" style="margin-top:16px">
+      <a class="ig-btn ig-btn-vscode"
+         href="{{ EXT_URL }}"
+         target="_blank"
+         id="btn-open-vscode">
+        🔌 Abrir en VS Code
+      </a>
+      <a class="ig-btn ig-btn-secondary"
+         href="{{ EXT_URL }}"
+         target="_blank">
+        🌐 Ver en Marketplace
+      </a>
+      <a class="ig-btn ig-btn-secondary"
+         href="{{ EXT_URL }}"
+         target="_blank">
+        📋 Instalar por ID
+      </a>
+    </div>
+  </div>
+
+  <div class="ig-ide-card">
+    <div class="ig-ide-head">
+      <div class="ig-ide-logo" style="background:rgba(124,58,237,0.15)">🖱️</div>
+      <div>
+        <div class="ig-ide-name">Cursor / Windsurf / Codium</div>
+        <div class="ig-ide-sub">Compatible con cualquier editor basado en VS Code</div>
+      </div>
+    </div>
+    <div style="font-size:0.85rem;color:#9ca3af;margin-bottom:12px">
+      Estos editores usan el mismo sistema de extensiones que VS Code. Puedes instalar la extensión directamente desde su marketplace integrado.
+    </div>
+    <div class="ig-btn-row">
+      <a class="ig-btn ig-btn-cursor"
+         href="{{ EXT_URL }}"
+         target="_blank">
+        🖱️ Abrir en Cursor
+      </a>
+      <a class="ig-btn ig-btn-secondary"
+         href="{{ EXT_URL }}"
+         target="_blank">
+        🌐 Open VSX Registry
+      </a>
+    </div>
+  </div>
+
+  <hr class="ig-divider">
+
+  <!-- Pasos de instalación -->
+  <div class="ig-section-title">📋 Instalación paso a paso (para principiantes)</div>
+
+  <div class="ig-steps">
+    <div class="ig-step">
+      <div class="ig-step-num">1</div>
+      <div class="ig-step-body">
+        <div class="ig-step-title">Abre VS Code</div>
+        <div class="ig-step-desc">Si no tienes VS Code instalado, descárgalo gratis en <strong>code.visualstudio.com</strong>. Es gratuito y funciona en Windows, Mac y Linux.</div>
+      </div>
+    </div>
+
+    <div class="ig-step">
+      <div class="ig-step-num">2</div>
+      <div class="ig-step-body">
+        <div class="ig-step-title">Ve a la sección Extensiones</div>
+        <div class="ig-step-desc">Haz clic en el ícono de bloques en la barra lateral izquierda (o presiona <strong>Ctrl+Shift+X</strong>). Se abre el panel de extensiones.</div>
+        <div class="ig-code-wrap">
+          <div class="ig-code-head">
+            <span class="ig-code-lang">Atajo de teclado</span>
+            <button class="ig-copy-btn" onclick="igCopy(this)">📋 Copiar</button>
+          </div>
+          <pre class="ig-code-pre">Ctrl + Shift + X</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="ig-step">
+      <div class="ig-step-num">3</div>
+      <div class="ig-step-body">
+        <div class="ig-step-title">Busca "OWASP Verificator"</div>
+        <div class="ig-step-desc">Escribe <strong>OWASP Verificator</strong> en la caja de búsqueda. Selecciona la extensión del publisher <strong>Gerardo95</strong> y haz clic en <strong>Instalar</strong>.</div>
+        <div class="ig-code-wrap">
+          <div class="ig-code-head">
+            <span class="ig-code-lang">O instala por ID directamente</span>
+            <button class="ig-copy-btn" onclick="igCopy(this)">📋 Copiar</button>
+          </div>
+          <pre class="ig-code-pre">{{ EXT_URL }}</pre>
+        </div>
+        <div class="ig-btn-row">
+          <a class="ig-btn ig-btn-vscode" href="{{ EXT_URL }}" target="_blank">
+            🔌 Instalar ahora en VS Code
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="ig-step">
+      <div class="ig-step-num">4</div>
+      <div class="ig-step-body">
+        <div class="ig-step-title">¡Listo! Abre cualquier archivo de código</div>
+        <div class="ig-step-desc">Abre un archivo <strong>.py, .js, .ts, .java, .php</strong>… La extensión lo analizará automáticamente. Verás el ícono del escudo en la barra lateral izquierda.</div>
+        <div class="ig-success">
+          ✅ <strong>Si funciona:</strong> Verás subrayados amarillos o rojos en el código con vulnerabilidades OWASP detectadas. Pasa el cursor sobre ellos para ver la descripción y cómo solucionarlo.
+        </div>
+      </div>
+    </div>
+
+    <div class="ig-step">
+      <div class="ig-step-num">5</div>
+      <div class="ig-step-body">
+        <div class="ig-step-title">Cómo usar los comandos</div>
+        <div class="ig-step-desc">Abre la <strong>Paleta de Comandos</strong> con <strong>Ctrl+Shift+P</strong> y escribe <strong>OWASP</strong> para ver todos los comandos disponibles:</div>
+        <div class="ig-code-wrap">
+          <div class="ig-code-head">
+            <span class="ig-code-lang">Comandos disponibles</span>
+          </div>
+          <pre class="ig-code-pre">OWASP: Analizar archivo actual       ← analiza el archivo abierto
+OWASP: Escanear todo el Workspace   ← analiza todos los archivos del proyecto</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="ig-divider">
+
+  <div class="ig-warn">
+    <span style="font-size:1.1rem">⚠️</span>
+    <div><strong>¿No aparece la extensión?</strong> Asegúrate de buscar exactamente "OWASP Verificator" con V mayúscula, y que el publisher sea <code>Gerardo95</code>. También puedes instalarla haciendo clic en "Instalar ahora en VS Code" de arriba.</div>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- TAB 2: SKILLS PARA IA                                            -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="ig-panel" id="panel-skills">
+
+  <div class="ig-info">
+    <span style="font-size:1.2rem">🤖</span>
+    <span><strong>¿Qué son los Skills?</strong> Son funciones especiales que un agente de IA (como ChatGPT, Gemini o Claude) puede llamar automáticamente para analizar tu código. Tú le dices al agente "analiza este código" y él solo llama la función correcta.</span>
+  </div>
+
+  <!-- Requisito previo -->
+  <div class="ig-section-title">⚙️ Requisito: iniciar el microservicio API</div>
+  <div class="ig-step" style="margin-bottom:20px">
+    <div class="ig-step-num">!</div>
+    <div class="ig-step-body">
+      <div class="ig-step-title">Antes de usar los skills, inicia el servidor API</div>
+      <div class="ig-step-desc">Los skills son endpoints del microservicio en el puerto <strong>8001</strong>. Ábrelo en una terminal y déjalo corriendo:</div>
+      <div class="ig-code-wrap">
+        <div class="ig-code-head">
+          <span class="ig-code-lang">Terminal / PowerShell</span>
+          <button class="ig-copy-btn" onclick="igCopy(this)">📋 Copiar</button>
+        </div>
+        <pre class="ig-code-pre">uvicorn api.main:app --reload --port 8001</pre>
+      </div>
+      <div class="ig-btn-row">
+        <a class="ig-btn ig-btn-secondary" href="{{ API_URL }}/api/docs" target="_blank">
+          📘 Abrir Swagger UI
+        </a>
+        <a class="ig-btn ig-btn-secondary" href="{{ API_URL }}/api/v1/skills" target="_blank">
+          🗺️ Ver mapa de skills
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mapa de los 8 skills -->
+  <div class="ig-section-title">🗺️ Los 8 skills disponibles</div>
+  <div class="ig-skills-grid">
+    <div class="ig-skill-card">
+      <div class="ig-skill-head">
+        <div class="ig-skill-icon" style="background:rgba(0,102,204,0.15)">🌐</div>
+        <span class="ig-skill-name">skill_analyze_url</span>
+        <span class="ig-method-pill ig-method-post">POST</span>
+      </div>
+      <div class="ig-skill-desc">Analiza una URL verificando sus cabeceras de seguridad HTTP (CSP, HSTS, X-Frame-Options…). Devuelve score 0-100.</div>
+      <div class="ig-skill-endpoint">/api/v1/analyze/url</div>
+    </div>
+    <div class="ig-skill-card">
+      <div class="ig-skill-head">
+        <div class="ig-skill-icon" style="background:rgba(124,58,237,0.15)">💻</div>
+        <span class="ig-skill-name">skill_analyze_code</span>
+        <span class="ig-method-pill ig-method-post">POST</span>
+      </div>
+      <div class="ig-skill-desc">Analiza código fuente pegado directamente. Detecta secretos hardcodeados, eval(), SQL injection y más.</div>
+      <div class="ig-skill-endpoint">/api/v1/analyze/code</div>
+    </div>
+    <div class="ig-skill-card">
+      <div class="ig-skill-head">
+        <div class="ig-skill-icon" style="background:rgba(16,185,129,0.1)">🐙</div>
+        <span class="ig-skill-name">skill_analyze_github</span>
+        <span class="ig-method-pill ig-method-post">POST</span>
+      </div>
+      <div class="ig-skill-desc">Descarga y analiza un repositorio GitHub completo. Soporta repos públicos y privados.</div>
+      <div class="ig-skill-endpoint">/api/v1/analyze/github</div>
+    </div>
+    <div class="ig-skill-card">
+      <div class="ig-skill-head">
+        <div class="ig-skill-icon" style="background:rgba(245,158,11,0.1)">📋</div>
+        <span class="ig-skill-name">skill_get_report</span>
+        <span class="ig-method-pill ig-method-get">GET</span>
+      </div>
+      <div class="ig-skill-desc">Recupera el reporte completo de un escaneo anterior por su ID. Incluye todos los hallazgos y remediaciones.</div>
+      <div class="ig-skill-endpoint">/api/v1/reports/{id}</div>
+    </div>
+    <div class="ig-skill-card">
+      <div class="ig-skill-head">
+        <div class="ig-skill-icon" style="background:rgba(239,68,68,0.1)">⚖️</div>
+        <span class="ig-skill-name">skill_compare_scans</span>
+        <span class="ig-method-pill ig-method-post">POST</span>
+      </div>
+      <div class="ig-skill-desc">Compara dos escaneos y devuelve qué vulnerabilidades se resolvieron y cuáles son nuevas.</div>
+      <div class="ig-skill-endpoint">/api/v1/reports/compare</div>
+    </div>
+    <div class="ig-skill-card">
+      <div class="ig-skill-head">
+        <div class="ig-skill-icon" style="background:rgba(239,68,68,0.1)">📄</div>
+        <span class="ig-skill-name">skill_export_pdf</span>
+        <span class="ig-method-pill ig-method-get">GET</span>
+      </div>
+      <div class="ig-skill-desc">Genera un PDF profesional del reporte con portada, hallazgos y remediaciones detalladas.</div>
+      <div class="ig-skill-endpoint">/api/v1/exports/{id}/pdf</div>
+    </div>
+    <div class="ig-skill-card">
+      <div class="ig-skill-head">
+        <div class="ig-skill-icon" style="background:rgba(16,185,129,0.1)">📦</div>
+        <span class="ig-skill-name">skill_export_json</span>
+        <span class="ig-method-pill ig-method-get">GET</span>
+      </div>
+      <div class="ig-skill-desc">Exporta el reporte como JSON estructurado con metadata, listo para SIEM o CI/CD.</div>
+      <div class="ig-skill-endpoint">/api/v1/exports/{id}/json</div>
+    </div>
+    <div class="ig-skill-card">
+      <div class="ig-skill-head">
+        <div class="ig-skill-icon" style="background:rgba(0,102,204,0.15)">📊</div>
+        <span class="ig-skill-name">skill_dashboard_stats</span>
+        <span class="ig-method-pill ig-method-get">GET</span>
+      </div>
+      <div class="ig-skill-desc">Devuelve estadísticas globales: total scans, score promedio y nivel de riesgo (BAJO/MEDIO/ALTO).</div>
+      <div class="ig-skill-endpoint">/api/v1/stats</div>
+    </div>
+  </div>
+
+  <hr class="ig-divider">
+
+  <!-- Cómo usarlo con IA -->
+  <div class="ig-section-title">🧑‍💻 Cómo usar los skills con tu IA favorita</div>
+
+  <div class="ig-steps">
+    <div class="ig-step">
+      <div class="ig-step-num">1</div>
+      <div class="ig-step-body">
+        <div class="ig-step-title">Obtén el mapa de skills (para dárselo a la IA)</div>
+        <div class="ig-step-desc">Este endpoint devuelve la definición completa de todos los skills en formato JSON. <strong>Copia ese JSON y pégalo en la configuración de tu agente de IA.</strong></div>
+        <div class="ig-code-wrap">
+          <div class="ig-code-head">
+            <span class="ig-code-lang">URL</span>
+            <button class="ig-copy-btn" onclick="igCopy(this)">📋 Copiar</button>
+          </div>
+          <pre class="ig-code-pre">{{ API_URL }}/api/v1/skills</pre>
+        </div>
+        <div class="ig-btn-row">
+          <a class="ig-btn ig-btn-secondary" href="{{ API_URL }}/api/v1/skills" target="_blank">
+            🗺️ Ver skills JSON
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="ig-step">
+      <div class="ig-step-num">2</div>
+      <div class="ig-step-body">
+        <div class="ig-step-title">Con OpenAI / GPT-4o — agrega los skills como tools</div>
+        <div class="ig-step-desc">Copia y pega este código en tu proyecto Python. Los skills se cargan automáticamente del servidor:</div>
+        <div class="ig-code-wrap">
+          <div class="ig-code-head">
+            <span class="ig-code-lang">Python — OpenAI</span>
+            <button class="ig-copy-btn" onclick="igCopy(this)">📋 Copiar</button>
+          </div>
+          <pre class="ig-code-pre">import openai, requests, json
+
+# 1. Cargar los skills desde el servidor
+skills = requests.get("{{ API_URL }}/api/v1/skills").json()["data"]["skills"]
+
+# 2. Convertirlos al formato que entiende OpenAI
+tools = [{"type": "function", "function": {
+    "name":        s["name"],
+    "description": s["description"],
+    "parameters":  s["input_schema"]
+}} for s in skills]
+
+# 3. Usar en tu chat
+client = openai.OpenAI(api_key="TU_API_KEY")
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "Analiza https://example.com"}],
+    tools=tools,
+    tool_choice="auto"
+)
+
+# 4. Si el modelo llama un skill, ejecutarlo
+msg = response.choices[0].message
+if msg.tool_calls:
+    for call in msg.tool_calls:
+        args = json.loads(call.function.arguments)
+        skill_name = call.function.name  # p.ej. "skill_analyze_url"
+        
+        # Llama al endpoint correspondiente
+        result = requests.post(
+            f"{{ API_URL }}/api/v1/analyze/url",
+            json=args
+        ).json()
+        print(result["message"])</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="ig-step">
+      <div class="ig-step-num">3</div>
+      <div class="ig-step-body">
+        <div class="ig-step-title">Con Google Gemini — Function Calling</div>
+        <div class="ig-code-wrap">
+          <div class="ig-code-head">
+            <span class="ig-code-lang">Python — Gemini</span>
+            <button class="ig-copy-btn" onclick="igCopy(this)">📋 Copiar</button>
+          </div>
+          <pre class="ig-code-pre">import google.generativeai as genai, requests
+
+genai.configure(api_key="TU_API_KEY")
+
+# Definir el skill directamente
+analyze_code_fn = genai.types.FunctionDeclaration(
+    name="skill_analyze_code",
+    description="Analiza código fuente buscando vulnerabilidades OWASP Top 10",
+    parameters={
+        "type": "object",
+        "properties": {
+            "code":     {"type": "string", "description": "El código a analizar"},
+            "language": {"type": "string", "description": "Lenguaje (python, js, java...)"}
+        },
+        "required": ["code"]
+    }
+)
+
+model = genai.GenerativeModel("gemini-2.0-flash", tools=[analyze_code_fn])
+response = model.generate_content("Analiza: password = '12345'")
+
+# Si Gemini llama el skill, ejecutar la petición
+if response.candidates[0].content.parts[0].function_call:
+    fc = response.candidates[0].content.parts[0].function_call
+    result = requests.post(
+        "{{ API_URL }}/api/v1/analyze/code",
+        json=dict(fc.args)
+    ).json()
+    print(result["message"])</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="ig-step">
+      <div class="ig-step-num">4</div>
+      <div class="ig-step-body">
+        <div class="ig-step-title">Sin IA — usar los skills directamente (más simple)</div>
+        <div class="ig-step-desc">Si no usas IA, simplemente llama los endpoints con <strong>curl</strong> o Python directamente:</div>
+        <div class="ig-code-wrap">
+          <div class="ig-code-head">
+            <span class="ig-code-lang">bash / terminal</span>
+            <button class="ig-copy-btn" onclick="igCopy(this)">📋 Copiar</button>
+          </div>
+          <pre class="ig-code-pre"># Analizar una URL
+curl -X POST {{ API_URL }}/api/v1/analyze/url \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://tusitio.com"}'
+
+# Analizar código (pega tu código en "code")
+curl -X POST {{ API_URL }}/api/v1/analyze/code \
+  -H "Content-Type: application/json" \
+  -d '{"code": "password = \"12345\"", "language": "python"}'
+
+# Ver estadísticas globales
+curl {{ API_URL }}/api/v1/stats</pre>
+        </div>
+        <div class="ig-btn-row">
+          <a class="ig-btn ig-btn-primary" href="{{ API_URL }}/api/docs" target="_blank">
+            📘 Probar en Swagger (más fácil)
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!-- TAB 3: API / LIBRERÍA                                            -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div class="ig-panel" id="panel-libreapi">
+
+  <div class="ig-info">
+    <span style="font-size:1.2rem">📦</span>
+    <span><strong>¿Qué es esto?</strong> Puedes usar el verificador OWASP desde cualquier lenguaje de programación como si fuera una librería. Solo haces una petición HTTP a la API y recibes el análisis en JSON.</span>
+  </div>
+
+  <div class="ig-section-title">🚀 Inicio rápido (3 pasos)</div>
+
+  <div class="ig-steps">
+    <div class="ig-step">
+      <div class="ig-step-num">1</div>
+      <div class="ig-step-body">
+        <div class="ig-step-title">Verifica que el sistema esté corriendo</div>
+        <div class="ig-step-desc">El sistema web corre en el puerto <strong>8000</strong>. Si ves esta página, ¡ya está corriendo! El microservicio API necesita el puerto <strong>8001</strong>.</div>
+        <div class="ig-btn-row">
+          <a class="ig-btn ig-btn-secondary" href="{{ WEB_URL }}/health" target="_blank">🟢 Health check (web)</a>
+          <a class="ig-btn ig-btn-secondary" href="{{ API_URL }}/api/health" target="_blank">🟢 Health check (API)</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="ig-step">
+      <div class="ig-step-num">2</div>
+      <div class="ig-step-body">
+        <div class="ig-step-title">Obtén un token (opcional si REQUIRE_AUTH=false)</div>
+        <div class="ig-step-desc">Puedes usar el token de demo <strong>demo-token-12345</strong> para hacer pruebas, o generar uno nuevo:</div>
+        <div class="ig-code-wrap">
+          <div class="ig-code-head">
+            <span class="ig-code-lang">bash</span>
+            <button class="ig-copy-btn" onclick="igCopy(this)">📋 Copiar</button>
+          </div>
+          <pre class="ig-code-pre">curl -X POST http://localhost:8000/api/token \
+  -F "username=mi-aplicacion"
+
+# Respuesta:
+# { "token": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", "user": "mi-aplicacion" }</pre>
+        </div>
+        <div class="ig-info" style="margin-top:12px;margin-bottom:0">
+          <span>💡</span>
+          <span>Token de demo (ya funciona): <code style="color:#00d4ff">demo-token-12345</code></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ig-step">
+      <div class="ig-step-num">3</div>
+      <div class="ig-step-body">
+        <div class="ig-step-title">Haz tu primera petición</div>
+        <div class="ig-step-desc">Elige el lenguaje que ya usas:</div>
+
+        <!-- Mini tabs de lenguajes -->
+        <div style="display:flex;gap:4px;background:rgba(0,0,0,0.3);border:1px solid rgba(0,212,255,0.1);border-radius:6px;padding:3px;margin-bottom:10px;flex-wrap:wrap">
+          <button class="ig-copy-btn" style="border-radius:4px;background:rgba(0,212,255,0.12);color:#00d4ff" onclick="igLang(this,'python')" id="lang-python">Python</button>
+          <button class="ig-copy-btn" style="border-radius:4px" onclick="igLang(this,'js')" id="lang-js">JavaScript</button>
+          <button class="ig-copy-btn" style="border-radius:4px" onclick="igLang(this,'php')" id="lang-php">PHP</button>
+          <button class="ig-copy-btn" style="border-radius:4px" onclick="igLang(this,'bash')" id="lang-bash">curl</button>
+        </div>
+
+        <div id="code-python">
+          <div class="ig-code-wrap">
+            <div class="ig-code-head"><span class="ig-code-lang">Python</span><button class="ig-copy-btn" onclick="igCopy(this)">📋 Copiar</button></div>
+            <pre class="ig-code-pre">import requests
+
+# Analizar código
+respuesta = requests.post(
+    "http://localhost:8001/api/v1/analyze/code",
+    json={"code": "password = '12345'\neval(user_input)"},
+    headers={"X-API-Key": "demo-token-12345"}  # opcional
+)
+
+datos = respuesta.json()
+print(f"Score de seguridad: {datos['data']['score']}/100")
+print(f"Hallazgos encontrados: {datos['data']['findings_count']}")
+print(f"Resumen: {datos['message']}")
+
+# Ver cada hallazgo
+for h in datos['data']['findings']:
+    print(f"  [{h['severity'].upper()}] {h['rule_id']}: {h['title']}")
+    print(f"    Solución: {h['remediation'][:80]}...")</pre>
+          </div>
+        </div>
+
+        <div id="code-js" style="display:none">
+          <div class="ig-code-wrap">
+            <div class="ig-code-head"><span class="ig-code-lang">JavaScript (fetch)</span><button class="ig-copy-btn" onclick="igCopy(this)">📋 Copiar</button></div>
+            <pre class="ig-code-pre">const respuesta = await fetch("http://localhost:8001/api/v1/analyze/code", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "X-API-Key": "demo-token-12345"  // opcional
+  },
+  body: JSON.stringify({
+    code: "password = '12345'\neval(userInput)",
+    language: "javascript"
+  })
+});
+
+const datos = await respuesta.json();
+console.log(`Score: ${datos.data.score}/100`);
+console.log(`Hallazgos: ${datos.data.findings_count}`);
+datos.data.findings.forEach(h => {
+  console.log(`[${h.severity.toUpperCase()}] ${h.title}`);
+});</pre>
+          </div>
+        </div>
+
+        <div id="code-php" style="display:none">
+          <div class="ig-code-wrap">
+            <div class="ig-code-head"><span class="ig-code-lang">PHP</span><button class="ig-copy-btn" onclick="igCopy(this)">📋 Copiar</button></div>
+            <pre class="ig-code-pre">&lt;?php
+$ch = curl_init("http://localhost:8001/api/v1/analyze/code");
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST           => true,
+    CURLOPT_POSTFIELDS     => json_encode([
+        "code"     => "password = '12345'",
+        "language" => "php"
+    ]),
+    CURLOPT_HTTPHEADER => [
+        "Content-Type: application/json",
+        "X-API-Key: demo-token-12345"
+    ]
+]);
+$respuesta = json_decode(curl_exec($ch), true);
+echo "Score: " . $respuesta['data']['score'] . "/100\n";
+echo "Hallazgos: " . $respuesta['data']['findings_count'] . "\n";
+?&gt;</pre>
+          </div>
+        </div>
+
+        <div id="code-bash" style="display:none">
+          <div class="ig-code-wrap">
+            <div class="ig-code-head"><span class="ig-code-lang">curl / bash</span><button class="ig-copy-btn" onclick="igCopy(this)">📋 Copiar</button></div>
+            <pre class="ig-code-pre">curl -X POST http://localhost:8001/api/v1/analyze/code \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: demo-token-12345" \
+  -d '{"code": "password = \"12345\"", "language": "python"}'
+
+# La respuesta siempre tiene esta forma:
+# {
+#   "success": true,
+#   "data": { "score": 40, "findings_count": 2, ... },
+#   "message": "Score: 40/100. Hallazgos: 2"
+# }</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="ig-divider">
+
+  <!-- Referencia rápida de endpoints -->
+  <div class="ig-section-title">📚 Referencia de todos los endpoints</div>
+  <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:0.82rem">
+      <thead>
+        <tr style="background:rgba(0,102,204,0.1)">
+          <th style="padding:10px 12px;text-align:left;border:1px solid rgba(0,212,255,0.15);color:#00d4ff">Método</th>
+          <th style="padding:10px 12px;text-align:left;border:1px solid rgba(0,212,255,0.15);color:#00d4ff">Endpoint</th>
+          <th style="padding:10px 12px;text-align:left;border:1px solid rgba(0,212,255,0.15);color:#00d4ff">¿Qué hace?</th>
+          <th style="padding:10px 12px;text-align:left;border:1px solid rgba(0,212,255,0.15);color:#00d4ff">Input requerido</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% set rows = [
+          ("POST","green","/api/v1/analyze/url","Analiza cabeceras HTTP de una URL","url (string)"),
+          ("POST","green","/api/v1/analyze/code","Analiza código fuente directamente","code (string)"),
+          ("POST","green","/api/v1/analyze/github","Analiza un repo de GitHub","repo_url (string)"),
+          ("GET","blue","/api/v1/reports","Lista todos los escaneos","limit (opcional)"),
+          ("GET","blue","/api/v1/reports/{id}","Obtiene un reporte específico","id en la URL"),
+          ("POST","green","/api/v1/reports/compare","Compara dos escaneos","scan_id_left, scan_id_right"),
+          ("GET","blue","/api/v1/exports/{id}/pdf","Descarga reporte en PDF","id en la URL"),
+          ("GET","blue","/api/v1/exports/{id}/json","Exporta reporte en JSON","id en la URL"),
+          ("GET","blue","/api/v1/stats","Estadísticas globales","ninguno"),
+          ("GET","blue","/api/v1/skills","Lista todos los skills para IA","ninguno"),
+          ("GET","blue","/api/health","Verifica que el servicio funciona","ninguno"),
+        ] %}
+        {% for method, color, endpoint, desc, input_req in rows %}
+        <tr>
+          <td style="padding:9px 12px;border:1px solid rgba(0,212,255,0.1);color:{{ '#60a5fa' if color=='green' else '#34d399' }};font-weight:700;font-family:'JetBrains Mono',monospace;font-size:0.75rem">{{ method }}</td>
+          <td style="padding:9px 12px;border:1px solid rgba(0,212,255,0.1);font-family:'JetBrains Mono',monospace;color:#d1d5db;font-size:0.78rem">{{ endpoint }}</td>
+          <td style="padding:9px 12px;border:1px solid rgba(0,212,255,0.1);color:#9ca3af">{{ desc }}</td>
+          <td style="padding:9px 12px;border:1px solid rgba(0,212,255,0.1);color:#6b7280;font-family:'JetBrains Mono',monospace;font-size:0.75rem">{{ input_req }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="ig-divider">
+
+  <div class="ig-warn">
+    <span style="font-size:1.1rem">💡</span>
+    <div><strong>¿Respuesta siempre igual:</strong> Todos los endpoints devuelven <code>{"success": true/false, "data": {...}, "message": "texto legible"}</code>. El campo <code>message</code> contiene un resumen en texto simple que puedes mostrar directamente al usuario.</div>
+  </div>
+
+</div>
+
+</div><!-- /ig-wrap -->
+
+<script>
+  /* ── Tabs principales ─────────────────── */
+  function igTab(btn, name) {
+    document.querySelectorAll('.ig-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.ig-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + name).classList.add('active');
+  }
+
+  /* ── Tabs de lenguaje ─────────────────── */
+  function igLang(btn, lang) {
+    ['python','js','php','bash'].forEach(l => {
+      const el = document.getElementById('code-' + l);
+      const lb = document.getElementById('lang-' + l);
+      if (el) el.style.display = (l === lang) ? 'block' : 'none';
+      if (lb) {
+        lb.style.background = (l === lang) ? 'rgba(0,212,255,0.12)' : '';
+        lb.style.color      = (l === lang) ? '#00d4ff' : '';
+      }
+    });
+  }
+
+  /* ── Copiar código ────────────────────── */
+  function igCopy(btn) {
+    const pre = btn.closest('.ig-code-head').nextElementSibling;
+    navigator.clipboard.writeText(pre.innerText || pre.textContent).then(() => {
+      btn.textContent = '✅ Copiado';
+      btn.classList.add('ok');
+      setTimeout(() => {
+        btn.textContent = '📋 Copiar';
+        btn.classList.remove('ok');
+      }, 1800);
+    }).catch(() => {
+      // fallback
+      const ta = document.createElement('textarea');
+      ta.value = pre.innerText;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      btn.textContent = '✅ Copiado';
+      setTimeout(() => { btn.textContent = '📋 Copiar'; }, 1800);
+    });
+  }
+</script>
+
+{% endblock %}
