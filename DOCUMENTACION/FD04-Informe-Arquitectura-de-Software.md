@@ -1,4 +1,4 @@
-# FD04 - Informe de Arquitectura de Software
+# FD04 - Informe de Arquitectura de Software (SAD)
 
 **UNIVERSIDAD PRIVADA DE TACNA**
 
@@ -20,186 +20,191 @@ Tacna – Perú
 
 2026
 
+---
+
 ## CONTROL DE VERSIONES
 
 | Versión | Hecha por | Revisada por | Aprobada por | Fecha | Motivo |
 |---|---|---|---|---|---|
-| 1.0 | Equipo | Profesor | - | 25/04/2026 | Versión final |
+| 1.0 | Equipo | Profesor | - | 25/04/2026 | Versión final inicial |
+| 2.0 | Equipo | Profesor | - | 24/06/2026 | Re-diseño de la persistencia (SQLite3), inclusión de la arquitectura de la Extensión de VS Code y el escáner de CVEs |
+
+---
 
 ## ÍNDICE GENERAL
 
 1. Introducción
-1.1 Propósito
-1.2 Alcance
-1.3 Definiciones, siglas y abreviaturas
-1.4 Organización del documento
+  1.1 Propósito
+  1.2 Alcance
+  1.3 Definiciones, siglas y abreviaturas
+  1.4 Organización del documento
 2. Objetivos y restricciones arquitectónicas
-2.1 Requerimientos funcionales
-2.2 Requerimientos no funcionales
+  2.1 Requerimientos funcionales
+  2.2 Requerimientos no funcionales
+  2.3 Restricciones
 3. Representación de la arquitectura del sistema
-3.1 Vista de casos de uso
-3.2 Vista lógica
-3.3 Vista de implementación
-3.4 Vista de procesos
-3.5 Vista de despliegue
+  3.1 Vista de casos de uso
+  3.2 Vista lógica
+  3.3 Vista de implementación
+  3.4 Vista de procesos
+  3.5 Vista de despliegue
 4. Atributos de calidad
+
+---
 
 ## 1. Introducción
 
 ### 1.1 Propósito
-
-El propósito de este documento es describir la arquitectura del Sistema Verificador de Cumplimiento OWASP utilizando un enfoque inspirado en el modelo 4+1. Se muestra cómo las decisiones arquitectónicas soportan los requisitos funcionales y de calidad.
+El propósito de este documento es detallar el diseño y la arquitectura global del **Ecosistema Verificador de Cumplimiento OWASP**. Describe la organización lógica, física, de procesos y de implementación del sistema, facilitando la comprensión del flujo de datos entre la extensión del desarrollador en el IDE y el backend de auditoría.
 
 ### 1.2 Alcance
-
-Este documento cubre las vistas relevantes del sistema: casos de uso, lógica, implementación, procesos y despliegue. Se describe la estructura de paquetes y las relaciones entre los componentes principales.
+Este documento describe el sistema compuesto por el servidor web FastAPI y la extensión para VS Code. Cubre las vistas de arquitectura bajo una metodología simplificada basada en el modelo 4+1, analizando los diagramas de componentes, paquetes y despliegue del software.
 
 ### 1.3 Definiciones, siglas y abreviaturas
-
-- OWASP: Open Web Application Security Project.
-- API: Interfaz de Programación de Aplicaciones.
-- DB: Base de datos.
-- MySQL: Sistema de gestión de bases de datos relacional.
-- ORM: Mapeo Objeto-Relacional.
-- HTTP: Protocolo de transferencia de hipertexto.
+- **OWASP:** Open Web Application Security Project (Proyecto Abierto de Seguridad de Aplicaciones Web).
+- **API:** Application Programming Interface (Interfaz de Programación de Aplicaciones).
+- **SQLite3:** Motor de base de datos relacional ligero basado en archivos locales, sin proceso servidor independiente.
+- **CVE:** Common Vulnerabilities and Exposures (Vulnerabilidades y Exposiciones Comunes).
+- **IDE:** Integrated Development Environment (Entorno de Desarrollo Integrado, ej. VS Code).
+- **JSON:** JavaScript Object Notation (Notación de Objetos de JavaScript).
+- **HTTP/HTTPS:** Hypertext Transfer Protocol (Protocolo de Transferencia de Hipertexto).
 
 ### 1.4 Organización del documento
+El documento se divide en cuatro capítulos principales: objetivos y restricciones, representación de las vistas de arquitectura, atributos de calidad del software y bibliografía.
 
-El documento inicia con objetivos y restricciones, luego presenta la arquitectura en cinco vistas y concluye con atributos de calidad y escenarios.
+---
 
 ## 2. Objetivos y restricciones arquitectónicas
 
 ### 2.1 Requerimientos funcionales
-
-- El sistema debe recibir solicitudes de análisis por web y API.
-- Debe ejecutar análisis de código y de URL.
-- Debe guardar resultados en base de datos.
-- Debe mostrar reportes con hallazgos y puntajes.
+- **Análisis Multi-Objetivo:** Recibir solicitudes de análisis desde interfaces web, APIs o la extensión de desarrollo para escanear código, URLs o repositorios de GitHub.
+- **Auditoría de Vulnerabilidades:** Identificar riesgos del OWASP Top 10 y dependencias desactualizadas o vulnerables (CVEs).
+- **Persistencia de Resultados:** Guardar los escaneos y hallazgos en una base de datos local SQLite3 de manera transaccional.
+- **Reportes Dinámicos:** Mostrar resultados de cumplimiento mediante un score (0-100) y descripciones detalladas con sugerencias de remediación.
+- **Integración con IDE:** Detectar eventos de guardado de archivos de código en VS Code para mostrar diagnósticos en tiempo real en el editor.
 
 ### 2.2 Requerimientos no funcionales
+- **Mantenibilidad:** El código debe estar estructurado de forma modular para permitir la adición de nuevas reglas de análisis sin alterar los routers.
+- **Simplicidad de Despliegue:** El sistema debe operar con la menor cantidad de dependencias del sistema posibles (base de datos SQLite3 en un archivo local).
+- **Rendimiento:** Tiempos de respuesta óptimos (menor a 5 segundos para código fuente en desarrollo).
+- **Seguridad:** Aislamiento de tokens, control de sesiones en memoria y validación de endpoints administrativos mediante API Keys.
 
-- Seguridad: validar entradas y manejar errores de red.
-- Disponibilidad: mantener el servicio web operativo.
-- Mantenibilidad: usar arquitectura modular y separación de responsabilidades.
-- Escalabilidad: el diseño deberá permitir agregar nuevas reglas de análisis.
-- Portabilidad: la configuración de base de datos y entornos debe ser variable.
+### 2.3 Restricciones
+- El backend del sistema se implementa exclusivamente en Python 3.11+ utilizando el framework FastAPI.
+- La extensión se desarrolla con JavaScript estándar para la API de extensiones de VS Code.
+- La base de datos es local y utiliza **SQLite3** con persistencia en un archivo (`data/scans.sqlite3`).
+- El análisis de dependencias (CVE) se limita a las librerías soportadas en la base de datos de firmas predefinida en la aplicación.
 
-### Restricciones
-
-- El servicio se implementa en Python y FastAPI.
-- La base de datos se conecta mediante SQLAlchemy.
-- El análisis de URL usa `requests` y solo HTTP/HTTPS.
-- El proyecto se despliega en un solo nodo con base de datos local.
+---
 
 ## 3. Representación de la arquitectura del sistema
 
 ### 3.1 Vista de casos de uso
+Los casos de uso que guían la arquitectura son:
+- Analizar código desde formulario web o API.
+- Analizar URLs externas de forma segura.
+- Analizar repositorio completo de GitHub.
+- Recibir diagnósticos y soluciones en tiempo real en VS Code.
 
-Los casos de uso principales son:
-- Analizar código.
-- Analizar URL.
-- Consultar reporte de escaneo.
-
-#### Diagrama de casos de uso (texto)
-
-Actores: Usuario.
-Casos: Ingresar objetivo, Ejecutar análisis, Ver reporte.
+---
 
 ### 3.2 Vista lógica
 
-#### Diagrama de paquetes
+#### Diagrama de paquetes del backend
+El código del servidor FastAPI se organiza bajo la siguiente estructura modular:
 
-El sistema se organiza en los siguientes paquetes principales:
-- `app.routers`: define las rutas web y API.
-- `app.services`: contiene la lógica del análisis y reglas.
-- `app.models`: define el modelo de datos para scans y findings.
-- `app.db`: gestiona la conexión y sesiones de la base de datos.
-- `app.templates`: presenta las páginas HTML.
+- `app.routers`: Define los endpoints HTTP/REST de la API y el ruteo de las vistas web (dashboard, reports, analysis).
+- `app.services`: Contiene los motores lógicos de escaneo (`scanner.py`), el evaluador de CVEs (`cve_analyzer.py`), y la integración con la API de GitHub.
+- `app.models`: Define las estructuras de datos de negocio (`Scan` y `Finding`) basadas en Python dataclasses.
+- `app.store`: Administra la persistencia transaccional de los datos en SQLite3 y la gestión de tokens de seguridad en memoria.
 
-#### Diagrama de secuencia
+#### Flujo de Persistencia de Datos
+A diferencia de los modelos ORM tradicionales que fragmentan la información en múltiples tablas unidas por llaves foráneas, el sistema utiliza un diseño simplificado para alta velocidad de lectura:
 
-1. El usuario envía un formulario de análisis o una solicitud API.
-2. `app.routers.analysis` recibe la petición y llama a `execute_scan`.
-3. `execute_scan` determina el tipo y llama a `scan_code` o `scan_url`.
-4. El servicio de análisis produce hallazgos.
-5. Se calcula un puntaje con `calculate_score`.
-6. Se guarda el `Scan` y cada `Finding` en la base de datos.
-7. Se devuelve el resultado y se redirige a un reporte.
+```
+[Router / API] ──> [Analysis Service] ──> [InMemoryScanStore]
+                                                   │
+                                     ┌─────────────┴─────────────┐
+                                     ▼                           ▼
+                           [data/scans.sqlite3]          [data/scans.json]
+                           (Tabla scans con             (Respaldo plano
+                           findings_json TEXT)           de los análisis)
+```
+
+---
 
 ### 3.3 Vista de implementación
 
 #### Diagrama de componentes
+El ecosistema interactúa de la siguiente manera:
 
-- FastAPI: servidor web.
-- Jinja2: renderizado de plantillas HTML.
-- SQLAlchemy: acceso a la base de datos.
-- `requests`: acceso HTTP para análisis de URL.
+```
+  ┌────────────────────────────────────────────────────────┐
+  │                 Extensión de VS Code                   │
+  │   ┌─────────────────────┐       ┌──────────────────┐   │
+  │   │  Extension Host     │ <───> │ Webview Panel    │   │
+  │   │  (JS/Diagnostics)   │       │ (Dashboard UI)   │   │
+  │   └──────────┬──────────┘       └──────────────────┘   │
+  └──────────────┼─────────────────────────────────────────┘
+                 │
+                 │ Solicitud HTTP POST (Análisis)
+                 ▼
+  ┌────────────────────────────────────────────────────────┐
+  │                 Sistema Web Backend                    │
+  │   ┌─────────────────────┐       ┌──────────────────┐   │
+  │   │ FastAPI Router      │ <───> │ Jinja2 Templates │   │
+  │   └──────────┬──────────┘       └──────────────────┘   │
+  │              │                                         │
+  │              ▼                                         │
+  │   ┌─────────────────────┐       ┌──────────────────┐   │
+  │   │ Services (Scanner)  │ <───> │ cve_analyzer     │   │
+  │   └──────────┬──────────┘       └──────────────────┘   │
+  │              │                                         │
+  │              ▼                                         │
+  │   ┌─────────────────────┐                              │
+  │   │ app.store (Store)   │                              │
+  │   └──────────┬──────────┘                              │
+  └──────────────┼─────────────────────────────────────────┘
+                 │
+                 ▼
+      [Base de Datos SQLite3]
+```
 
-#### Paquetes clave
-
-- `main.py`: arranca la aplicación y monta rutas.
-- `analysis.py`: maneja entradas de análisis.
-- `reports.py`: expone vistas y endpoints de reportes.
-- `scanner.py`: implementa reglas de detección.
-- `analysis_service.py`: orquesta el proceso de escaneo.
+---
 
 ### 3.4 Vista de procesos
 
-#### Diagrama de actividad de proceso
+#### Actividad de Escaneo
+1. Un cliente (Web, API o Extensión) solicita el análisis enviando un payload con `target_type` y `target_value`.
+2. El enrutador correspondiente valida la estructura de la petición (`AnalyzeRequest`).
+3. Se invoca a `analysis_service.py`, el cual deriva el flujo al escáner adecuado (`scan_code`, `scan_url` o `scan_github_repo`).
+4. Si es análisis de código, se corre en paralelo el motor de búsqueda regex de OWASP y el extractor de imports para confrontar contra `KNOWN_CVES`.
+5. Se calcula la puntuación (`calculate_score`) restando penalidades por vulnerabilidad.
+6. El servicio llama a `scan_store.create_scan()`, el cual inserta el registro en la base de datos SQLite y guarda los hallazgos en formato JSON dentro del campo `findings_json`.
+7. Se retorna el reporte estructurado en formato JSON o se redirige a la plantilla de reporte web.
 
-- Entrada de solicitud.
-- Validación de tipo (`code` o `url`).
-- Ejecución de regla de escaneo.
-- Almacenamiento de resultados.
-- Retorno de reporte.
-
-El proceso gestiona solicitudes HTTP de forma síncrona dentro de FastAPI.
+---
 
 ### 3.5 Vista de despliegue
 
-El despliegue previsto es:
-- Servidor de aplicaciones Python con FastAPI.
-- Base de datos MySQL/compatible.
-- Carpeta `app/static` para recursos estáticos.
+El despliegue está diseñado para ser autoportante y se caracteriza por:
+- **Servidor de Aplicaciones:** Un entorno Python con `FastAPI` servido localmente por `Uvicorn` o en contenedores/Azure App Service con `Gunicorn`.
+- **Almacenamiento Local:** No requiere la instalación o administración de un motor de base de datos MySQL o PostgreSQL. La base de datos es un archivo local transaccional SQLite3 que se inicializa automáticamente al arrancar la aplicación por primera vez en la ruta `data/scans.sqlite3`.
+- **Extensión de Editor:** Paquetizada en un archivo `.vsix` instalable directamente en VS Code, el cual se comunica vía solicitudes HTTP al backend (configurable).
 
-#### Topología física
-
-- Nodo único: aplicación web + conexión a DB remota/local.
-- Comunicación interna: FastAPI <-> MySQL.
+---
 
 ## 4. Atributos de calidad del software
 
-### Escenario de funcionalidad
+- **Mantenibilidad:** La incorporación de un archivo `store.py` centralizado e independiente de ORM pesados permite cambiar la tecnología de base de datos con un impacto mínimo en los routers y servicios de análisis.
+- **Portabilidad:** Al utilizar SQLite3 nativo, el backend no tiene dependencias de infraestructura específicas, pudiendo correr de manera idéntica en Windows (desarrollo local de la extensión) o Linux (despliegue en Azure).
+- **Usabilidad:** La extensión de VS Code responde de manera transparente en segundo plano sin interrumpir el flujo de escritura del desarrollador.
+- **Seguridad:** El backend valida las URLs analizadas para evitar ataques de SSRF y valida los tokens de API con mecanismos de expiración en memoria.
 
-El usuario envía código o URL y obtiene un reporte con hallazgos.
-
-### Escenario de usabilidad
-
-El usuario interactúa con un formulario web simple y comprende claramente el tipo de análisis.
-
-### Escenario de confiabilidad
-
-El sistema maneja entradas inválidas y errores de red de forma controlada.
-
-### Escenario de rendimiento
-
-Los análisis se procesan en tiempos razonables, con llamadas HTTP limitadas a 15 segundos.
-
-### Escenario de mantenibilidad
-
-La arquitectura modular permite agregar nuevas reglas de análisis sin modificar el router principal.
-
-### Escenario de seguridad
-
-Se validan entradas y se evita el análisis de URLs no permitidas fuera de HTTP/HTTPS.
-
-### Escenario de disponibilidad
-
-El servicio puede mantenerse disponible siempre que la base de datos y la red HTTP estén operativas.
+---
 
 ## Bibliografía
 
-- OWASP Top Ten.
-- Documentación oficial de FastAPI.
-- Documentación oficial de SQLAlchemy.
-- Documentación oficial de Requests.
+- Bass, L., Clements, P., & Kazman, R. (2012). *Software Architecture in Practice* (3rd Edition). Addison-Wesley.
+- FastAPI Official Reference. [https://fastapi.tiangolo.com/](https://fastapi.tiangolo.com/).
+- SQLite Documentation. [https://www.sqlite.org/docs.html](https://www.sqlite.org/docs.html).
