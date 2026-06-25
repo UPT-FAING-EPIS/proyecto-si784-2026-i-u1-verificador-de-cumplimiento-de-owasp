@@ -261,11 +261,6 @@
     .ig-feature-list { grid-template-columns: 1fr; }
   }
 
-</style> .ig-hero h1 { font-size: 1.5rem; }
-    .ig-tab-btn { font-size: 0.78rem; padding: 9px 10px; }
-    .ig-feature-list { grid-template-columns: 1fr; }
-  }
-
 </style>
 
 <section class="hero">
@@ -699,8 +694,8 @@ curl http://38.250.116.71:8000/health</pre>
     
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
         <!-- API Token -->
-        <div style="background: rgba(0, 102, 204, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); padding: 16px; border-radius: 8px;">
-            <h4 style="color: #00d4ff; margin-top: 0;">1️⃣ Token API (Servidor)</h4>
+        <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid var(--panel-border); padding: 16px; border-radius: 8px;">
+            <h4 style="color: var(--accent-2); margin-top: 0;">1️⃣ Token API (Servidor)</h4>
             <p style="color: #e5e7eb; font-size: 0.9rem; margin: 8px 0;">Para autenticarte en el servidor y usar la API.</p>
             <p style="color: #9ca3af; font-size: 0.85rem; margin: 8px 0;"><strong>Generado por:</strong> El servidor (abajo ⬇️)</p>
             <p style="color: #9ca3af; font-size: 0.85rem; margin: 8px 0;"><strong>Se usa en:</strong></p>
@@ -712,7 +707,7 @@ curl http://38.250.116.71:8000/health</pre>
         </div>
         
         <!-- GitHub Token -->
-        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 16px; border-radius: 8px;">
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); padding: 16px; border-radius: 8px;">
             <h4 style="color: #10b981; margin-top: 0;">2️⃣ Token GitHub (Tu Cuenta)</h4>
             <p style="color: #e5e7eb; font-size: 0.9rem; margin: 8px 0;">Para acceder a tus repositorios privados en GitHub.</p>
             <p style="color: #9ca3af; font-size: 0.85rem; margin: 8px 0;"><strong>Generado por:</strong> GitHub (en tu cuenta)</p>
@@ -725,15 +720,15 @@ curl http://38.250.116.71:8000/health</pre>
         </div>
     </div>
     
-    <h4 style="color: #00d4ff; margin-top: 20px;">Genera tu Token API del Servidor</h4>
+    <h4 style="color: var(--accent-2); margin-top: 20px;">Genera tu Token API del Servidor</h4>
     <p style="color: #9ca3af; margin-bottom: 16px;">Necesitas este token para usar la API. Ingresa tu nombre de usuario y generaremos uno para ti.</p>
     
     {% if generated_token %}
         <div style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 6px; padding: 16px; margin-bottom: 16px;">
             <p style="color: #10b981; font-weight: 600; margin-bottom: 8px;">✅ Token generado para: <strong>{{ token_user }}</strong></p>
-            <div style="background: #1a1f3a; padding: 12px; border-radius: 6px; margin-bottom: 12px; position: relative;">
-                <code style="color: #00d4ff; font-family: monospace; word-break: break-all;">{{ generated_token }}</code>
-                <button onclick="navigator.clipboard.writeText('{{ generated_token }}'); alert('Token copiado al portapapeles');" style="position: absolute; right: 12px; top: 12px; padding: 6px 12px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">Copiar</button>
+            <div style="background: #030611; border: 1px solid var(--panel-border); padding: 12px; border-radius: 6px; margin-bottom: 12px; position: relative;">
+                <code style="color: var(--accent-2); font-family: monospace; word-break: break-all;">{{ generated_token }}</code>
+                <button onclick="navigator.clipboard.writeText('{{ generated_token }}'); alert('Token copiado al portapapeles');" style="position: absolute; right: 12px; top: 12px; padding: 6px 12px; background: var(--accent); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">Copiar</button>
             </div>
             <p style="color: #10b981; font-size: 0.9rem;">⚠️ <strong>Guarda este token en un lugar seguro.</strong> No podrás verlo de nuevo. Si lo pierdes, genera uno nuevo.</p>
         </div>
@@ -783,9 +778,9 @@ curl http://38.250.116.71:8000/health</pre>
                 resultDiv.innerHTML = `
                     <div style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 6px; padding: 16px; margin-bottom: 16px;">
                         <p style="color: #10b981; font-weight: 600; margin-bottom: 8px;">✅ Token generado para: <strong>${data.user}</strong></p>
-                        <div style="background: #1a1f3a; padding: 12px; border-radius: 6px; margin-bottom: 12px; position: relative;">
-                            <code style="color: #00d4ff; font-family: monospace; word-break: break-all;">${data.token}</code>
-                            <button onclick="navigator.clipboard.writeText('${data.token}'); alert('Token copiado al portapapeles');" style="position: absolute; right: 12px; top: 12px; padding: 6px 12px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">Copiar</button>
+                        <div style="background: #030611; border: 1px solid var(--panel-border); padding: 12px; border-radius: 6px; margin-bottom: 12px; position: relative;">
+                            <code style="color: var(--accent-2); font-family: monospace; word-break: break-all;">${data.token}</code>
+                            <button onclick="navigator.clipboard.writeText('${data.token}'); alert('Token copiado al portapapeles');" style="position: absolute; right: 12px; top: 12px; padding: 6px 12px; background: var(--accent); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">Copiar</button>
                         </div>
                         <p style="color: #10b981; font-size: 0.9rem;">⚠️ <strong>Guarda este token en un lugar seguro.</strong> No podrás verlo de nuevo. Si lo pierdes, genera uno nuevo.</p>
                         <p style="color: #9ca3af; font-size: 0.9rem; margin-top: 12px;"><strong>Nota:</strong> Este es tu token API para autenticarte en este servidor. Úsalo en el header <code>X-API-Key</code> de tus peticiones.</p>
@@ -804,11 +799,11 @@ curl http://38.250.116.71:8000/health</pre>
 <section class="card">
     <h3>🚀 Tutorial: Integración de API en Otro Sistema</h3>
     <div style="margin-top: 20px;">
-        <div style="background: rgba(0, 102, 204, 0.05); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
-            <h4 style="color: #00d4ff; margin-top: 0;">Paso 1: Obtener Token API</h4>
+        <div style="background: rgba(99, 102, 241, 0.04); padding: 16px; border-radius: 8px; border: 1px solid var(--panel-border); margin-bottom: 16px;">
+            <h4 style="color: var(--accent-2); margin-top: 0;">Paso 1: Obtener Token API</h4>
             <p style="color: #e5e7eb; margin: 8px 0;"><strong>Ya lo hiciste arriba 👆</strong> - Ingresa tu nombre de usuario en la sección "Genera tu Token API" y copia el token que se genere.</p>
             <p style="color: #e5e7eb; margin: 12px 0 0 0;"><strong>O genera uno directamente con curl:</strong></p>
-            <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">curl -X POST http://localhost:8000/api/token \
+            <pre style="background: #030611; border: 1px solid var(--panel-border); padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">curl -X POST http://localhost:8000/api/token \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "username=mi-app"
 
@@ -819,17 +814,17 @@ Respuesta:
 }</pre>
         </div>
         
-        <div style="background: rgba(0, 102, 204, 0.05); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
-            <h4 style="color: #00d4ff; margin-top: 0;">Paso 2: Usa el Token en tus Peticiones</h4>
-            <p style="color: #e5e7eb; margin: 8px 0;">Incluye el token en el header <code>X-API-Key</code> de cada petición:</p>
-            <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">X-API-Key: tu-token-aqui
+        <div style="background: rgba(99, 102, 241, 0.04); padding: 16px; border-radius: 8px; border: 1px solid var(--panel-border); margin-bottom: 16px;">
+            <h4 style="color: var(--accent-2); margin-top: 0;">Paso 2: Usa el Token en tus Peticiones</h4>
+            <p style="color: #e5e7eb; margin: 8px 0;">Incluye el token in el header <code>X-API-Key</code> de cada petición:</p>
+            <pre style="background: #030611; border: 1px solid var(--panel-border); padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">X-API-Key: tu-token-aqui
 Content-Type: application/json</pre>
         </div>
         
-        <div style="background: rgba(0, 102, 204, 0.05); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
-            <h4 style="color: #00d4ff; margin-top: 0;">Paso 3: Realizar Análisis de Seguridad</h4>
+        <div style="background: rgba(99, 102, 241, 0.04); padding: 16px; border-radius: 8px; border: 1px solid var(--panel-border); margin-bottom: 16px;">
+            <h4 style="color: var(--accent-2); margin-top: 0;">Paso 3: Realizar Análisis de Seguridad</h4>
             <p style="color: #e5e7eb; margin: 8px 0;"><strong>Analizar Código:</strong></p>
-            <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">curl -X POST https://tu-verificador.com/analyze/api \
+            <pre style="background: #030611; border: 1px solid var(--panel-border); padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">curl -X POST https://tu-verificador.com/analyze/api \
   -H "X-API-Key: tu-token-aqui" \
   -H "Content-Type: application/json" \
   -d '{
@@ -838,7 +833,7 @@ Content-Type: application/json</pre>
   }'</pre>
 
             <p style="color: #e5e7eb; margin: 16px 0 8px 0;"><strong>Analizar URL:</strong></p>
-            <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">curl -X POST https://tu-verificador.com/analyze/api \
+            <pre style="background: #030611; border: 1px solid var(--panel-border); padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">curl -X POST https://tu-verificador.com/analyze/api \
   -H "X-API-Key: tu-token-aqui" \
   -H "Content-Type: application/json" \
   -d '{
@@ -847,7 +842,7 @@ Content-Type: application/json</pre>
   }'</pre>
 
             <p style="color: #e5e7eb; margin: 16px 0 8px 0;"><strong>Analizar Repositorio GitHub:</strong></p>
-            <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">curl -X POST https://tu-verificador.com/analyze/api \
+            <pre style="background: #030611; border: 1px solid var(--panel-border); padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">curl -X POST https://tu-verificador.com/analyze/api \
   -H "X-API-Key: tu-token-aqui" \
   -H "Content-Type: application/json" \
   -d '{
@@ -856,10 +851,10 @@ Content-Type: application/json</pre>
   }'</pre>
         </div>
         
-        <div style="background: rgba(16, 185, 129, 0.1); padding: 16px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.3); margin-bottom: 16px;">
+        <div style="background: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.3); margin-bottom: 16px;">
             <h4 style="color: #86efac; margin-top: 0;">✅ Respuesta Exitosa</h4>
             <p style="color: #e5e7eb; margin: 8px 0;">El análisis devuelve un JSON con los resultados de seguridad:</p>
-            <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">{
+            <pre style="background: #030611; border: 1px solid var(--panel-border); padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">{
   "id": 1,
   "target_type": "code",
   "target_value": "...",
@@ -877,16 +872,16 @@ Content-Type: application/json</pre>
 }</pre>
         </div>
 
-        <div style="background: rgba(239, 68, 68, 0.1); padding: 16px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3);">
+        <div style="background: rgba(239, 68, 68, 0.08); padding: 16px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3);">
             <h4 style="color: #fca5a5; margin-top: 0;">❌ Manejo de Errores</h4>
             <p style="color: #e5e7eb; margin: 8px 0;"><strong>Token inválido:</strong></p>
-            <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">HTTP 401 Unauthorized
+            <pre style="background: #030611; border: 1px solid var(--panel-border); padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">HTTP 401 Unauthorized
 {
   "detail": "Token inválido o expirado"
 }</pre>
 
             <p style="color: #e5e7eb; margin: 16px 0 8px 0;"><strong>Parámetros inválidos:</strong></p>
-            <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">HTTP 400 Bad Request
+            <pre style="background: #030611; border: 1px solid var(--panel-border); padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">HTTP 400 Bad Request
 {
   "detail": "target_type debe ser 'code', 'url', 'archivo' o 'github_repo'"
 }</pre>
@@ -899,37 +894,37 @@ Content-Type: application/json</pre>
     <h3>📚 Referencia de Endpoints</h3>
     <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
         <thead>
-            <tr style="background: rgba(0, 102, 204, 0.1);">
-                <th style="padding: 12px; text-align: left; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff;">Método</th>
-                <th style="padding: 12px; text-align: left; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff;">Endpoint</th>
-                <th style="padding: 12px; text-align: left; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff;">Descripción</th>
+            <tr style="background: rgba(99, 102, 241, 0.08); border-bottom: 2px solid var(--panel-border);">
+                <th style="padding: 12px; text-align: left; border: 1px solid var(--panel-border); color: var(--accent-2);">Método</th>
+                <th style="padding: 12px; text-align: left; border: 1px solid var(--panel-border); color: var(--accent-2);">Endpoint</th>
+                <th style="padding: 12px; text-align: left; border: 1px solid var(--panel-border); color: var(--accent-2);">Descripción</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff; font-weight: 600;">POST</td>
-                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb; font-family: monospace;">/analyze/api</td>
-                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb;">Realizar análisis de seguridad</td>
+                <td style="padding: 12px; border: 1px solid var(--panel-border); color: var(--accent-2); font-weight: 600;">POST</td>
+                <td style="padding: 12px; border: 1px solid var(--panel-border); color: #e5e7eb; font-family: monospace;">/analyze/api</td>
+                <td style="padding: 12px; border: 1px solid var(--panel-border); color: #e5e7eb;">Realizar análisis de seguridad</td>
             </tr>
             <tr>
-                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff; font-weight: 600;">GET</td>
-                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb; font-family: monospace;">/reports/api</td>
-                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb;">Listar todos los reportes</td>
+                <td style="padding: 12px; border: 1px solid var(--panel-border); color: var(--accent-2); font-weight: 600;">GET</td>
+                <td style="padding: 12px; border: 1px solid var(--panel-border); color: #e5e7eb; font-family: monospace;">/reports/api</td>
+                <td style="padding: 12px; border: 1px solid var(--panel-border); color: #e5e7eb;">Listar todos los reportes</td>
             </tr>
             <tr>
-                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff; font-weight: 600;">GET</td>
-                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb; font-family: monospace;">/reports/api/{scan_id}</td>
-                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb;">Obtener reporte específico</td>
+                <td style="padding: 12px; border: 1px solid var(--panel-border); color: var(--accent-2); font-weight: 600;">GET</td>
+                <td style="padding: 12px; border: 1px solid var(--panel-border); color: #e5e7eb; font-family: monospace;">/reports/api/{scan_id}</td>
+                <td style="padding: 12px; border: 1px solid var(--panel-border); color: #e5e7eb;">Obtener reporte específico</td>
             </tr>
             <tr>
-                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff; font-weight: 600;">GET</td>
-                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb; font-family: monospace;">/health</td>
-                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb;">Verificar estado del servicio</td>
+                <td style="padding: 12px; border: 1px solid var(--panel-border); color: var(--accent-2); font-weight: 600;">GET</td>
+                <td style="padding: 12px; border: 1px solid var(--panel-border); color: #e5e7eb; font-family: monospace;">/health</td>
+                <td style="padding: 12px; border: 1px solid var(--panel-border); color: #e5e7eb;">Verificar estado del servicio</td>
             </tr>
             <tr>
-                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff; font-weight: 600;">POST</td>
-                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb; font-family: monospace;">/api/token</td>
-                <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb;">Generar token API</td>
+                <td style="padding: 12px; border: 1px solid var(--panel-border); color: var(--accent-2); font-weight: 600;">POST</td>
+                <td style="padding: 12px; border: 1px solid var(--panel-border); color: #e5e7eb; font-family: monospace;">/api/token</td>
+                <td style="padding: 12px; border: 1px solid var(--panel-border); color: #e5e7eb;">Generar token API</td>
             </tr>
         </tbody>
     </table>
@@ -940,8 +935,8 @@ Content-Type: application/json</pre>
     <h3>💻 Ejemplos en Diferentes Lenguajes</h3>
     
     <div style="margin-top: 20px;">
-        <h4 style="color: #00d4ff;">Python</h4>
-        <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem;">import requests
+        <h4 style="color: var(--accent-2);">Python</h4>
+        <pre style="background: #030611; border: 1px solid var(--panel-border); padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem;">import requests
 
 url = "https://tu-verificador.com/analyze/api"
 headers = {
@@ -960,8 +955,8 @@ print(f"Hallazgos: {len(result['findings'])}")</pre>
     </div>
 
     <div style="margin-top: 20px;">
-        <h4 style="color: #00d4ff;">JavaScript/Node.js</h4>
-        <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem;">const fetch = require('node-fetch');
+        <h4 style="color: var(--accent-2);">JavaScript/Node.js</h4>
+        <pre style="background: #030611; border: 1px solid var(--panel-border); padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem;">const fetch = require('node-fetch');
 
 const url = 'https://tu-verificador.com/analyze/api';
 const options = {
@@ -985,8 +980,8 @@ fetch(url, options)
     </div>
 
     <div style="margin-top: 20px;">
-        <h4 style="color: #00d4ff;">Java</h4>
-        <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem;">import java.net.http.HttpClient;
+        <h4 style="color: var(--accent-2);">Java</h4>
+        <pre style="background: #030611; border: 1px solid var(--panel-border); padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem;">import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.URI;
@@ -1027,8 +1022,8 @@ System.out.println(response.body());</pre>
       const lb = document.getElementById('lang-' + l);
       if (el) el.style.display = (l === lang) ? 'block' : 'none';
       if (lb) {
-        lb.style.background = (l === lang) ? 'rgba(0,212,255,0.12)' : '';
-        lb.style.color      = (l === lang) ? '#00d4ff' : '';
+        lb.style.background = (l === lang) ? 'rgba(6, 182, 212, 0.12)' : '';
+        lb.style.color      = (l === lang) ? 'var(--accent-2)' : '';
       }
     });
   }

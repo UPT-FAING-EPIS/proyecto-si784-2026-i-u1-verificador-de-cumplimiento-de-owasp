@@ -3,106 +3,106 @@
 <section class="hero">
     <div>
         <p class="eyebrow">Panel de Administrador</p>
-        <h2>Dashboard de Control</h2>
-        <p style="margin-top: 12px; opacity: 0.95; font-size: 1rem;">Estadísticas globales y gestión del sistema</p>
+        <h2>Dashboard de Control Operacional</h2>
+        <p>Estadísticas globales, logs del sistema y gestión de integraciones</p>
     </div>
     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
         <a class="button button-secondary" href="/">← Volver</a>
-        <a class="button" href="/admin/logout">⎋ Cerrar sesión</a>
+        <a class="button" href="/admin/logout">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+            <span style="vertical-align: middle;">Cerrar sesión</span>
+        </a>
     </div>
 </section>
 
 <!-- GitHub Token Configuration -->
-<section class="card" style="background: linear-gradient(135deg, rgba(88, 86, 214, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%); border: 1px solid rgba(139, 92, 246, 0.3); margin-bottom: 40px;">
-    <h3>🔐 Configuración de GitHub</h3>
-    <p style="font-size: 0.95rem; color: #9ca3af; margin-bottom: 16px;">Configura un token de GitHub para habilitar análisis de repositorios privados y creación automática de issues.</p>
+<section class="card" style="background: rgba(99, 102, 241, 0.04); border-color: rgba(99, 102, 241, 0.25); margin-bottom: 28px;">
+    <h3>🔐 Configuración de Integración con GitHub</h3>
+    <p style="font-size: 0.95rem; color: var(--muted); margin-bottom: 16px;">Configura un Token de Acceso Personal (PAT) de GitHub para autorizar al motor a auditar repositorios privados y abrir issues automáticamente.</p>
     
     {% if github_token_configured %}
-        <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 6px; padding: 12px; margin-bottom: 12px; color: #10b981;">
-            ✅ Token de GitHub configurado correctamente
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 16px; color: var(--success); font-weight: 600; font-size: 0.9rem;">
+            ✅ Token de GitHub activo y configurado
         </div>
     {% else %}
-        <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.5); border-radius: 6px; padding: 12px; margin-bottom: 12px; color: #f59e0b;">
-            ⚠️ No hay token configurado. Sin token, solo funcionan repositorios públicos.
+        <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 16px; color: var(--warning); font-weight: 600; font-size: 0.9rem;">
+            ⚠️ Sin token configurado. El motor solo podrá analizar repositorios públicos.
         </div>
     {% endif %}
     
     <form method="post" action="/admin/github-token">
-        <label style="display: block; margin-bottom: 8px;">Token de GitHub</label>
-        <input type="password" name="github_token" placeholder="ghp_xxxxxxxxxxxxx" style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; margin-bottom: 8px; font-family: monospace;">
-        <p style="font-size: 0.85rem; color: #9ca3af; margin-bottom: 12px;">
-            <strong>Permisos requeridos:</strong> <code>repo</code> (acceso a repositorios) y <code>repo:issues</code> (crear issues)
+        <label>Token de Acceso Personal (PAT)</label>
+        <input type="password" name="github_token" placeholder="ghp_xxxxxxxxxxxxx" class="input-compact" style="font-family: var(--font-code); margin-bottom: 8px;">
+        <p style="font-size: 0.825rem; color: var(--muted); margin-bottom: 12px;">
+            <strong>Permisos requeridos en GitHub:</strong> <code style="color: var(--accent-2);">repo</code> (acceso a repos) y <code style="color: var(--accent-2);">repo:issues</code> (creación de reportes).
         </p>
-        <p style="font-size: 0.85rem; color: #9ca3af; margin-bottom: 12px;">
-            <a href="https://github.com/settings/tokens/new?scopes=repo,issues&description=OWASP%20Checker" target="_blank" style="color: #3b82f6; text-decoration: underline;">
-                → Crear un nuevo token aquí
+        <p style="font-size: 0.85rem; margin-bottom: 16px;">
+            <a href="https://github.com/settings/tokens/new?scopes=repo,issues&description=OWASP%20Verificator" target="_blank" style="color: var(--accent-2); text-decoration: none; font-weight: 600;">
+                → Crear nuevo token en tu cuenta de GitHub
             </a>
         </p>
-        <button class="button" type="submit">💾 Guardar Token</button>
-        <p style="font-size: 0.8rem; color: #9ca3af; margin-top: 8px;">El token se guarda de forma segura en la memoria del servidor y se usa automáticamente para análisis.</p>
+        <button class="button" type="submit">💾 Guardar Configuración</button>
+        <p style="font-size: 0.8rem; color: var(--muted); margin-top: 8px;">El token es cargado en memoria de manera segura en el backend.</p>
     </form>
 </section>
 
 <!-- Statistics Grid -->
-<section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 40px;">
-    <div style="background: linear-gradient(135deg, rgba(0, 102, 204, 0.15) 0%, rgba(0, 212, 255, 0.05) 100%); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 12px; padding: 24px; box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);">
-        <p style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">📊 Total Escaneos</p>
-        <p style="font-size: 2.5rem; font-weight: 700; color: #00d4ff;">{{ stats.total_scans }}</p>
+<section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 28px;">
+    <div class="card" style="margin-bottom: 0; border-left: 4px solid var(--accent-2);">
+        <p style="color: var(--accent-2); font-family: var(--font-title); font-size: 0.8rem; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">📊 Total Escaneos</p>
+        <p style="font-size: 2.5rem; font-weight: 800; color: #ffffff; font-family: var(--font-title);">{{ stats.total_scans }}</p>
     </div>
     
-    <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 24px; box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);">
-        <p style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">✅ Score Promedio</p>
-        <p style="font-size: 2.5rem; font-weight: 700; color: #86efac;">{{ stats.avg_score }}/100</p>
+    <div class="card" style="margin-bottom: 0; border-left: 4px solid var(--success);">
+        <p style="color: var(--success); font-family: var(--font-title); font-size: 0.8rem; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">✅ Score Promedio</p>
+        <p style="font-size: 2.5rem; font-weight: 800; color: #ffffff; font-family: var(--font-title);">{{ stats.avg_score }}/100</p>
     </div>
     
-    <div style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.05) 100%); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 24px; box-shadow: 0 0 20px rgba(239, 68, 68, 0.1);">
-        <p style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">🔴 Críticos</p>
-        <p style="font-size: 2.5rem; font-weight: 700; color: #fca5a5;">{{ stats.high_severity }}</p>
+    <div class="card" style="margin-bottom: 0; border-left: 4px solid var(--danger);">
+        <p style="color: var(--danger); font-family: var(--font-title); font-size: 0.8rem; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">🔴 Críticos (HIGH)</p>
+        <p style="font-size: 2.5rem; font-weight: 800; color: #ffffff; font-family: var(--font-title);">{{ stats.high_severity }}</p>
     </div>
     
-    <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 24px; box-shadow: 0 0 20px rgba(245, 158, 11, 0.1);">
-        <p style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">📍 Total Hallazgos</p>
-        <p style="font-size: 2.5rem; font-weight: 700; color: #fcd34d;">{{ stats.total_findings }}</p>
+    <div class="card" style="margin-bottom: 0; border-left: 4px solid var(--warning);">
+        <p style="color: var(--warning); font-family: var(--font-title); font-size: 0.8rem; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">📍 Total Hallazgos</p>
+        <p style="font-size: 2.5rem; font-weight: 800; color: #ffffff; font-family: var(--font-title);">{{ stats.total_findings }}</p>
     </div>
 </section>
 
 <!-- Charts Section -->
 <section class="card">
-    <h3>📈 Gráfico de Tendencias de Scores</h3>
-    <canvas id="trendsChart" style="max-height: 300px; margin-top: 20px;"></canvas>
+    <h3>📈 Tendencia de Calificación de Seguridad</h3>
+    <canvas id="trendsChart" style="max-height: 280px; margin-top: 16px;"></canvas>
 </section>
 
 <!-- Risk Matrix -->
 <section class="card">
-    <h3>🎯 Matriz de Riesgo (Severidad vs Frecuencia)</h3>
-    <div style="margin-top: 20px; overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse;">
+    <h3>🎯 Matriz de Riesgo Operacional (Severidad vs Frecuencia)</h3>
+    <div style="margin-top: 16px; overflow-x: auto;">
+        <table class="table">
             <thead>
-                <tr style="background: rgba(0, 102, 204, 0.1);">
-                    <th style="padding: 12px; text-align: left; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff; font-weight: 600;">Severidad</th>
-                    <th style="padding: 12px; text-align: center; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff; font-weight: 600;">Muy Crítico (>10)</th>
-                    <th style="padding: 12px; text-align: center; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff; font-weight: 600;">Crítico (5-10)</th>
-                    <th style="padding: 12px; text-align: center; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff; font-weight: 600;">Moderado (2-5)</th>
-                    <th style="padding: 12px; text-align: center; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff; font-weight: 600;">Bajo (1-2)</th>
+                <tr>
+                    <th>Severidad</th>
+                    <th style="text-align: center;">Muy Crítico (&gt;10)</th>
+                    <th style="text-align: center;">Crítico (5-10)</th>
+                    <th style="text-align: center;">Moderado (2-5)</th>
+                    <th style="text-align: center;">Bajo (1-2)</th>
                 </tr>
             </thead>
             <tbody>
                 {% for severity, row_data in risk_matrix.items() %}
                 <tr>
-                    <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); font-weight: 600; color: 
-                        {% if severity == 'high' %}#fca5a5
-                        {% elif severity == 'medium' %}#fbbf24
-                        {% else %}#86efac
-                        {% endif %}">
+                    <td style="font-weight: 700; font-family: var(--font-title);
+                        color: {% if severity == 'high' %}var(--danger){% elif severity == 'medium' %}var(--warning){% else %}var(--success){% endif %};">
                         {{ severity|upper }}
                     </td>
                     {% for count in row_data %}
-                    <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); text-align: center; 
+                    <td style="text-align: center; 
                         background: {% if count > 0 %}rgba(
                             {% if count > 5 %}239, 68, 68
                             {% elif count > 2 %}245, 158, 11
                             {% else %}16, 185, 129
-                            {% endif %}, 0.1){% endif %}">
+                            {% endif %}, 0.08){% endif %};">
                         {{ count }}
                     </td>
                     {% endfor %}
@@ -115,34 +115,33 @@
 
 <!-- API Tokens -->
 <section class="card">
-    <h3>🔑 Gestión de Tokens API</h3>
-    <div style="margin-top: 20px;">
-        <div style="background: rgba(0, 102, 204, 0.05); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
-            <p style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 8px;">Tokens disponibles para integración:</p>
-            <pre style="background: #1a1f3a; padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem;">curl -H "X-API-Key: demo-token-12345" \
-  https://verificador.azure.com/health</pre>
+    <h3>🔑 Tokens de Integración API</h3>
+    <div style="margin-top: 16px;">
+        <div style="background: rgba(12, 20, 38, 0.4); border: 1px solid var(--panel-border); padding: 16px; border-radius: var(--radius-sm); margin-bottom: 16px;">
+            <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 8px;">Consumo del endpoint /health de forma segura:</p>
+            <pre class="code-block" style="max-height: 80px; padding: 10px;">curl -H "X-API-Key: demo-token-12345" http://{{ request.headers.get('host') }}/health</pre>
         </div>
         
         {% if tokens %}
-        <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+        <table class="table">
             <thead>
-                <tr style="background: rgba(0, 102, 204, 0.1);">
-                    <th style="padding: 12px; text-align: left; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff;">Token</th>
-                    <th style="padding: 12px; text-align: left; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff;">Usuario</th>
-                    <th style="padding: 12px; text-align: left; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff;">Creado</th>
-                    <th style="padding: 12px; text-align: left; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff;">Último Uso</th>
-                    <th style="padding: 12px; text-align: center; border: 1px solid rgba(0, 212, 255, 0.2); color: #00d4ff;">Estado</th>
+                <tr>
+                    <th>Token</th>
+                    <th>Usuario</th>
+                    <th>Creado</th>
+                    <th>Último Uso</th>
+                    <th style="text-align: center;">Estado</th>
                 </tr>
             </thead>
             <tbody>
                 {% for token in tokens %}
                 <tr>
-                    <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); font-family: monospace; color: #e5e7eb;">{{ token.token }}</td>
-                    <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #e5e7eb;">{{ token.user }}</td>
-                    <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #9ca3af; font-size: 0.9rem;">{{ token.created_at[:10] }}</td>
-                    <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); color: #9ca3af; font-size: 0.9rem;">{{ token.last_used[:10] }}</td>
-                    <td style="padding: 12px; border: 1px solid rgba(0, 212, 255, 0.2); text-align: center;">
-                        <span style="padding: 4px 8px; background: rgba(16, 185, 129, 0.2); color: #86efac; border-radius: 4px; font-size: 0.85rem;">
+                    <td style="font-family: var(--font-code); color: var(--accent-2);">{{ token.token }}</td>
+                    <td>{{ token.user }}</td>
+                    <td style="color: var(--muted); font-size: 0.85rem;">{{ token.created_at[:10] }}</td>
+                    <td style="color: var(--muted); font-size: 0.85rem;">{{ token.last_used[:10] }}</td>
+                    <td style="text-align: center;">
+                        <span class="badge badge-success">
                             {% if token.is_active %}Activo{% else %}Inactivo{% endif %}
                         </span>
                     </td>
@@ -156,22 +155,18 @@
 
 <!-- Recent Access Log -->
 <section class="card">
-    <h3>🔍 Log de Accesos Recientes</h3>
-    <div style="margin-top: 20px; max-height: 400px; overflow-y: auto;">
+    <h3>🔍 Logs de Actividad Reciente</h3>
+    <div style="margin-top: 16px; max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
         {% if accesses %}
-        <ul style="list-style: none; padding: 0; margin: 0;">
             {% for access in accesses[:20] %}
-            <li style="padding: 12px; border-bottom: 1px solid rgba(0, 212, 255, 0.1); display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
-                <div style="flex: 1;">
-                    <span style="color: #00d4ff; font-weight: 600;">{{ access.path }}</span>
-                    <br/>
-                    <span style="color: #9ca3af; font-size: 0.85rem;">{{ access.ip }} · {{ access.timestamp }}</span>
-                </div>
-            </li>
+            <div class="access-log" style="margin: 0;">
+                <span class="access-log-path">{{ access.path }}</span>
+                <span class="access-log-ip">{{ access.ip }}</span>
+                <span class="access-log-time">{{ access.timestamp }}</span>
+            </div>
             {% endfor %}
-        </ul>
         {% else %}
-        <p style="color: #9ca3af;">Sin registros de acceso aún.</p>
+            <p style="color: var(--muted); font-size: 0.9rem;">Sin registros de actividad.</p>
         {% endif %}
     </div>
 </section>
@@ -187,36 +182,36 @@
         data: {
             labels: scans.map((s, i) => `#${s.id}`),
             datasets: [{
-                label: 'Score de Seguridad',
+                label: 'Calificación de Seguridad (Score)',
                 data: scans.map(s => s.score),
-                borderColor: '#00d4ff',
-                backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                borderColor: '#06b6d4',
+                backgroundColor: 'rgba(6, 182, 212, 0.08)',
                 tension: 0.4,
                 fill: true,
-                pointBackgroundColor: '#00d4ff',
-                pointBorderColor: '#0066cc',
+                pointBackgroundColor: '#06b6d4',
+                pointBorderColor: '#6366f1',
                 pointRadius: 5,
                 pointHoverRadius: 7,
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    labels: { color: '#e5e7eb' }
+                    labels: { color: '#cbd5e1', font: { family: 'Inter' } }
                 }
             },
             scales: {
                 y: {
                     beginAtZero: true,
                     max: 100,
-                    ticks: { color: '#9ca3af' },
-                    grid: { color: 'rgba(0, 212, 255, 0.1)' }
+                    ticks: { color: '#94a3b8', font: { family: 'Inter' } },
+                    grid: { color: 'rgba(255, 255, 255, 0.03)' }
                 },
                 x: {
-                    ticks: { color: '#9ca3af' },
-                    grid: { color: 'rgba(0, 212, 255, 0.1)' }
+                    ticks: { color: '#94a3b8', font: { family: 'Inter' } },
+                    grid: { color: 'rgba(255, 255, 255, 0.03)' }
                 }
             }
         }
