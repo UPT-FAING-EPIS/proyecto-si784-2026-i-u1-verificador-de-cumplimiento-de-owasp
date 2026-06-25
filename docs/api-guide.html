@@ -1,0 +1,1901 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OWASP API · Guía Interactiva</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --bg2: #0f1525;
+      --card: #141b2d;
+      --card2: #1a2340;
+      --border: #1f2d4a;
+      --border2: #2a3d5e;
+      --accent: #4f8ef7;
+      --accent2: #7c5cfc;
+      --green: #22d3a0;
+      --red: #f75f5f;
+      --yellow: #f7bc4f;
+      --orange: #f7874f;
+      --text: #e2e8f8;
+      --text2: #8892b0;
+      --text3: #4a5578;
+      --glow: rgba(79, 142, 247, 0.15);
+      --glow2: rgba(124, 92, 252, 0.15);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── Scrollbar ─────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg2); }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+    /* ── Layout ────────────────────────────────────────── */
+    .shell {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ───────────────────────────────────────── */
+    .sidebar {
+      width: 260px;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      padding: 24px 0;
+      position: fixed;
+      top: 0; left: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-logo {
+      padding: 0 20px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-logo .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .sidebar-logo h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .sidebar-logo p {
+      font-size: 11px;
+      color: var(--text2);
+      margin-top: 2px;
+    }
+
+    .sidebar-nav {
+      padding: 16px 0;
+      flex: 1;
+    }
+
+    .nav-group-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text3);
+      padding: 12px 20px 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 20px;
+      font-size: 13px;
+      color: var(--text2);
+      cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+
+    .nav-item:hover {
+      background: var(--glow);
+      color: var(--text);
+      border-left-color: var(--accent);
+    }
+
+    .nav-item.active {
+      background: var(--glow);
+      color: var(--accent);
+      border-left-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .nav-item .nav-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    .nav-method {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 5px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .nav-method.get  { background: rgba(34,211,160,0.15); color: var(--green); }
+    .nav-method.post { background: rgba(79,142,247,0.15);  color: var(--accent); }
+
+    /* ── Main content ──────────────────────────────────── */
+    .main {
+      margin-left: 260px;
+      flex: 1;
+      padding: 0;
+    }
+
+    /* ── Hero ──────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, #0a0e1a 0%, #0d1530 50%, #0f1a35 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 56px 56px 48px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -40%; right: -10%;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(79,142,247,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -30%; left: 20%;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(124,92,252,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(34,211,160,0.1);
+      border: 1px solid rgba(34,211,160,0.25);
+      color: var(--green);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .hero-badge .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .hero h1 {
+      font-size: 36px;
+      font-weight: 800;
+      line-height: 1.2;
+      background: linear-gradient(135deg, #fff 0%, #a0b4d6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      font-size: 15px;
+      color: var(--text2);
+      max-width: 600px;
+      margin-bottom: 28px;
+    }
+
+    .hero-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--text2);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .chip span { color: var(--accent); }
+
+    /* ── Sections ──────────────────────────────────────── */
+    .section {
+      padding: 48px 56px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .section-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .section-icon.blue  { background: rgba(79,142,247,0.15); }
+    .section-icon.purple { background: rgba(124,92,252,0.15); }
+    .section-icon.green { background: rgba(34,211,160,0.15); }
+    .section-icon.orange { background: rgba(247,135,79,0.15); }
+    .section-icon.red   { background: rgba(247,95,95,0.15); }
+
+    .section-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+    .section-desc  { font-size: 13px; color: var(--text2); }
+
+    /* ── Quick start steps ─────────────────────────────── */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .step-body { flex: 1; }
+    .step-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    /* ── Code block ────────────────────────────────────── */
+    .code-wrap {
+      position: relative;
+      margin-top: 8px;
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #0d1220;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      padding: 8px 14px;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .code-lang {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .copy-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--card2);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .copy-btn:hover { background: var(--border2); color: var(--text); }
+    .copy-btn.copied { color: var(--green); border-color: var(--green); }
+
+    pre {
+      background: #0d1220;
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      padding: 16px 18px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      line-height: 1.7;
+    }
+
+    pre .c  { color: #546e8a; }          /* comment */
+    pre .k  { color: #c792ea; }          /* keyword */
+    pre .s  { color: #c3e88d; }          /* string */
+    pre .n  { color: #82aaff; }          /* number/var */
+    pre .p  { color: var(--accent); }    /* punctuation / key */
+    pre .v  { color: #f78c6c; }          /* value */
+    pre .m  { color: var(--text2); }     /* method */
+    pre .url { color: var(--green); }    /* URL */
+    pre .h  { color: var(--yellow); }    /* http method */
+
+    /* ── Skill cards grid ──────────────────────────────── */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+    }
+
+    .skill-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .skill-card:hover {
+      border-color: var(--border2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    }
+
+    .skill-card.expanded {
+      grid-column: 1 / -1;
+      border-color: var(--accent);
+    }
+
+    .skill-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+    }
+
+    .skill-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .skill-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+
+    .skill-name {
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent);
+    }
+
+    .skill-short {
+      font-size: 11px;
+      color: var(--text2);
+      margin-top: 1px;
+    }
+
+    .method-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .method-badge.get  { background: rgba(34,211,160,0.1); color: var(--green); border: 1px solid rgba(34,211,160,0.2); }
+    .method-badge.post { background: rgba(79,142,247,0.1); color: var(--accent); border: 1px solid rgba(79,142,247,0.2); }
+
+    .skill-card-body {
+      padding: 0 20px 20px;
+      display: none;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .skill-card.expanded .skill-card-body { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .skill-desc {
+      font-size: 12.5px;
+      color: var(--text2);
+      line-height: 1.6;
+      margin-bottom: 16px;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+
+    /* ── Tabs ──────────────────────────────────────────── */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 4px;
+      margin-bottom: 14px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 7px 12px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--text2);
+      transition: all 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .tab-btn.active {
+      background: var(--card2);
+      color: var(--text);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Response preview ──────────────────────────────── */
+    .response-preview {
+      background: #080d18;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      line-height: 1.7;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .json-key   { color: #82aaff; }
+    .json-str   { color: #c3e88d; }
+    .json-num   { color: #f78c6c; }
+    .json-bool  { color: #c792ea; }
+    .json-null  { color: var(--text3); }
+
+    /* ── Schema pill table ─────────────────────────────── */
+    .schema-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    .schema-table th {
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text3);
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .schema-table td {
+      padding: 7px 10px;
+      border-bottom: 1px solid rgba(31,45,74,0.5);
+      vertical-align: top;
+    }
+
+    .schema-table tr:last-child td { border-bottom: none; }
+
+    .field-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--accent);
+    }
+
+    .field-type {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--yellow);
+    }
+
+    .req-badge {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 3px;
+      text-transform: uppercase;
+    }
+
+    .req-badge.required { background: rgba(247,95,95,0.15); color: var(--red); }
+    .req-badge.optional { background: rgba(138,156,178,0.1); color: var(--text3); }
+
+    .field-desc { font-size: 11.5px; color: var(--text2); }
+
+    /* ── Try it panel ──────────────────────────────────── */
+    .try-panel {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .try-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text3);
+      margin-bottom: 8px;
+    }
+
+    .try-input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.15s;
+      margin-bottom: 10px;
+    }
+
+    .try-input:focus { border-color: var(--accent); }
+
+    .try-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      border: none;
+      padding: 9px 20px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .try-btn:hover { opacity: 0.9; }
+    .try-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .try-result {
+      margin-top: 12px;
+      display: none;
+    }
+
+    .try-result.show { display: block; }
+
+    .try-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+
+    .try-status.ok  { background: rgba(34,211,160,0.1); color: var(--green); border: 1px solid rgba(34,211,160,0.2); }
+    .try-status.err { background: rgba(247,95,95,0.1); color: var(--red); border: 1px solid rgba(247,95,95,0.2); }
+
+    /* ── AI integration cards ──────────────────────────── */
+    .ai-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .ai-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .ai-card-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .ai-logo {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+
+    .ai-name {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .ai-desc {
+      font-size: 11.5px;
+      color: var(--text3);
+    }
+
+    /* ── URL bar ───────────────────────────────────────── */
+    .url-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 24px;
+    }
+
+    .url-bar .method {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .url-bar .path {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .url-bar .base { color: var(--text3); }
+    .url-bar .route { color: var(--green); }
+    .url-bar .param { color: var(--yellow); }
+
+    /* ── Info box ──────────────────────────────────────── */
+    .info-box {
+      display: flex;
+      gap: 12px;
+      background: rgba(79,142,247,0.05);
+      border: 1px solid rgba(79,142,247,0.2);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      font-size: 12.5px;
+      color: var(--text2);
+    }
+
+    .info-box .icon { font-size: 16px; flex-shrink: 0; }
+
+    /* ── Responsive ────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main    { margin-left: 0; }
+      .hero, .section { padding: 32px 24px; }
+      .hero h1 { font-size: 26px; }
+      .skills-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Progress bar ──────────────────────────────────── */
+    .progress-bar {
+      height: 2px;
+      background: var(--border);
+      border-radius: 1px;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 999;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 1px;
+      width: 0%;
+      transition: width 0.1s;
+    }
+
+    /* ── Footer ────────────────────────────────────────── */
+    .footer {
+      padding: 32px 56px;
+      text-align: center;
+      color: var(--text3);
+      font-size: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    /* ── Spinner ───────────────────────────────────────── */
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+<!-- ── SIDEBAR ─────────────────────────────────────────────── -->
+<div class="shell">
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-badge">🛡️ OWASP API</div>
+    <h2>Guía Interactiva</h2>
+    <p>v1.0.0 · Microservicio + Skills IA</p>
+  </div>
+
+  <div class="sidebar-nav">
+    <div class="nav-group-label">Inicio</div>
+    <a class="nav-item active" href="#inicio" onclick="setActive(this)">
+      <span class="nav-dot"></span> Inicio rápido
+    </a>
+    <a class="nav-item" href="#endpoints" onclick="setActive(this)">
+      <span class="nav-dot"></span> Todos los endpoints
+    </a>
+
+    <div class="nav-group-label" style="margin-top:8px">🔍 Análisis</div>
+    <a class="nav-item" href="#skill-url" onclick="setActive(this)">
+      <span class="nav-method post">POST</span> skill_analyze_url
+    </a>
+    <a class="nav-item" href="#skill-code" onclick="setActive(this)">
+      <span class="nav-method post">POST</span> skill_analyze_code
+    </a>
+    <a class="nav-item" href="#skill-github" onclick="setActive(this)">
+      <span class="nav-method post">POST</span> skill_analyze_github
+    </a>
+
+    <div class="nav-group-label" style="margin-top:8px">📋 Reportes</div>
+    <a class="nav-item" href="#skill-report" onclick="setActive(this)">
+      <span class="nav-method get">GET</span> skill_get_report
+    </a>
+    <a class="nav-item" href="#skill-compare" onclick="setActive(this)">
+      <span class="nav-method post">POST</span> skill_compare_scans
+    </a>
+
+    <div class="nav-group-label" style="margin-top:8px">📤 Exportar</div>
+    <a class="nav-item" href="#skill-pdf" onclick="setActive(this)">
+      <span class="nav-method get">GET</span> skill_export_pdf
+    </a>
+    <a class="nav-item" href="#skill-json" onclick="setActive(this)">
+      <span class="nav-method get">GET</span> skill_export_json
+    </a>
+
+    <div class="nav-group-label" style="margin-top:8px">📊 Dashboard</div>
+    <a class="nav-item" href="#skill-stats" onclick="setActive(this)">
+      <span class="nav-method get">GET</span> skill_dashboard_stats
+    </a>
+
+    <div class="nav-group-label" style="margin-top:8px">🤖 IA</div>
+    <a class="nav-item" href="#ia" onclick="setActive(this)">
+      <span class="nav-dot"></span> Integración IA
+    </a>
+  </div>
+</nav>
+
+<!-- ── MAIN ─────────────────────────────────────────────────── -->
+<main class="main">
+
+  <!-- HERO -->
+  <section class="hero" id="inicio">
+    <div class="hero-badge">
+      <span class="dot"></span> Microservicio operativo
+    </div>
+    <h1>OWASP Verificador<br/>API + Skills para IA</h1>
+    <p>Capa REST profesional encima del sistema web original. 8 skills listos para tool calling en agentes de IA — OpenAI, Gemini, LangChain y más.</p>
+    <div class="hero-chips">
+      <div class="chip">🌐 <span>localhost:8001</span>/api/docs</div>
+      <div class="chip">🛣️ prefijo <span>/api/v1/</span></div>
+      <div class="chip">🤖 <span>8 skills</span> para IA</div>
+      <div class="chip">🔒 auth opcional</div>
+    </div>
+  </section>
+
+  <!-- QUICK START -->
+  <section class="section" id="quickstart">
+    <div class="section-header">
+      <div class="section-icon blue">🚀</div>
+      <div>
+        <div class="section-title">Inicio rápido</div>
+        <div class="section-desc">En 3 pasos tienes el microservicio corriendo</div>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Activa el entorno virtual</div>
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">PowerShell</span>
+              <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+            </div>
+            <pre><span class="c"># Activar venv del proyecto</span>
+d:\Upt\OWASPVerificator\.venv\Scripts\Activate.ps1</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Inicia el microservicio API (puerto 8001)</div>
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">PowerShell</span>
+              <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+            </div>
+            <pre><span class="c"># Solo la API (recomendado para empezar)</span>
+uvicorn api.main:app --reload --port 8001
+
+<span class="c"># O ambos sistemas en paralelo:</span>
+<span class="c"># Terminal 1 → sistema web original</span>
+uvicorn app.main:app --reload --port 8000
+<span class="c"># Terminal 2 → microservicio API</span>
+uvicorn api.main:app --reload --port 8001</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Abre Swagger UI y prueba en el navegador</div>
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">URL</span>
+              <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+            </div>
+            <pre><span class="url">http://localhost:8001/api/docs</span>      <span class="c">← Swagger UI interactivo</span>
+<span class="url">http://localhost:8001/api/health</span>    <span class="c">← Health check</span>
+<span class="url">http://localhost:8001/api/v1/skills</span> <span class="c">← Mapa de 8 skills para IA</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS GRID -->
+  <section class="section" id="endpoints">
+    <div class="section-header">
+      <div class="section-icon purple">⚡</div>
+      <div>
+        <div class="section-title">8 Skills disponibles</div>
+        <div class="section-desc">Haz clic en cualquier skill para ver su documentación completa</div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <span class="icon">💡</span>
+      <span>Todas las respuestas usan el envelope <code style="color:var(--accent)">{"success": true, "data": {...}, "message": ""}</code>. El campo <code style="color:var(--accent)">message</code> contiene un resumen en texto natural, ideal para que una IA lo lea directamente.</span>
+    </div>
+
+    <div class="skills-grid">
+
+      <!-- SKILL 1: analyze_url -->
+      <div class="skill-card" id="skill-url" onclick="toggleSkill(this)">
+        <div class="skill-card-head">
+          <div class="skill-meta">
+            <div class="skill-icon" style="background:rgba(79,142,247,0.15)">🌐</div>
+            <div>
+              <div class="skill-name">skill_analyze_url</div>
+              <div class="skill-short">Analizar URL por cabeceras HTTP</div>
+            </div>
+          </div>
+          <span class="method-badge post">POST</span>
+        </div>
+
+        <div class="skill-card-body">
+          <p class="skill-desc">Verifica las cabeceras de seguridad HTTP de cualquier URL según OWASP Top 10 (A05 - Configuración Incorrecta). Detecta ausencia de CSP, HSTS, X-Frame-Options, etc. Devuelve score 0-100 y lista de hallazgos con remediaciones paso a paso.</p>
+
+          <div class="url-bar">
+            <span class="method post" style="background:rgba(79,142,247,0.1);color:var(--accent);border:1px solid rgba(79,142,247,0.2);border-radius:4px;padding:3px 8px;font-size:11px;font-weight:700">POST</span>
+            <span class="path"><span class="base">localhost:8001</span><span class="route">/api/v1/analyze/url</span></span>
+          </div>
+
+          <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(this, 'url-curl')">curl</button>
+            <button class="tab-btn" onclick="switchTab(this, 'url-ps')">PowerShell</button>
+            <button class="tab-btn" onclick="switchTab(this, 'url-py')">Python</button>
+            <button class="tab-btn" onclick="switchTab(this, 'url-schema')">Schema</button>
+            <button class="tab-btn" onclick="switchTab(this, 'url-resp')">Respuesta</button>
+            <button class="tab-btn" onclick="switchTab(this, 'url-try')">▶ Probar</button>
+          </div>
+
+          <div class="tab-panel active" id="url-curl">
+            <div class="code-wrap"><div class="code-header"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div>
+            <pre><span class="h">curl</span> -X POST http://localhost:8001/api/v1/analyze/url \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{"url": "https://example.com"}'</span></pre></div>
+          </div>
+
+          <div class="tab-panel" id="url-ps">
+            <div class="code-wrap"><div class="code-header"><span class="code-lang">PowerShell</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div>
+            <pre><span class="n">$body</span> = <span class="s">'{"url": "https://example.com"}'</span>
+Invoke-RestMethod -Method POST <span class="s">`</span>
+  -Uri <span class="s">"http://localhost:8001/api/v1/analyze/url"</span> <span class="s">`</span>
+  -ContentType <span class="s">"application/json"</span> <span class="s">`</span>
+  -Body <span class="n">$body</span> | ConvertTo-Json -Depth 5</pre></div>
+          </div>
+
+          <div class="tab-panel" id="url-py">
+            <div class="code-wrap"><div class="code-header"><span class="code-lang">Python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div>
+            <pre><span class="k">import</span> requests
+
+r = requests.post(
+    <span class="s">"http://localhost:8001/api/v1/analyze/url"</span>,
+    json={<span class="s">"url"</span>: <span class="s">"https://example.com"</span>}
+)
+data = r.json()
+<span class="k">print</span>(data[<span class="s">"message"</span>])           <span class="c"># "Score: 40/100. Hallazgos: 4"</span>
+<span class="k">print</span>(data[<span class="s">"data"</span>][<span class="s">"score"</span>])     <span class="c"># 40</span>
+<span class="k">print</span>(data[<span class="s">"data"</span>][<span class="s">"findings"</span>])  <span class="c"># lista de hallazgos</span></pre></div>
+          </div>
+
+          <div class="tab-panel" id="url-schema">
+            <table class="schema-table">
+              <thead><tr><th>Campo</th><th>Tipo</th><th>Req.</th><th>Descripción</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name">url</td><td class="field-type">string</td><td><span class="req-badge required">required</span></td><td class="field-desc">URL completa con http:// o https://</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="tab-panel" id="url-resp">
+            <div class="response-preview">
+<span class="json-key">{</span>
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"id"</span>: <span class="json-num">1</span>,
+    <span class="json-key">"score"</span>: <span class="json-num">40</span>,
+    <span class="json-key">"target_type"</span>: <span class="json-str">"url"</span>,
+    <span class="json-key">"findings_count"</span>: <span class="json-num">4</span>,
+    <span class="json-key">"severity_summary"</span>: { <span class="json-key">"high"</span>: <span class="json-num">0</span>, <span class="json-key">"medium"</span>: <span class="json-num">4</span>, <span class="json-key">"low"</span>: <span class="json-num">0</span> },
+    <span class="json-key">"findings"</span>: [{
+      <span class="json-key">"rule_id"</span>: <span class="json-str">"OWASP-A05"</span>,
+      <span class="json-key">"title"</span>: <span class="json-str">"Cabecera de seguridad ausente"</span>,
+      <span class="json-key">"severity"</span>: <span class="json-str">"medium"</span>,
+      <span class="json-key">"description"</span>: <span class="json-str">"Falta Content-Security-Policy."</span>,
+      <span class="json-key">"evidence"</span>: <span class="json-str">"Respuesta HTTP sin Content-Security-Policy"</span>,
+      <span class="json-key">"penalty"</span>: <span class="json-num">15</span>,
+      <span class="json-key">"remediation"</span>: <span class="json-str">"Agregar cabecera CSP..."</span>
+    }]
+  },
+  <span class="json-key">"message"</span>: <span class="json-str">"Análisis de URL completado. Score: 40/100. Hallazgos: 4"</span>
+<span class="json-key">}</span>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="url-try">
+            <div class="try-panel">
+              <div class="try-label">URL a analizar</div>
+              <input class="try-input" id="try-url-input" type="text" value="https://example.com" style="height:40px;resize:none" />
+              <button class="try-btn" onclick="trySkill('url')">
+                <span class="spinner" id="spin-url"></span>
+                ▶ Enviar petición
+              </button>
+              <div class="try-result" id="result-url">
+                <div class="try-status" id="status-url"></div>
+                <div class="response-preview" id="out-url"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SKILL 2: analyze_code -->
+      <div class="skill-card" id="skill-code" onclick="toggleSkill(this)">
+        <div class="skill-card-head">
+          <div class="skill-meta">
+            <div class="skill-icon" style="background:rgba(124,92,252,0.15)">💻</div>
+            <div>
+              <div class="skill-name">skill_analyze_code</div>
+              <div class="skill-short">Análisis estático de código fuente</div>
+            </div>
+          </div>
+          <span class="method-badge post">POST</span>
+        </div>
+
+        <div class="skill-card-body">
+          <p class="skill-desc">Detecta los 10 patrones de vulnerabilidades OWASP Top 10 en código fuente. Incluye: secretos hardcodeados, inyección de código (eval/exec), fallas de autenticación, SSRF, logging insuficiente y más. Soporta Python, JS, Java, PHP, Go, Ruby, C/C++.</p>
+
+          <div class="url-bar">
+            <span class="method post" style="background:rgba(79,142,247,0.1);color:var(--accent);border:1px solid rgba(79,142,247,0.2);border-radius:4px;padding:3px 8px;font-size:11px;font-weight:700">POST</span>
+            <span class="path"><span class="base">localhost:8001</span><span class="route">/api/v1/analyze/code</span></span>
+          </div>
+
+          <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(this, 'code-curl')">curl</button>
+            <button class="tab-btn" onclick="switchTab(this, 'code-ps')">PowerShell</button>
+            <button class="tab-btn" onclick="switchTab(this, 'code-py')">Python</button>
+            <button class="tab-btn" onclick="switchTab(this, 'code-schema')">Schema</button>
+            <button class="tab-btn" onclick="switchTab(this, 'code-resp')">Respuesta</button>
+            <button class="tab-btn" onclick="switchTab(this, 'code-try')">▶ Probar</button>
+          </div>
+
+          <div class="tab-panel active" id="code-curl">
+            <div class="code-wrap"><div class="code-header"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div>
+            <pre><span class="h">curl</span> -X POST http://localhost:8001/api/v1/analyze/code \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{
+    "code": "password = \"12345\"\neval(user_input)\nimport requests",
+    "language": "python"
+  }'</span></pre></div>
+          </div>
+
+          <div class="tab-panel" id="code-ps">
+            <div class="code-wrap"><div class="code-header"><span class="code-lang">PowerShell</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div>
+            <pre><span class="n">$body</span> = @{
+    code     = <span class="s">"password = '12345'`neval(user_input)"</span>
+    language = <span class="s">"python"</span>
+} | ConvertTo-Json
+
+Invoke-RestMethod -Method POST <span class="s">`</span>
+  -Uri <span class="s">"http://localhost:8001/api/v1/analyze/code"</span> <span class="s">`</span>
+  -ContentType <span class="s">"application/json"</span> <span class="s">`</span>
+  -Body <span class="n">$body</span></pre></div>
+          </div>
+
+          <div class="tab-panel" id="code-py">
+            <div class="code-wrap"><div class="code-header"><span class="code-lang">Python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div>
+            <pre><span class="k">import</span> requests
+
+code_snippet = <span class="s">"""
+password = '12345'
+api_key = 'sk-secret-abc'
+eval(user_input)
+"""</span>
+
+r = requests.post(
+    <span class="s">"http://localhost:8001/api/v1/analyze/code"</span>,
+    json={<span class="s">"code"</span>: code_snippet, <span class="s">"language"</span>: <span class="s">"python"</span>}
+)
+result = r.json()
+<span class="k">print</span>(<span class="s">f"Score: {result['data']['score']}/100"</span>)
+<span class="k">for</span> f <span class="k">in</span> result[<span class="s">"data"</span>][<span class="s">"findings"</span>]:
+    <span class="k">print</span>(<span class="s">f"  [{f['severity'].upper()}] {f['rule_id']}: {f['title']}"</span>)</pre></div>
+          </div>
+
+          <div class="tab-panel" id="code-schema">
+            <table class="schema-table">
+              <thead><tr><th>Campo</th><th>Tipo</th><th>Req.</th><th>Descripción</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name">code</td><td class="field-type">string</td><td><span class="req-badge required">required</span></td><td class="field-desc">Código fuente a analizar (máx 500 000 chars)</td></tr>
+                <tr><td class="field-name">language</td><td class="field-type">string | null</td><td><span class="req-badge optional">optional</span></td><td class="field-desc">Lenguaje informativo: python, javascript, java…</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="tab-panel" id="code-resp">
+            <div class="response-preview">
+<span class="json-key">{</span>
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"id"</span>: <span class="json-num">2</span>, <span class="json-key">"score"</span>: <span class="json-num">10</span>,
+    <span class="json-key">"target_type"</span>: <span class="json-str">"code"</span>,
+    <span class="json-key">"findings_count"</span>: <span class="json-num">3</span>,
+    <span class="json-key">"severity_summary"</span>: { <span class="json-key">"high"</span>: <span class="json-num">2</span>, <span class="json-key">"medium"</span>: <span class="json-num">1</span>, <span class="json-key">"low"</span>: <span class="json-num">0</span> },
+    <span class="json-key">"findings"</span>: [
+      { <span class="json-key">"rule_id"</span>: <span class="json-str">"OWASP-A02"</span>, <span class="json-key">"severity"</span>: <span class="json-str">"high"</span>,
+        <span class="json-key">"title"</span>: <span class="json-str">"Secretos hardcodeados"</span>, <span class="json-key">"penalty"</span>: <span class="json-num">30</span> },
+      { <span class="json-key">"rule_id"</span>: <span class="json-str">"OWASP-A03"</span>, <span class="json-key">"severity"</span>: <span class="json-str">"high"</span>,
+        <span class="json-key">"title"</span>: <span class="json-str">"Inyección de código (eval)"</span>, <span class="json-key">"penalty"</span>: <span class="json-num">30</span> }
+    ]
+  },
+  <span class="json-key">"message"</span>: <span class="json-str">"Análisis de código completado. Score: 10/100. Hallazgos: 3"</span>
+<span class="json-key">}</span>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="code-try">
+            <div class="try-panel">
+              <div class="try-label">Código fuente a analizar</div>
+              <textarea class="try-input" id="try-code-input" rows="5">password = "12345"
+api_key = "sk-secret-abc"
+eval(user_input)
+import requests</textarea>
+              <button class="try-btn" onclick="trySkill('code')">
+                <span class="spinner" id="spin-code"></span>
+                ▶ Enviar petición
+              </button>
+              <div class="try-result" id="result-code">
+                <div class="try-status" id="status-code"></div>
+                <div class="response-preview" id="out-code"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SKILL 3: analyze_github -->
+      <div class="skill-card" id="skill-github" onclick="toggleSkill(this)">
+        <div class="skill-card-head">
+          <div class="skill-meta">
+            <div class="skill-icon" style="background:rgba(34,211,160,0.1)">🐙</div>
+            <div>
+              <div class="skill-name">skill_analyze_github</div>
+              <div class="skill-short">Auditar repositorio GitHub completo</div>
+            </div>
+          </div>
+          <span class="method-badge post">POST</span>
+        </div>
+
+        <div class="skill-card-body">
+          <p class="skill-desc">Descarga y analiza todos los archivos de código de un repositorio GitHub. Soporta repos públicos y privados (con token). Opcionalmente crea GitHub Issues automáticamente por cada vulnerabilidad encontrada. La evidencia incluye el nombre de archivo exacto.</p>
+
+          <div class="url-bar">
+            <span class="method post" style="background:rgba(79,142,247,0.1);color:var(--accent);border:1px solid rgba(79,142,247,0.2);border-radius:4px;padding:3px 8px;font-size:11px;font-weight:700">POST</span>
+            <span class="path"><span class="base">localhost:8001</span><span class="route">/api/v1/analyze/github</span></span>
+          </div>
+
+          <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(this, 'gh-curl')">curl</button>
+            <button class="tab-btn" onclick="switchTab(this, 'gh-py')">Python</button>
+            <button class="tab-btn" onclick="switchTab(this, 'gh-schema')">Schema</button>
+            <button class="tab-btn" onclick="switchTab(this, 'gh-try')">▶ Probar</button>
+          </div>
+
+          <div class="tab-panel active" id="gh-curl">
+            <div class="code-wrap"><div class="code-header"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div>
+            <pre><span class="c"># Repo público</span>
+<span class="h">curl</span> -X POST http://localhost:8001/api/v1/analyze/github \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{"repo_url": "https://github.com/owner/repo"}'</span>
+
+<span class="c"># Repo privado + crear Issues</span>
+<span class="h">curl</span> -X POST http://localhost:8001/api/v1/analyze/github \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{
+    "repo_url": "https://github.com/owner/private-repo",
+    "create_issues": true,
+    "github_token": "ghp_xxxxxxxxxxxx"
+  }'</span></pre></div>
+          </div>
+
+          <div class="tab-panel" id="gh-py">
+            <div class="code-wrap"><div class="code-header"><span class="code-lang">Python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div>
+            <pre>r = requests.post(
+    <span class="s">"http://localhost:8001/api/v1/analyze/github"</span>,
+    json={
+        <span class="s">"repo_url"</span>: <span class="s">"https://github.com/owner/repo"</span>,
+        <span class="s">"create_issues"</span>: <span class="k">False</span>,
+        <span class="s">"github_token"</span>: <span class="k">None</span>  <span class="c"># o "ghp_xxx" para privados</span>
+    }
+)
+data = r.json()[<span class="s">"data"</span>]
+<span class="k">print</span>(<span class="s">f"Score: {data['score']}/100"</span>)
+<span class="k">for</span> f <span class="k">in</span> data[<span class="s">"findings"</span>]:
+    <span class="c"># evidence incluye el nombre del archivo</span>
+    <span class="k">print</span>(<span class="s">f"  {f['evidence'][:60]}"</span>)</pre></div>
+          </div>
+
+          <div class="tab-panel" id="gh-schema">
+            <table class="schema-table">
+              <thead><tr><th>Campo</th><th>Tipo</th><th>Req.</th><th>Descripción</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name">repo_url</td><td class="field-type">string</td><td><span class="req-badge required">required</span></td><td class="field-desc">URL del repo: https://github.com/owner/repo</td></tr>
+                <tr><td class="field-name">create_issues</td><td class="field-type">boolean</td><td><span class="req-badge optional">optional</span></td><td class="field-desc">Crear Issues en GitHub (default: false)</td></tr>
+                <tr><td class="field-name">github_token</td><td class="field-type">string | null</td><td><span class="req-badge optional">optional</span></td><td class="field-desc">Token GitHub para repos privados / crear issues</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="tab-panel" id="gh-try">
+            <div class="try-panel">
+              <div class="try-label">URL del repositorio GitHub</div>
+              <input class="try-input" id="try-github-input" type="text" value="https://github.com/torvalds/linux" style="height:40px;resize:none" />
+              <button class="try-btn" onclick="trySkill('github')">
+                <span class="spinner" id="spin-github"></span>
+                ▶ Enviar petición
+              </button>
+              <div class="try-result" id="result-github">
+                <div class="try-status" id="status-github"></div>
+                <div class="response-preview" id="out-github"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SKILL 4: get_report -->
+      <div class="skill-card" id="skill-report" onclick="toggleSkill(this)">
+        <div class="skill-card-head">
+          <div class="skill-meta">
+            <div class="skill-icon" style="background:rgba(247,188,79,0.1)">📋</div>
+            <div>
+              <div class="skill-name">skill_get_report</div>
+              <div class="skill-short">Obtener reporte por ID</div>
+            </div>
+          </div>
+          <span class="method-badge get">GET</span>
+        </div>
+
+        <div class="skill-card-body">
+          <p class="skill-desc">Recupera el reporte completo de un escaneo anterior por su ID. Devuelve todos los hallazgos con evidencia, remediaciones detalladas y resumen de severidades. Ideal para que una IA analice resultados previos.</p>
+
+          <div class="url-bar">
+            <span class="method get" style="background:rgba(34,211,160,0.1);color:var(--green);border:1px solid rgba(34,211,160,0.2);border-radius:4px;padding:3px 8px;font-size:11px;font-weight:700">GET</span>
+            <span class="path"><span class="base">localhost:8001</span><span class="route">/api/v1/reports/</span><span class="param">{scan_id}</span></span>
+          </div>
+
+          <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(this, 'rep-curl')">curl</button>
+            <button class="tab-btn" onclick="switchTab(this, 'rep-py')">Python</button>
+            <button class="tab-btn" onclick="switchTab(this, 'rep-try')">▶ Probar</button>
+          </div>
+
+          <div class="tab-panel active" id="rep-curl">
+            <div class="code-wrap"><div class="code-header"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div>
+            <pre><span class="c"># Obtener reporte #1</span>
+<span class="h">curl</span> http://localhost:8001/api/v1/reports/1
+
+<span class="c"># Listar todos los reportes</span>
+<span class="h">curl</span> <span class="s">"http://localhost:8001/api/v1/reports?limit=10"</span></pre></div>
+          </div>
+
+          <div class="tab-panel" id="rep-py">
+            <div class="code-wrap"><div class="code-header"><span class="code-lang">Python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div>
+            <pre>r = requests.get(<span class="s">"http://localhost:8001/api/v1/reports/1"</span>)
+scan = r.json()[<span class="s">"data"</span>]
+<span class="k">print</span>(<span class="s">f"Score: {scan['score']}/100"</span>)
+<span class="k">print</span>(<span class="s">f"Hallazgos: {scan['findings_count']}"</span>)
+<span class="k">print</span>(<span class="s">f"Severidades: {scan['severity_summary']}"</span>)</pre></div>
+          </div>
+
+          <div class="tab-panel" id="rep-try">
+            <div class="try-panel">
+              <div class="try-label">ID del escaneo</div>
+              <input class="try-input" id="try-report-input" type="number" value="1" min="1" style="height:40px;resize:none" />
+              <button class="try-btn" onclick="trySkill('report')">
+                <span class="spinner" id="spin-report"></span>
+                ▶ Obtener reporte
+              </button>
+              <div class="try-result" id="result-report">
+                <div class="try-status" id="status-report"></div>
+                <div class="response-preview" id="out-report"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SKILL 5: compare_scans -->
+      <div class="skill-card" id="skill-compare" onclick="toggleSkill(this)">
+        <div class="skill-card-head">
+          <div class="skill-meta">
+            <div class="skill-icon" style="background:rgba(247,135,79,0.1)">⚖️</div>
+            <div>
+              <div class="skill-name">skill_compare_scans</div>
+              <div class="skill-short">Comparar dos escaneos</div>
+            </div>
+          </div>
+          <span class="method-badge post">POST</span>
+        </div>
+
+        <div class="skill-card-body">
+          <p class="skill-desc">Compara dos escaneos para evaluar la evolución de la seguridad. Devuelve: delta de score, vulnerabilidades resueltas (fixed_rules), nuevas regresiones (added_rules) y un resumen en texto natural para que la IA lo interprete directamente.</p>
+
+          <div class="url-bar">
+            <span class="method post" style="background:rgba(79,142,247,0.1);color:var(--accent);border:1px solid rgba(79,142,247,0.2);border-radius:4px;padding:3px 8px;font-size:11px;font-weight:700">POST</span>
+            <span class="path"><span class="base">localhost:8001</span><span class="route">/api/v1/reports/compare</span></span>
+          </div>
+
+          <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(this, 'cmp-curl')">curl</button>
+            <button class="tab-btn" onclick="switchTab(this, 'cmp-resp')">Respuesta</button>
+            <button class="tab-btn" onclick="switchTab(this, 'cmp-try')">▶ Probar</button>
+          </div>
+
+          <div class="tab-panel active" id="cmp-curl">
+            <div class="code-wrap"><div class="code-header"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div>
+            <pre><span class="h">curl</span> -X POST http://localhost:8001/api/v1/reports/compare \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{"scan_id_left": 1, "scan_id_right": 2}'</span></pre></div>
+          </div>
+
+          <div class="tab-panel" id="cmp-resp">
+            <div class="response-preview">
+<span class="json-key">{</span>
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"score_delta"</span>: <span class="json-num">+25</span>,
+    <span class="json-key">"findings_delta"</span>: <span class="json-num">-3</span>,
+    <span class="json-key">"fixed_rules"</span>: [<span class="json-str">"OWASP-A02"</span>, <span class="json-str">"OWASP-A03"</span>],
+    <span class="json-key">"added_rules"</span>: [],
+    <span class="json-key">"persistent_rules"</span>: [<span class="json-str">"OWASP-A01"</span>],
+    <span class="json-key">"summary"</span>: <span class="json-str">"⬆️ Mejoró 25 puntos | ✅ Resueltas: OWASP-A02, OWASP-A03"</span>
+  },
+  <span class="json-key">"message"</span>: <span class="json-str">"⬆️ Mejoró 25 puntos | ✅ Resueltas: OWASP-A02, OWASP-A03"</span>
+<span class="json-key">}</span>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="cmp-try">
+            <div class="try-panel">
+              <div class="try-label">ID escaneo base (izquierda)</div>
+              <input class="try-input" id="try-cmp-left" type="number" value="1" min="1" style="height:40px;resize:none;margin-bottom:8px" />
+              <div class="try-label">ID escaneo a comparar (derecha)</div>
+              <input class="try-input" id="try-cmp-right" type="number" value="2" min="1" style="height:40px;resize:none" />
+              <button class="try-btn" onclick="trySkill('compare')">
+                <span class="spinner" id="spin-compare"></span>
+                ▶ Comparar
+              </button>
+              <div class="try-result" id="result-compare">
+                <div class="try-status" id="status-compare"></div>
+                <div class="response-preview" id="out-compare"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SKILL 6: export_pdf -->
+      <div class="skill-card" id="skill-pdf" onclick="toggleSkill(this)">
+        <div class="skill-card-head">
+          <div class="skill-meta">
+            <div class="skill-icon" style="background:rgba(247,95,95,0.1)">📄</div>
+            <div>
+              <div class="skill-name">skill_export_pdf</div>
+              <div class="skill-short">Descargar reporte en PDF</div>
+            </div>
+          </div>
+          <span class="method-badge get">GET</span>
+        </div>
+
+        <div class="skill-card-body">
+          <p class="skill-desc">Genera y descarga el reporte de seguridad en PDF profesional con portada, tabla de hallazgos, evidencias y remediaciones paso a paso. Útil para entregar reportes formales o auditorías.</p>
+
+          <div class="url-bar">
+            <span class="method get" style="background:rgba(34,211,160,0.1);color:var(--green);border:1px solid rgba(34,211,160,0.2);border-radius:4px;padding:3px 8px;font-size:11px;font-weight:700">GET</span>
+            <span class="path"><span class="base">localhost:8001</span><span class="route">/api/v1/exports/</span><span class="param">{scan_id}</span><span class="route">/pdf</span></span>
+          </div>
+
+          <div class="code-wrap"><div class="code-header"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div>
+          <pre><span class="c"># Descargar PDF del escaneo #1</span>
+<span class="h">curl</span> <span class="s">"http://localhost:8001/api/v1/exports/1/pdf"</span> --output reporte.pdf
+
+<span class="c"># PowerShell</span>
+Invoke-WebRequest <span class="s">"http://localhost:8001/api/v1/exports/1/pdf"</span> -OutFile <span class="s">"reporte.pdf"</span>
+
+<span class="c"># Abre el PDF directamente en el navegador</span>
+<span class="c"># → http://localhost:8001/api/v1/exports/1/pdf</span></pre></div>
+        </div>
+      </div>
+
+      <!-- SKILL 7: export_json -->
+      <div class="skill-card" id="skill-json" onclick="toggleSkill(this)">
+        <div class="skill-card-head">
+          <div class="skill-meta">
+            <div class="skill-icon" style="background:rgba(34,211,160,0.1)">📦</div>
+            <div>
+              <div class="skill-name">skill_export_json</div>
+              <div class="skill-short">Exportar reporte enriquecido en JSON</div>
+            </div>
+          </div>
+          <span class="method-badge get">GET</span>
+        </div>
+
+        <div class="skill-card-body">
+          <p class="skill-desc">Exporta el reporte completo en JSON estructurado con metadata de exportación (timestamp), severity_summary y todos los findings. Ideal para integración con SIEM, CI/CD, dashboards o sistemas externos.</p>
+
+          <div class="url-bar">
+            <span class="method get" style="background:rgba(34,211,160,0.1);color:var(--green);border:1px solid rgba(34,211,160,0.2);border-radius:4px;padding:3px 8px;font-size:11px;font-weight:700">GET</span>
+            <span class="path"><span class="base">localhost:8001</span><span class="route">/api/v1/exports/</span><span class="param">{scan_id}</span><span class="route">/json</span></span>
+          </div>
+
+          <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(this, 'json-curl')">curl</button>
+            <button class="tab-btn" onclick="switchTab(this, 'json-try')">▶ Probar</button>
+          </div>
+
+          <div class="tab-panel active" id="json-curl">
+            <div class="code-wrap"><div class="code-header"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div>
+            <pre><span class="h">curl</span> <span class="s">"http://localhost:8001/api/v1/exports/1/json"</span></pre></div>
+          </div>
+
+          <div class="tab-panel" id="json-try">
+            <div class="try-panel">
+              <div class="try-label">ID del escaneo</div>
+              <input class="try-input" id="try-json-input" type="number" value="1" min="1" style="height:40px;resize:none" />
+              <button class="try-btn" onclick="trySkill('json')">
+                <span class="spinner" id="spin-json"></span>
+                ▶ Exportar JSON
+              </button>
+              <div class="try-result" id="result-json">
+                <div class="try-status" id="status-json"></div>
+                <div class="response-preview" id="out-json"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SKILL 8: stats -->
+      <div class="skill-card" id="skill-stats" onclick="toggleSkill(this)">
+        <div class="skill-card-head">
+          <div class="skill-meta">
+            <div class="skill-icon" style="background:rgba(79,142,247,0.15)">📊</div>
+            <div>
+              <div class="skill-name">skill_dashboard_stats</div>
+              <div class="skill-short">Estadísticas globales del sistema</div>
+            </div>
+          </div>
+          <span class="method-badge get">GET</span>
+        </div>
+
+        <div class="skill-card-body">
+          <p class="skill-desc">Devuelve estadísticas globales: total de escaneos, findings, score promedio, distribución de severidades (high/medium/low) y tendencia de los últimos 10 scans. El campo <code style="color:var(--accent)">message</code> incluye el nivel de riesgo general (🟢 BAJO / 🟡 MEDIO / 🔴 ALTO).</p>
+
+          <div class="url-bar">
+            <span class="method get" style="background:rgba(34,211,160,0.1);color:var(--green);border:1px solid rgba(34,211,160,0.2);border-radius:4px;padding:3px 8px;font-size:11px;font-weight:700">GET</span>
+            <span class="path"><span class="base">localhost:8001</span><span class="route">/api/v1/stats</span></span>
+          </div>
+
+          <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(this, 'st-curl')">curl</button>
+            <button class="tab-btn" onclick="switchTab(this, 'st-try')">▶ Probar</button>
+          </div>
+
+          <div class="tab-panel active" id="st-curl">
+            <div class="code-wrap"><div class="code-header"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div>
+            <pre><span class="h">curl</span> http://localhost:8001/api/v1/stats</pre></div>
+          </div>
+
+          <div class="tab-panel" id="st-try">
+            <div class="try-panel">
+              <button class="try-btn" onclick="trySkill('stats')">
+                <span class="spinner" id="spin-stats"></span>
+                ▶ Ver estadísticas
+              </button>
+              <div class="try-result" id="result-stats">
+                <div class="try-status" id="status-stats"></div>
+                <div class="response-preview" id="out-stats"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /skills-grid -->
+  </section>
+
+  <!-- AUTENTICACIÓN -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon orange">🔐</div>
+      <div>
+        <div class="section-title">Autenticación (opcional)</div>
+        <div class="section-desc">Por defecto REQUIRE_AUTH=false — sin token para facilitar desarrollo</div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <span class="icon">💡</span>
+      <span><strong>Tokens pre-configurados:</strong> <code style="color:var(--accent)">demo-token-12345</code> (usuario: demo) y <code style="color:var(--accent)">admin-token-67890</code> (usuario: admin). Si <code style="color:var(--accent)">REQUIRE_AUTH=false</code>, puedes hacer peticiones sin token.</span>
+    </div>
+
+    <div class="code-wrap"><div class="code-header"><span class="code-lang">bash — con auth</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div>
+    <pre><span class="c"># 1. Generar token nuevo (en el sistema web, puerto 8000)</span>
+<span class="h">curl</span> -X POST http://localhost:8000/api/token -F <span class="s">"username=tuusuario"</span>
+<span class="c"># → {"token": "uuid-generado", "user": "tuusuario"}</span>
+
+<span class="c"># 2. Usar token en la API (header X-API-Key)</span>
+<span class="h">curl</span> http://localhost:8001/api/v1/stats \
+  -H <span class="s">"X-API-Key: demo-token-12345"</span>
+
+<span class="c"># Activar auth en .env</span>
+REQUIRE_AUTH=<span class="s">true</span></pre></div>
+  </section>
+
+  <!-- IA INTEGRATION -->
+  <section class="section" id="ia">
+    <div class="section-header">
+      <div class="section-icon purple">🤖</div>
+      <div>
+        <div class="section-title">Integración con Agentes de IA</div>
+        <div class="section-desc">Ejemplos listos para OpenAI, Google Gemini y LangChain</div>
+      </div>
+    </div>
+
+    <div class="ai-grid">
+
+      <div class="ai-card">
+        <div class="ai-card-head">
+          <div class="ai-logo" style="background:rgba(16,163,127,0.1)">🟢</div>
+          <div>
+            <div class="ai-name">OpenAI / GPT-4o</div>
+            <div class="ai-desc">Function Calling</div>
+          </div>
+        </div>
+        <div class="code-wrap"><div class="code-header"><span class="code-lang">Python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div>
+        <pre><span class="k">import</span> openai, requests, json
+
+<span class="c"># Cargar skills automáticamente</span>
+skills = requests.get(
+    <span class="s">"http://localhost:8001/api/v1/skills"</span>
+).json()[<span class="s">"data"</span>][<span class="s">"skills"</span>]
+
+tools = [{
+    <span class="s">"type"</span>: <span class="s">"function"</span>,
+    <span class="s">"function"</span>: {
+        <span class="s">"name"</span>: s[<span class="s">"name"</span>],
+        <span class="s">"description"</span>: s[<span class="s">"description"</span>],
+        <span class="s">"parameters"</span>: s[<span class="s">"input_schema"</span>]
+    }
+} <span class="k">for</span> s <span class="k">in</span> skills]
+
+client = openai.OpenAI()
+response = client.chat.completions.create(
+    model=<span class="s">"gpt-4o"</span>,
+    messages=[{<span class="s">"role"</span>:<span class="s">"user"</span>,
+               <span class="s">"content"</span>:<span class="s">"Analiza https://example.com"</span>}],
+    tools=tools, tool_choice=<span class="s">"auto"</span>
+)</pre></div>
+      </div>
+
+      <div class="ai-card">
+        <div class="ai-card-head">
+          <div class="ai-logo" style="background:rgba(66,133,244,0.1)">🔵</div>
+          <div>
+            <div class="ai-name">Google Gemini</div>
+            <div class="ai-desc">Function Calling</div>
+          </div>
+        </div>
+        <div class="code-wrap"><div class="code-header"><span class="code-lang">Python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div>
+        <pre><span class="k">import</span> google.generativeai <span class="k">as</span> genai
+
+genai.configure(api_key=<span class="s">"TU_API_KEY"</span>)
+
+tools = [genai.types.FunctionDeclaration(
+    name=<span class="s">"skill_analyze_code"</span>,
+    description=<span class="s">"Analiza código buscando OWASP"</span>,
+    parameters={
+        <span class="s">"type"</span>: <span class="s">"object"</span>,
+        <span class="s">"properties"</span>: {
+            <span class="s">"code"</span>: {<span class="s">"type"</span>: <span class="s">"string"</span>},
+            <span class="s">"language"</span>: {<span class="s">"type"</span>: <span class="s">"string"</span>}
+        },
+        <span class="s">"required"</span>: [<span class="s">"code"</span>]
+    }
+)]
+
+model = genai.GenerativeModel(
+    <span class="s">"gemini-2.0-flash"</span>, tools=tools
+)
+r = model.generate_content(
+    <span class="s">"Analiza: password='12345'"</span>
+)</pre></div>
+      </div>
+
+      <div class="ai-card">
+        <div class="ai-card-head">
+          <div class="ai-logo" style="background:rgba(124,92,252,0.1)">🟣</div>
+          <div>
+            <div class="ai-name">LangChain</div>
+            <div class="ai-desc">StructuredTool</div>
+          </div>
+        </div>
+        <div class="code-wrap"><div class="code-header"><span class="code-lang">Python</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div>
+        <pre><span class="k">from</span> langchain.tools <span class="k">import</span> StructuredTool
+<span class="k">import</span> requests
+
+BASE = <span class="s">"http://localhost:8001"</span>
+
+<span class="k">def</span> analyze_code(code: str, language: str=<span class="k">None</span>):
+    <span class="s">"""Analiza código fuente OWASP Top 10."""</span>
+    r = requests.post(
+        <span class="s">f"{BASE}/api/v1/analyze/code"</span>,
+        json={<span class="s">"code"</span>: code, <span class="s">"language"</span>: language}
+    )
+    return r.json()[<span class="s">"message"</span>]
+
+<span class="k">def</span> get_stats():
+    <span class="s">"""Estadísticas globales de seguridad."""</span>
+    r = requests.get(<span class="s">f"{BASE}/api/v1/stats"</span>)
+    return r.json()[<span class="s">"message"</span>]
+
+tools = [
+    StructuredTool.from_function(analyze_code),
+    StructuredTool.from_function(get_stats),
+]</pre></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- DEPLOY -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon green">☁️</div>
+      <div>
+        <div class="section-title">Deploy en producción</div>
+        <div class="section-desc">Listo para Render, Railway y Docker</div>
+      </div>
+    </div>
+
+    <div class="tabs" style="max-width:400px">
+      <button class="tab-btn active" onclick="switchTab(this, 'dep-render')">Render</button>
+      <button class="tab-btn" onclick="switchTab(this, 'dep-railway')">Railway</button>
+      <button class="tab-btn" onclick="switchTab(this, 'dep-docker')">Docker</button>
+    </div>
+
+    <div class="tab-panel active" id="dep-render">
+      <div class="code-wrap"><div class="code-header"><span class="code-lang">render.yaml (ya incluido)</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div>
+      <pre><span class="c"># El archivo render.yaml ya está configurado en el repo</span>
+<span class="c"># Conecta el repo a Render.com → selecciona render.yaml</span>
+<span class="c"># Se crean 2 servicios automáticamente:</span>
+<span class="c">#   • owasp-verificador-web  → sistema web (puerto auto)</span>
+<span class="c">#   • owasp-verificador-api  → microservicio (puerto auto)</span>
+
+startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+healthCheckPath: /api/health</pre></div>
+    </div>
+
+    <div class="tab-panel" id="dep-railway">
+      <div class="code-wrap"><div class="code-header"><span class="code-lang">railway.json (ya incluido)</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div>
+      <pre><span class="c"># El archivo railway.json ya está configurado</span>
+railway deploy
+
+<span class="c"># Variables de entorno a configurar en Railway:</span>
+APP_ENV=production
+REQUIRE_AUTH=false
+ALLOWED_ORIGINS=*</pre></div>
+    </div>
+
+    <div class="tab-panel" id="dep-docker">
+      <div class="code-wrap"><div class="code-header"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div>
+      <pre><span class="c"># Construir imagen</span>
+docker build -t owasp-verificador .
+
+<span class="c"># Ejecutar (ambos servicios)</span>
+docker run -p 8000:8000 -p 8001:8001 \
+  -e APP_ENV=production \
+  -e REQUIRE_AUTH=false \
+  owasp-verificador
+
+<span class="c"># Web app → http://localhost:8000</span>
+<span class="c"># API     → http://localhost:8001/api/docs</span></pre></div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>🛡️ OWASP Verificador · API Microservice v1.0.0 · <a href="http://localhost:8001/api/docs" target="_blank">Swagger UI</a> · <a href="http://localhost:8001/api/v1/skills" target="_blank">Skills Map</a></p>
+    <p style="margin-top:6px">Sistema web original intacto en <code style="color:var(--text2)">app/</code> · Esta capa solo agrega encima</p>
+  </footer>
+
+</main>
+</div>
+
+<script>
+  /* ── Sidebar active state ──────────────────────────── */
+  function setActive(el) {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  /* ── Progress bar ──────────────────────────────────── */
+  window.addEventListener('scroll', () => {
+    const doc = document.documentElement;
+    const scrolled = doc.scrollTop / (doc.scrollHeight - doc.clientHeight);
+    document.getElementById('progress').style.width = (scrolled * 100) + '%';
+  });
+
+  /* ── Toggle skill cards ────────────────────────────── */
+  function toggleSkill(card) {
+    const isExpanded = card.classList.contains('expanded');
+    document.querySelectorAll('.skill-card').forEach(c => c.classList.remove('expanded'));
+    if (!isExpanded) card.classList.add('expanded');
+  }
+
+  /* ── Tab switching ─────────────────────────────────── */
+  function switchTab(btn, panelId) {
+    const tabsEl = btn.closest('.tabs');
+    const card   = btn.closest('.skill-card') || btn.closest('.section');
+
+    tabsEl.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Find all tab-panels in the same container
+    const container = tabsEl.nextElementSibling?.parentElement || card;
+    container.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById(panelId);
+    if (target) target.classList.add('active');
+  }
+
+  /* ── Copy code ─────────────────────────────────────── */
+  function copyCode(btn) {
+    const pre = btn.closest('.code-header').nextElementSibling;
+    navigator.clipboard.writeText(pre.innerText).then(() => {
+      btn.textContent = '✅ Copiado';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = '📋 Copiar';
+        btn.classList.remove('copied');
+      }, 1800);
+    });
+  }
+
+  /* ── Try it live ───────────────────────────────────── */
+  const BASE_URL = 'http://localhost:8001';
+
+  async function trySkill(skill) {
+    const btn     = document.querySelector(`[onclick="trySkill('${skill}')"]`);
+    const spinner = document.getElementById(`spin-${skill}`);
+    const result  = document.getElementById(`result-${skill}`);
+    const status  = document.getElementById(`status-${skill}`);
+    const out     = document.getElementById(`out-${skill}`);
+
+    btn.disabled = true;
+    spinner.style.display = 'block';
+    result.classList.remove('show');
+
+    try {
+      let response;
+
+      if (skill === 'url') {
+        const url = document.getElementById('try-url-input').value.trim();
+        response = await fetch(`${BASE_URL}/api/v1/analyze/url`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({url})
+        });
+      } else if (skill === 'code') {
+        const code = document.getElementById('try-code-input').value;
+        response = await fetch(`${BASE_URL}/api/v1/analyze/code`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({code, language: 'python'})
+        });
+      } else if (skill === 'github') {
+        const repo_url = document.getElementById('try-github-input').value.trim();
+        response = await fetch(`${BASE_URL}/api/v1/analyze/github`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({repo_url, create_issues: false})
+        });
+      } else if (skill === 'report') {
+        const id = document.getElementById('try-report-input').value;
+        response = await fetch(`${BASE_URL}/api/v1/reports/${id}`);
+      } else if (skill === 'compare') {
+        const left  = document.getElementById('try-cmp-left').value;
+        const right = document.getElementById('try-cmp-right').value;
+        response = await fetch(`${BASE_URL}/api/v1/reports/compare`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({scan_id_left: +left, scan_id_right: +right})
+        });
+      } else if (skill === 'json') {
+        const id = document.getElementById('try-json-input').value;
+        response = await fetch(`${BASE_URL}/api/v1/exports/${id}/json`);
+      } else if (skill === 'stats') {
+        response = await fetch(`${BASE_URL}/api/v1/stats`);
+      }
+
+      const data = await response.json();
+      const ok   = response.ok && data.success !== false;
+
+      status.className = `try-status ${ok ? 'ok' : 'err'}`;
+      status.innerHTML = ok
+        ? `● ${response.status} OK — ${data.message || 'Respuesta exitosa'}`
+        : `● ${response.status} ERROR — ${data.detail || data.message || 'Error'}`;
+
+      out.innerHTML = syntaxHighlight(JSON.stringify(data, null, 2));
+
+    } catch (e) {
+      status.className = 'try-status err';
+      status.innerHTML = `● Error de conexión — ¿está el servidor corriendo en ${BASE_URL}?`;
+      out.textContent = e.message;
+    }
+
+    spinner.style.display = 'none';
+    btn.disabled = false;
+    result.classList.add('show');
+  }
+
+  /* ── JSON syntax highlight ─────────────────────────── */
+  function syntaxHighlight(json) {
+    return json
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/("(\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, match => {
+        let cls = 'json-num';
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) cls = 'json-key';
+          else cls = 'json-str';
+        } else if (/true|false/.test(match)) cls = 'json-bool';
+        else if (/null/.test(match)) cls = 'json-null';
+        return `<span class="${cls}">${match}</span>`;
+      });
+  }
+
+  /* ── Smooth scroll for nav items ──────────────────── */
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const id = a.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'});
+    });
+  });
+</script>
+</body>
+</html>

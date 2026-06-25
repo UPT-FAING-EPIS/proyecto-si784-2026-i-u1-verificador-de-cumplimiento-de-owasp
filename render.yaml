@@ -1,0 +1,59 @@
+# render.yaml — Deploy en Render.com
+# Docs: https://render.com/docs/render-yaml-spec
+#
+# Despliega dos servicios web separados:
+#   1. Web App  → puerto 8000 (interfaz web original)
+#   2. API      → puerto 8001 (microservicio REST + Skills)
+
+services:
+  # ─── Sistema Web Original ────────────────────────────────────────────────
+  - type: web
+    name: owasp-verificador-web
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_TITLE
+        value: "OWASP Verificador"
+      - key: ADMIN_DASHBOARD_PASSWORD
+        generateValue: true
+      - key: DEMO_API_TOKEN
+        value: "demo-token-12345"
+      - key: ADMIN_API_TOKEN
+        generateValue: true
+      - key: PYTHONDONTWRITEBYTECODE
+        value: "1"
+      - key: PYTHONUNBUFFERED
+        value: "1"
+
+  # ─── API Microservice ─────────────────────────────────────────────────────
+  - type: web
+    name: owasp-verificador-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: API_TITLE
+        value: "OWASP Verificador — API"
+      - key: API_VERSION
+        value: "1.0.0"
+      - key: REQUIRE_AUTH
+        value: "false"
+      - key: ALLOWED_ORIGINS
+        value: "*"
+      - key: DEMO_API_TOKEN
+        value: "demo-token-12345"
+      - key: ADMIN_API_TOKEN
+        generateValue: true
+      - key: PYTHONDONTWRITEBYTECODE
+        value: "1"
+      - key: PYTHONUNBUFFERED
+        value: "1"
