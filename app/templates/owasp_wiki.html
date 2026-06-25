@@ -2,190 +2,210 @@
 {% block content %}
 <section class="hero">
     <div>
-        <p class="eyebrow">Documentación</p>
-        <h2>Wiki OWASP - Errores Detectados</h2>
+        <p class="eyebrow">Documentación Técnica</p>
+        <h2>Wiki de Reglas OWASP</h2>
+        <p>Catálogo de vulnerabilidades de seguridad auditadas por el motor estático de OWASP Verificator</p>
     </div>
 </section>
 
-<section class="card">
-    <h3>Resumen de Reglas</h3>
-    <p>Aquí están todos los errores que puede detectar el verificador, sus problemas, soluciones y dónde corregirlos:</p>
+<section class="card" style="margin-bottom: 24px;">
+    <h3>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+        <span>Resumen de Reglas de Seguridad</span>
+    </h3>
+    <p>A continuación se describen las reglas de cumplimiento que el motor analiza de manera automática en cada código fuente, archivo o dirección web, junto con sus penalizaciones y guías para su remediación.</p>
 </section>
 
 <!-- OWASP-A02 -->
 <section class="card">
-    <h3>🔐 OWASP-A02: Exposición de Secretos</h3>
+    <h3 style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <span style="display: inline-flex; align-items: center; gap: 8px;">
+            🔐 OWASP-A02: Exposición de Secretos
+        </span>
+        <span class="severity-high">🔴 CRÍTICA (-30 puntos)</span>
+    </h3>
     
-    <div style="margin-top: 16px; padding: 12px; background: rgba(0, 102, 204, 0.1); border-radius: 8px; border-left: 4px solid #00d4ff;">
-        <strong style="color: #00d4ff;">Severidad:</strong> <span class="severity-high">HIGH (-30 puntos)</span>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; flex-wrap: wrap;">
+        <div>
+            <h4 style="color: var(--danger); font-size: 0.95rem; margin-bottom: 8px;">❌ El Problema</h4>
+            <p style="margin-bottom: 12px;">Se detectan patrones que corresponden a credenciales o llaves privadas incrustadas directamente (hardcodeadas) en el código fuente:</p>
+            <ul style="background: rgba(239, 68, 68, 0.03); border: 1px solid rgba(239, 68, 68, 0.15); padding: 12px 20px; border-radius: var(--radius-sm); color: var(--text-light); list-style-position: inside; line-height: 1.6; font-size: 0.85rem; font-family: var(--font-code);">
+                <li>password = "..." o tokens de acceso</li>
+                <li>api_key o api-key expuestas</li>
+                <li>claves secretas de firmas y cifrado</li>
+            </ul>
+            <p style="margin-top: 12px; font-size: 0.9rem;"><strong>Riesgo:</strong> Al publicar el código o distribuirlo, terceros malintencionados pueden extraer estas llaves para vulnerar bases de datos, APIs de pago o servicios en la nube.</p>
+        </div>
+        
+        <div>
+            <h4 style="color: var(--success); font-size: 0.95rem; margin-bottom: 8px;">✅ La Solución</h4>
+            <ul style="background: rgba(16, 185, 129, 0.03); border: 1px solid rgba(16, 185, 129, 0.15); padding: 16px 20px; border-radius: var(--radius-sm); color: var(--text-light); line-height: 1.6; font-size: 0.9rem; padding-left: 24px;">
+                <li><strong>Variables de Entorno:</strong> Define variables en un archivo local <code style="color: var(--accent-2);">.env</code> y cargarlas dinámicamente con <code style="color: var(--accent-2);">os.getenv("SECRET")</code> en Python o <code style="color: var(--accent-2);">process.env.SECRET</code> en Node.js.</li>
+                <li><strong>Gestores de Secretos (Vaults):</strong> Utiliza servicios dedicados como AWS Secrets Manager, HashiCorp Vault o Azure Key Vault.</li>
+                <li><strong>Excluye del Repositorio:</strong> Agrega siempre los archivos de configuración con credenciales (como `.env`) al archivo <code style="color: var(--accent-2);">.gitignore</code>.</li>
+            </ul>
+        </div>
     </div>
     
-    <h4 style="margin-top: 20px; color: #fca5a5;">❌ El Problema:</h4>
-    <p style="color: #e5e7eb;">Se detectaron patrones que corresponden a credenciales o secretos en el código, tales como:</p>
-    <ul style="background: rgba(239, 68, 68, 0.05); padding: 12px 24px; border-radius: 8px; color: #e5e7eb;">
-        <li><code style="color: #fca5a5;">password =</code></li>
-        <li><code style="color: #fca5a5;">api_key</code> o <code style="color: #fca5a5;">api-key</code></li>
-        <li><code style="color: #fca5a5;">secret</code></li>
-        <li><code style="color: #fca5a5;">token</code></li>
-    </ul>
-    <p style="margin-top: 12px; color: #e5e7eb;"><strong>Riesgo:</strong> Exponer claves API, contraseñas o tokens en el código fuente permite que atacantes obtengan acceso a sistemas externos o bases de datos.</p>
-    
-    <h4 style="margin-top: 20px; color: #86efac;">✅ La Solución:</h4>
-    <ol style="background: rgba(16, 185, 129, 0.05); padding: 12px 24px; border-radius: 8px; color: #e5e7eb;">
-        <li><strong>Usar variables de entorno:</strong> Define <code style="color: #00d4ff;">API_KEY=xxx</code> en tu archivo `.env` y accede via <code style="color: #00d4ff;">os.getenv("API_KEY")</code></li>
-        <li><strong>Usar un Secret Manager:</strong> Herramientas como AWS Secrets Manager, Azure Key Vault o HashiCorp Vault</li>
-        <li><strong>Rotar credenciales:</strong> Si ya fueron expuestas, regeneralas inmediatamente</li>
-        <li><strong>Agregar a .gitignore:</strong> Archivos con secretos deben estar en `.gitignore` para no commitearlos</li>
-    </ol>
-    
-    <h4 style="margin-top: 20px; color: #00d4ff;">📍 Dónde Corregir:</h4>
-    <div style="background: rgba(0, 102, 204, 0.1); padding: 12px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; color: #00d4ff;">
-        <strong>Archivo:</strong> Tu código Python, JavaScript, etc.<br>
-        <strong>Función:</strong> <code style="color: #00d4ff;">analyze_service.py :: execute_scan()</code> busca las coincidencias<br>
-        <strong>Acción:</strong> Reemplaza líneas hardcodeadas con <code style="color: #00d4ff;">os.getenv()</code>
+    <div style="margin-top: 20px; background: rgba(12, 20, 38, 0.4); border: 1px solid var(--panel-border); padding: 14px 18px; border-radius: var(--radius-sm); font-size: 0.85rem; line-height: 1.5;">
+        <span style="color: var(--accent-2); font-weight: 700; text-transform: uppercase; font-family: var(--font-title); display: block; margin-bottom: 4px;">📍 Dónde auditar en el motor</span>
+        <strong>Componente:</strong> <code style="color: var(--text-light);">app/services/scanner.py</code> verifica expresiones regulares correspondientes a entropía y palabras clave de secretos expuestos.
     </div>
 </section>
 
 <!-- OWASP-A03 -->
 <section class="card">
-    <h3>⚠️ OWASP-A03: Uso de Funciones Peligrosas</h3>
+    <h3 style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <span style="display: inline-flex; align-items: center; gap: 8px;">
+            ⚠️ OWASP-A03: Uso de Funciones Peligrosas
+        </span>
+        <span class="severity-high">🔴 CRÍTICA (-30 puntos)</span>
+    </h3>
     
-    <div style="margin-top: 16px; padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 8px; border-left: 4px solid #fca5a5;">
-        <strong style="color: #fca5a5;">Severidad:</strong> <span class="severity-high">HIGH (-30 puntos)</span>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; flex-wrap: wrap;">
+        <div>
+            <h4 style="color: var(--danger); font-size: 0.95rem; margin-bottom: 8px;">❌ El Problema</h4>
+            <p style="margin-bottom: 12px;">El software invoca subprocesos o intérpretes internos pasando cadenas dinámicas, lo que permite la ejecución remota de comandos (RCE):</p>
+            <ul style="background: rgba(239, 68, 68, 0.03); border: 1px solid rgba(239, 68, 68, 0.15); padding: 12px 20px; border-radius: var(--radius-sm); color: var(--text-light); list-style-position: inside; line-height: 1.6; font-size: 0.85rem; font-family: var(--font-code);">
+                <li>eval() y exec() con argumentos dinámicos</li>
+                <li>pickle.loads() sobre flujos no confiables</li>
+                <li>subprocess.Popen() con shell=True</li>
+            </ul>
+            <p style="margin-top: 12px; font-size: 0.9rem;"><strong>Riesgo:</strong> Permite que un atacante inyecte sentencias del sistema operativo y tome control absoluto del servidor que hospeda la aplicación.</p>
+        </div>
+        
+        <div>
+            <h4 style="color: var(--success); font-size: 0.95rem; margin-bottom: 8px;">✅ La Solución</h4>
+            <ul style="background: rgba(16, 185, 129, 0.03); border: 1px solid rgba(16, 185, 129, 0.15); padding: 16px 20px; border-radius: var(--radius-sm); color: var(--text-light); line-height: 1.6; font-size: 0.9rem; padding-left: 24px;">
+                <li><strong>No eval/exec:</strong> Evita evaluar código a partir de inputs. Usa alternativas seguras como <code style="color: var(--accent-2);">ast.literal_eval()</code> para parsear datos.</li>
+                <li><strong>Subprocesos Seguros:</strong> Si ejecutas comandos externos en Python, pasa los argumentos en listas (<code style="color: var(--accent-2);">['ls', '-la']</code>) en lugar de cadenas concatenadas y mantén <code style="color: var(--accent-2);">shell=False</code>.</li>
+                <li><strong>Serialización segura:</strong> Usa JSON o Protocol Buffers en lugar de Pickle o YAML no seguros para transmisión de datos.</li>
+            </ul>
+        </div>
     </div>
     
-    <h4 style="margin-top: 20px; color: #fca5a5;">❌ El Problema:</h4>
-    <p style="color: #e5e7eb;">Se detectaron llamadas a funciones inseguras que pueden permitir ejecución arbuitraria de código:</p>
-    <ul style="background: rgba(239, 68, 68, 0.05); padding: 12px 24px; border-radius: 8px; color: #e5e7eb;">
-        <li><code style="color: #fca5a5;">eval()</code> - Evalúa código Python arbitrario</li>
-        <li><code style="color: #fca5a5;">exec()</code> - Ejecuta código Python arbitrario</li>
-        <li><code style="color: #fca5a5;">pickle.loads()</code> - Deserializa código no confiable</li>
-        <li><code style="color: #fca5a5;">subprocess.Popen()</code> - Si recibe entrada del usuario sin sanitizar</li>
-    </ul>
-    <p style="margin-top: 12px; color: #e5e7eb;"><strong>Riesgo:</strong> Un atacante puede inyectar código malicioso y obtener control total del servidor.</p>
-    
-    <h4 style="margin-top: 20px; color: #86efac;">✅ La Solución:</h4>
-    <ol style="background: rgba(16, 185, 129, 0.05); padding: 12px 24px; border-radius: 8px; color: #e5e7eb;">
-        <li><strong>Evita eval() y exec():</strong> Nunca uses estas funciones con entrada del usuario</li>
-        <li><strong>Usar alternativas seguras:</strong> <code style="color: #00d4ff;">ast.literal_eval()</code> para parsear listas/dicts, no <code style="color: #fca5a5;">eval()</code></li>
-        <li><strong>Para subprocess:</strong> Pasa argumentos como lista: <code style="color: #00d4ff;">subprocess.run(["cmd", arg])</code>, no como string</li>
-        <li><strong>Para serialización:</strong> Usa JSON en lugar de pickle para datos no confiables</li>
-    </ol>
-    
-    <h4 style="margin-top: 20px; color: #00d4ff;">📍 Dónde Corregir:</h4>
-    <div style="background: rgba(0, 102, 204, 0.1); padding: 12px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; color: #00d4ff;">
-        <strong>Archivo:</strong> Tu código Python<br>
-        <strong>Función:</strong> <code style="color: #00d4ff;">app/services/scanner.py :: scan_code()</code> detecta estas funciones<br>
-        <strong>Acción:</strong> Busca y reemplaza <code style="color: #fca5a5;">eval()</code>, <code style="color: #fca5a5;">exec()</code>, etc. por funciones seguras
+    <div style="margin-top: 20px; background: rgba(12, 20, 38, 0.4); border: 1px solid var(--panel-border); padding: 14px 18px; border-radius: var(--radius-sm); font-size: 0.85rem; line-height: 1.5;">
+        <span style="color: var(--accent-2); font-weight: 700; text-transform: uppercase; font-family: var(--font-title); display: block; margin-bottom: 4px;">📍 Dónde auditar en el motor</span>
+        <strong>Componente:</strong> El parser AST analiza el árbol de sintaxis abstracta para identificar llamadas a funciones peligrosas de la biblioteca estándar de Python y lenguajes populares.
     </div>
 </section>
 
 <!-- OWASP-A04 -->
 <section class="card">
-    <h3>📝 OWASP-A04: Validación de Entrada Insuficiente</h3>
+    <h3 style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <span style="display: inline-flex; align-items: center; gap: 8px;">
+            📝 OWASP-A04: Validación de Entrada Insuficiente
+        </span>
+        <span class="severity-medium">🟡 MEDIA (-15 puntos)</span>
+    </h3>
     
-    <div style="margin-top: 16px; padding: 12px; background: rgba(245, 158, 11, 0.1); border-radius: 8px; border-left: 4px solid #fbbf24;">
-        <strong style="color: #fbbf24;">Severidad:</strong> <span class="severity-medium">MEDIUM (-15 puntos)</span>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; flex-wrap: wrap;">
+        <div>
+            <h4 style="color: var(--warning); font-size: 0.95rem; margin-bottom: 8px;">❌ El Problema</h4>
+            <p style="margin-bottom: 12px;">La aplicación acepta datos desde fuentes externas (HTTP query, parámetros POST, terminal) y los procesa sin realizar un filtrado previo de tipos o límites:</p>
+            <ul style="background: rgba(245, 158, 11, 0.03); border: 1px solid rgba(245, 158, 11, 0.15); padding: 12px 20px; border-radius: var(--radius-sm); color: var(--text-light); list-style-position: inside; line-height: 1.6; font-size: 0.85rem; font-family: var(--font-code);">
+                <li>Lecturas directas de request.form sin validación</li>
+                <li>Parámetros de URL pasados a queries de DB</li>
+                <li>Uso de variables crudas en sentencias HTML</li>
+            </ul>
+            <p style="margin-top: 12px; font-size: 0.9rem;"><strong>Riesgo:</strong> Abre la puerta a ataques clásicos como inyección SQL (SQLi), Cross-Site Scripting (XSS) y manipulación de rutas de archivos (Path Traversal).</p>
+        </div>
+        
+        <div>
+            <h4 style="color: var(--success); font-size: 0.95rem; margin-bottom: 8px;">✅ La Solución</h4>
+            <ul style="background: rgba(16, 185, 129, 0.03); border: 1px solid rgba(16, 185, 129, 0.15); padding: 16px 20px; border-radius: var(--radius-sm); color: var(--text-light); line-height: 1.6; font-size: 0.9rem; padding-left: 24px;">
+                <li><strong>Esquemas Fuertes:</strong> Implementa validaciones automáticas con librerías orientadas a tipos como <code style="color: var(--accent-2);">Pydantic</code> (FastAPI) o <code style="color: var(--accent-2);">Zod</code> (JS).</li>
+                <li><strong>Consultas Parametrizadas:</strong> Utiliza ORMs (como SQLAlchemy o Prisma) para prevenir inyecciones SQL en consultas a bases de datos.</li>
+                <li><strong>Listas Blancas (Whitelisting):</strong> Valida que los datos coincidan estrictamente con un conjunto conocido de caracteres y longitudes permitidas.</li>
+            </ul>
+        </div>
     </div>
     
-    <h4 style="margin-top: 20px; color: #fbbf24;">❌ El Problema:</h4>
-    <p style="color: #e5e7eb;">Se detectó manejo de entrada sin validación explícita:</p>
-    <ul style="background: rgba(245, 158, 11, 0.05); padding: 12px 24px; border-radius: 8px; color: #e5e7eb;">
-        <li><code style="color: #fbbf24;">request.args</code> - Parámetros GET sin validar</li>
-        <li><code style="color: #fbbf24;">request.form</code> - Datos POST sin validar</li>
-        <li><code style="color: #fbbf24;">input()</code> - Entrada del usuario sin verificar</li>
-    </ul>
-    <p style="margin-top: 12px; color: #e5e7eb;"><strong>Riesgo:</strong> Inyección SQL, XSS, path traversal u otros ataques basados en entrada maliciosa.</p>
-    
-    <h4 style="margin-top: 20px; color: #86efac;">✅ La Solución:</h4>
-    <ol style="background: rgba(16, 185, 129, 0.05); padding: 12px 24px; border-radius: 8px; color: #e5e7eb;">
-        <li><strong>Valida tipos:</strong> Verifica que los datos sean del tipo esperado (int, string, etc.)</li>
-        <li><strong>Usa esquemas:</strong> Librerías como Pydantic o marshmallow validan automáticamente</li>
-        <li><strong>Parámetros tipados:</strong> En FastAPI, define tipos en los parámetros: <code style="color: #00d4ff;">def get_item(item_id: int)</code></li>
-        <li><strong>Whitelist:</strong> Solo acepta valores conocidos y seguros</li>
-        <li><strong>Sanitiza salida:</strong> Escapa caracteres especiales antes de mostrar al usuario</li>
-    </ol>
-    
-    <h4 style="margin-top: 20px; color: #00d4ff;">📍 Dónde Corregir:</h4>
-    <div style="background: rgba(0, 102, 204, 0.1); padding: 12px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; color: #00d4ff;">
-        <strong>Archivo:</strong> <code style="color: #00d4ff;">app/routers/analysis.py</code>, <code style="color: #00d4ff;">app/routers/reports.py</code><br>
-        <strong>Función:</strong> Cualquier ruta que reciba <code style="color: #fbbf24;">request.args</code> o <code style="color: #fbbf24;">request.form</code><br>
-        <strong>Acción:</strong> Añade validación con Pydantic en schemas.py o tipos en FastAPI
+    <div style="margin-top: 20px; background: rgba(12, 20, 38, 0.4); border: 1px solid var(--panel-border); padding: 14px 18px; border-radius: var(--radius-sm); font-size: 0.85rem; line-height: 1.5;">
+        <span style="color: var(--accent-2); font-weight: 700; text-transform: uppercase; font-family: var(--font-title); display: block; margin-bottom: 4px;">📍 Dónde auditar en el motor</span>
+        <strong>Componente:</strong> El motor busca rutas HTTP expuestas que reciban argumentos crudos de objetos de request sin la declaración de schemas de validación correspondientes.
     </div>
 </section>
 
 <!-- OWASP-A05 -->
 <section class="card">
-    <h3>🔒 OWASP-A05: Cabeceras de Seguridad Ausentes</h3>
+    <h3 style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <span style="display: inline-flex; align-items: center; gap: 8px;">
+            🛡️ OWASP-A05: Cabeceras de Seguridad Ausentes
+        </span>
+        <span class="severity-medium">🟡 MEDIA (-15 puntos)</span>
+    </h3>
     
-    <div style="margin-top: 16px; padding: 12px; background: rgba(245, 158, 11, 0.1); border-radius: 8px; border-left: 4px solid #fbbf24;">
-        <strong style="color: #fbbf24;">Severidad:</strong> <span class="severity-medium">MEDIUM (-15 puntos)</span>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; flex-wrap: wrap;">
+        <div>
+            <h4 style="color: var(--warning); font-size: 0.95rem; margin-bottom: 8px;">❌ El Problema</h4>
+            <p style="margin-bottom: 12px;">Las respuestas del servidor web de producción no incluyen cabeceras HTTP específicas que le indican al navegador del usuario cómo restringir acciones inseguras:</p>
+            <ul style="background: rgba(245, 158, 11, 0.03); border: 1px solid rgba(245, 158, 11, 0.15); padding: 12px 20px; border-radius: var(--radius-sm); color: var(--text-light); list-style-position: inside; line-height: 1.6; font-size: 0.85rem; font-family: var(--font-code);">
+                <li>Falta Content-Security-Policy (CSP)</li>
+                <li>Falta X-Frame-Options (Clickjacking)</li>
+                <li>Falta Strict-Transport-Security (HSTS)</li>
+            </ul>
+            <p style="margin-top: 12px; font-size: 0.9rem;"><strong>Riesgo:</strong> Mayor susceptibilidad a ataques de Clickjacking (cargar tu web en un frame malicioso) o carga de scripts maliciosos de dominios externos.</p>
+        </div>
+        
+        <div>
+            <h4 style="color: var(--success); font-size: 0.95rem; margin-bottom: 8px;">✅ La Solución</h4>
+            <ul style="background: rgba(16, 185, 129, 0.03); border: 1px solid rgba(16, 185, 129, 0.15); padding: 16px 20px; border-radius: var(--radius-sm); color: var(--text-light); line-height: 1.6; font-size: 0.9rem; padding-left: 24px;">
+                <li><strong>Configura CSP:</strong> Define una política restrictiva como <code style="color: var(--accent-2);">default-src 'self'</code> para evitar la carga de scripts no autorizados.</li>
+                <li><strong>Activa HSTS:</strong> Fuerce conexiones HTTPS utilizando la cabecera <code style="color: var(--accent-2);">Strict-Transport-Security: max-age=31536000; includeSubDomains</code>.</li>
+                <li><strong>Evita Frames Externos:</strong> Añade la cabecera <code style="color: var(--accent-2);">X-Frame-Options: SAMEORIGIN</code> para denegar montajes ajenos.</li>
+            </ul>
+        </div>
     </div>
     
-    <h4 style="margin-top: 20px; color: #fbbf24;">❌ El Problema:</h4>
-    <p style="color: #e5e7eb;">La respuesta HTTP no incluye cabeceras de seguridad críticas:</p>
-    <ul style="background: rgba(245, 158, 11, 0.05); padding: 12px 24px; border-radius: 8px; color: #e5e7eb;">
-        <li><code style="color: #fbbf24;">Content-Security-Policy</code> - Previene inyección de scripts</li>
-        <li><code style="color: #fbbf24;">Strict-Transport-Security</code> - Fuerza HTTPS</li>
-        <li><code style="color: #fbbf24;">X-Frame-Options</code> - Previene clickjacking</li>
-        <li><code style="color: #fbbf24;">X-Content-Type-Options</code> - Previene MIME sniffing</li>
-    </ul>
-    <p style="margin-top: 12px; color: #e5e7eb;"><strong>Riesgo:</strong> Ataques XSS, clickjacking, downgrade a HTTP inseguro.</p>
-    
-    <h4 style="margin-top: 20px; color: #86efac;">✅ La Solución:</h4>
-    <ol style="background: rgba(16, 185, 129, 0.05); padding: 12px 24px; border-radius: 8px; color: #e5e7eb;">
-        <li><strong>En FastAPI:</strong> Usa middleware para añadir cabeceras</li>
-        <li><strong>Content-Security-Policy:</strong> <code style="color: #00d4ff;">default-src 'self'</code> para permitir solo recursos del mismo origen</li>
-        <li><strong>Strict-Transport-Security:</strong> <code style="color: #00d4ff;">max-age=31536000; includeSubDomains</code></li>
-        <li><strong>X-Frame-Options:</strong> <code style="color: #00d4ff;">SAMEORIGIN</code> o <code style="color: #00d4ff;">DENY</code></li>
-        <li><strong>X-Content-Type-Options:</strong> <code style="color: #00d4ff;">nosniff</code></li>
-    </ol>
-    
-    <h4 style="margin-top: 20px; color: #00d4ff;">📍 Dónde Corregir:</h4>
-    <div style="background: rgba(0, 102, 204, 0.1); padding: 12px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; color: #00d4ff;">
-        <strong>Archivo:</strong> <code style="color: #00d4ff;">app/main.py</code><br>
-        <strong>Función:</strong> Añade un middleware nuevo o actualiza el existing<br>
-        <strong>Acción:</strong> Agrega headers en cada respuesta HTTP
+    <div style="margin-top: 20px; background: rgba(12, 20, 38, 0.4); border: 1px solid var(--panel-border); padding: 14px 18px; border-radius: var(--radius-sm); font-size: 0.85rem; line-height: 1.5;">
+        <span style="color: var(--accent-2); font-weight: 700; text-transform: uppercase; font-family: var(--font-title); display: block; margin-bottom: 4px;">📍 Dónde auditar en el motor</span>
+        <strong>Componente:</strong> El escáner de URLs examina las respuestas del servidor HTTP buscando de forma explícita las cabeceras recomendadas por OWASP.
     </div>
 </section>
 
 <!-- OWASP-A06 -->
 <section class="card">
-    <h3>📋 OWASP-A06: Divulgación de Información</h3>
+    <h3 style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <span style="display: inline-flex; align-items: center; gap: 8px;">
+            📋 OWASP-A06: Divulgación de Información
+        </span>
+        <span class="severity-low">🟢 BAJA (-5 puntos)</span>
+    </h3>
     
-    <div style="margin-top: 16px; padding: 12px; background: rgba(34, 197, 94, 0.1); border-radius: 8px; border-left: 4px solid #86efac;">
-        <strong style="color: #86efac;">Severidad:</strong> <span class="severity-low">LOW (-5 puntos)</span>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; flex-wrap: wrap;">
+        <div>
+            <h4 style="color: var(--muted); font-size: 0.95rem; margin-bottom: 8px;">❌ El Problema</h4>
+            <p style="margin-bottom: 12px;">La cabecera de respuesta HTTP expone detalles explícitos de la tecnología que corre por detrás:</p>
+            <ul style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--panel-border); padding: 12px 20px; border-radius: var(--radius-sm); color: var(--text-light); list-style-position: inside; line-height: 1.6; font-size: 0.85rem; font-family: var(--font-code);">
+                <li>Server: Apache/2.4.41 (Ubuntu)</li>
+                <li>X-Powered-By: PHP/8.0.3</li>
+            </ul>
+            <p style="margin-top: 12px; font-size: 0.9rem;"><strong>Riesgo:</strong> Facilita a los atacantes el reconocimiento pasivo de versiones precisas de software que contengan vulnerabilidades conocidas (CVEs).</p>
+        </div>
+        
+        <div>
+            <h4 style="color: var(--success); font-size: 0.95rem; margin-bottom: 8px;">✅ La Solución</h4>
+            <ul style="background: rgba(16, 185, 129, 0.03); border: 1px solid rgba(16, 185, 129, 0.15); padding: 16px 20px; border-radius: var(--radius-sm); color: var(--text-light); line-height: 1.6; font-size: 0.9rem; padding-left: 24px;">
+                <li><strong>Ocultar Servidor:</strong> En nginx usa <code style="color: var(--accent-2);">server_tokens off;</code>. En Apache usa <code style="color: var(--accent-2);">ServerTokens Prod</code>.</li>
+                <li><strong>Eliminar Cabecera:</strong> Remueve la cabecera `X-Powered-By` en tu middleware de aplicación o proxy inverso.</li>
+                <li><strong>Cabeceras Genéricas:</strong> Reemplaza el Server por un identificador genérico (ej. "AppGateway").</li>
+            </ul>
+        </div>
     </div>
     
-    <h4 style="margin-top: 20px; color: #86efac;">❌ El Problema:</h4>
-    <p style="color: #e5e7eb;">La respuesta expone la cabecera <code style="color: #fbbf24;">Server</code>, que revela detalles de la infraestructura:</p>
-    <div style="background: rgba(59, 130, 246, 0.1); padding: 12px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; color: #60a5fa;">
-        Server: Apache/2.4.41 (Ubuntu)<br>
-        Server: nginx/1.18.0
-    </div>
-    <p style="margin-top: 12px; color: #e5e7eb;"><strong>Riesgo:</strong> Atacantes pueden identificar versiones y buscar vulnerabilidades conocidas.</p>
-    
-    <h4 style="margin-top: 20px; color: #86efac;">✅ La Solución:</h4>
-    <ol style="background: rgba(16, 185, 129, 0.05); padding: 12px 24px; border-radius: 8px; color: #e5e7eb;">
-        <li><strong>Oculta la cabecera Server:</strong> Añade a middleware: <code style="color: #00d4ff;">response.headers["Server"] = "Custom-Server"</code></li>
-        <li><strong>Usa nombres genéricos:</strong> <code style="color: #00d4ff;">"Application Server"</code> en lugar de versiones específicas</li>
-        <li><strong>Configura tu servidor web:</strong> nginx: <code style="color: #00d4ff;">server_tokens off;</code>, Apache: <code style="color: #00d4ff;">ServerTokens Prod</code></li>
-    </ol>
-    
-    <h4 style="margin-top: 20px; color: #00d4ff;">📍 Dónde Corregir:</h4>
-    <div style="background: rgba(0, 102, 204, 0.1); padding: 12px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; color: #00d4ff;">
-        <strong>Archivo:</strong> <code style="color: #00d4ff;">app/main.py</code> (middleware) o configuración del servidor<br>
-        <strong>Función:</strong> Middleware de seguridad<br>
-        <strong>Acción:</strong> Elimina o reemplaza la cabecera Server
+    <div style="margin-top: 20px; background: rgba(12, 20, 38, 0.4); border: 1px solid var(--panel-border); padding: 14px 18px; border-radius: var(--radius-sm); font-size: 0.85rem; line-height: 1.5;">
+        <span style="color: var(--accent-2); font-weight: 700; text-transform: uppercase; font-family: var(--font-title); display: block; margin-bottom: 4px;">📍 Dónde auditar en el motor</span>
+        <strong>Componente:</strong> El analizador HTTP busca patrones de versión y firmas tecnológicas comunes en las cabeceras devueltas en la transacción de red.
     </div>
 </section>
 
-<section class="card" style="margin-top: 40px; background: rgba(0, 102, 204, 0.05); border: 1px solid rgba(0, 212, 255, 0.3);">
-    <h3 style="color: #00d4ff;">📚 Recursos Adicionales</h3>
-    <ul style="color: #e5e7eb;">
-        <li><a href="https://owasp.org/www-project-top-ten/" target="_blank" style="color: #00d4ff; font-weight: 600;">OWASP Top 10</a> - Lista de vulnerabilidades más críticas</li>
-        <li><a href="https://cheatsheetseries.owasp.org/" target="_blank" style="color: #00d4ff; font-weight: 600;">OWASP Cheat Sheet Series</a> - Guías prácticas de seguridad</li>
-        <li><a href="https://fastapi.tiangolo.com/tutorial/security/" target="_blank" style="color: #00d4ff; font-weight: 600;">FastAPI Security</a> - Seguridad en FastAPI</li>
+<section class="card" style="margin-top: 32px; background: rgba(99, 102, 241, 0.04); border-color: rgba(99, 102, 241, 0.25);">
+    <h3 style="color: var(--accent);">📚 Recursos Adicionales de Referencia</h3>
+    <ul style="line-height: 2; font-size: 0.95rem; padding-left: 20px; color: var(--text-light);">
+        <li><a href="https://owasp.org/www-project-top-ten/" target="_blank" style="color: var(--accent-2); font-weight: 600; text-decoration: none;">Sitio Oficial OWASP Top 10</a> - Proyecto oficial con documentación detallada de riesgos.</li>
+        <li><a href="https://cheatsheetseries.owasp.org/" target="_blank" style="color: var(--accent-2); font-weight: 600; text-decoration: none;">OWASP Cheat Sheet Series</a> - Guía rápida de defensa técnica para desarrolladores.</li>
+        <li><a href="https://fastapi.tiangolo.com/tutorial/security/" target="_blank" style="color: var(--accent-2); font-weight: 600; text-decoration: none;">Seguridad en FastAPI</a> - Manual oficial para la gestión de tokens y autenticación segura.</li>
     </ul>
 </section>
 {% endblock %}
