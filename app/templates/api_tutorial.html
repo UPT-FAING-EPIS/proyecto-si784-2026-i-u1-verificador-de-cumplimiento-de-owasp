@@ -543,24 +543,53 @@ OWASP: Escanear todo el Workspace   ← analiza todos los archivos del proyecto<
   <hr class="ig-divider">
 
   <!-- Cómo usarlo con IA -->
-  <div class="ig-section-title">🧑‍💻 Cómo usar los skills con tu IA favorita</div>
+  <div class="ig-section-title">🤖 Guía de Integración con IAs (Paso a Paso)</div>
+  <p style="color: var(--muted); font-size: 0.9rem; margin-top: -8px; margin-bottom: 24px; max-width: 800px;">
+    Esta guía te permitirá dotar a tu Inteligencia Artificial favorita (como ChatGPT, Claude o Gemini) de la capacidad de conectarse de forma autónoma a nuestro motor y escanear tus sistemas.
+  </p>
 
   <div class="ig-steps">
-    <div class="ig-step">
-      <div class="ig-step-num">1</div>
+    <!-- RUTA NO-CODE -->
+    <div class="ig-step" style="background: rgba(99, 102, 241, 0.04); border-color: rgba(99, 102, 241, 0.25);">
+      <div class="ig-step-num" style="background: linear-gradient(135deg, var(--accent-2), var(--accent));">1</div>
       <div class="ig-step-body">
-        <div class="ig-step-title">Con OpenAI / GPT-4o — define el skill como tool</div>
-        <div class="ig-step-desc">Copia y pega este código en tu proyecto Python para usar el skill de análisis en tu chat:</div>
+        <div class="ig-step-title" style="color: var(--accent-2);">Opción A: Sin Programar (Crear un Agente en la Web)</div>
+        <div class="ig-step-desc" style="color: #e5e7eb; font-size: 0.9rem; line-height: 1.6;">
+          Si no sabes programar, puedes configurar un asistente para chatear directamente con él y pedirle análisis de seguridad:
+          <ol style="margin-top: 10px; padding-left: 20px; color: var(--text-light); line-height: 1.7;">
+            <li><strong>Paso 1 - Copiar tu Token:</strong> Dirígete a la pestaña <em>API / Librería</em> en este panel, genera un token con tu nombre de usuario y cópialo.</li>
+            <li><strong>Paso 2 - Crear tu Asistente según tu IA:</strong>
+              <ul style="padding-left: 20px; margin-top: 5px; list-style-type: square;">
+                <li><strong>En OpenAI (ChatGPT Plus):</strong> Ve a <em>Explore GPTs</em> &gt; <em>Create</em> &gt; <em>Configure</em>. Baja a <strong>Actions</strong>, pulsa <strong>Create new action</strong>. Configura la autenticación en <strong>API Key</strong> con el header <code>X-API-Key</code> y pega tu token. Copia el esquema OpenAPI disponible en <a href="/openapi.json" target="_blank" style="color: var(--accent-2); text-decoration: underline;">/openapi.json</a> y pégalo en el editor.</li>
+                <li><strong>En Anthropic Claude (Claude Projects):</strong> Entra a tu cuenta Pro en Claude.ai, crea un <em>Project</em>, ve a la sección <strong>Tools</strong> y define una nueva herramienta. Pega el esquema de los skills para configurar la conexión HTTP con la cabecera <code>X-API-Key</code>.</li>
+                <li><strong>En Google Gemini (AI Studio):</strong> Abre Google AI Studio, crea un nuevo chat y en el panel lateral añade una <strong>Function Tool</strong>.</li>
+              </ul>
+            </li>
+            <li><strong>Paso 3 - ¡Pruébalo conversando!:</strong> Pregúntale a tu chat personalizado de IA: <br>
+              <code style="background: #030611; padding: 2px 6px; border-radius: 4px; color: var(--accent-2);">"Analiza las vulnerabilidades de la URL https://ejemplo.com"</code> o <br>
+              <code style="background: #030611; padding: 2px 6px; border-radius: 4px; color: var(--accent-2);">"¿Este código es seguro? password = 'admin123'"</code>. La IA llamará automáticamente a la API por detrás y te dará un reporte estructurado.
+            </li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <!-- RUTA DESARROLLADOR: OPENAI -->
+    <div class="ig-step">
+      <div class="ig-step-num">2</div>
+      <div class="ig-step-body">
+        <div class="ig-step-title">Opción B: Programando en Python — Integración con OpenAI</div>
+        <div class="ig-step-desc">Utiliza el SDK de OpenAI para permitir que GPT-4o determine cuándo llamar al verificador:</div>
         <div class="ig-code-wrap">
           <div class="ig-code-head">
-            <span class="ig-code-lang">Python — OpenAI</span>
+            <span class="ig-code-lang">Python — OpenAI GPT-4o</span>
             <button class="ig-copy-btn" onclick="igCopy(this)">📋 Copiar</button>
           </div>
           <pre class="ig-code-pre">import openai, requests, json
 
 BASE = "http://38.250.116.71:8000"
+TOKEN = "TU_TOKEN_API_DEL_VERIFICADOR"
 
-# Definir el skill para la IA
 tools = [{
     "type": "function",
     "function": {
@@ -569,20 +598,19 @@ tools = [{
         "parameters": {
             "type": "object",
             "properties": {
-                "target_type":  {"type": "string", "enum": ["code", "url", "github_repo"], "description": "Tipo de análisis"},
-                "target_value": {"type": "string", "description": "El código fuente, la URL a escanear o la URL del repo de GitHub"}
+                "target_type":  {"type": "string", "enum": ["code", "url", "github_repo"], "description": "Tipo de análisis a realizar"},
+                "target_value": {"type": "string", "description": "El código fuente a escanear, la URL de la web o el link de GitHub"}
             },
             "required": ["target_type", "target_value"]
         }
     }
 }]
 
-client = openai.OpenAI(api_key="TU_API_KEY")
+client = openai.OpenAI(api_key="TU_OPENAI_API_KEY")
 response = client.chat.completions.create(
     model="gpt-4o",
-    messages=[{"role": "user", "content": "Analiza este código: password = '12345'"}],
-    tools=tools,
-    tool_choice="auto"
+    messages=[{"role": "user", "content": "Analiza esta URL buscando fallas OWASP: https://ejemplo.com"}],
+    tools=tools
 )
 
 msg = response.choices[0].message
@@ -591,32 +619,87 @@ if msg.tool_calls:
     result = requests.post(
         f"{BASE}/analyze/api",
         json={
-            "target_type": args.get("target_type", "code"),
-            "target_value": args.get("target_value", "")
+            "target_type": args.get("target_type"),
+            "target_value": args.get("target_value")
         },
-        headers={"X-API-Key": "demo-token-12345"}
+        headers={"X-API-Key": TOKEN}
     ).json()
-    print(f"Score: {result.get('score')}/100")
-    print(f"Mensaje: {result.get('message')}")</pre>
+    print(f"Score: {result.get('score')}/100 - Mensaje: {result.get('message')}")</pre>
         </div>
       </div>
     </div>
 
+    <!-- RUTA DESARROLLADOR: CLAUDE -->
     <div class="ig-step">
-      <div class="ig-step-num">2</div>
+      <div class="ig-step-num">3</div>
       <div class="ig-step-body">
-        <div class="ig-step-title">Con Google Gemini — Function Calling</div>
+        <div class="ig-step-title">Opción C: Programando en Python — Integración con Anthropic Claude</div>
+        <div class="ig-step-desc">Usa el sistema de herramientas (Tools) del modelo Claude-3.5-Sonnet para realizar escaneos:</div>
         <div class="ig-code-wrap">
           <div class="ig-code-head">
-            <span class="ig-code-lang">Python — Gemini</span>
+            <span class="ig-code-lang">Python — Anthropic Claude</span>
+            <button class="ig-copy-btn" onclick="igCopy(this)">📋 Copiar</button>
+          </div>
+          <pre class="ig-code-pre">import anthropic, requests
+
+BASE = "http://38.250.116.71:8000"
+TOKEN = "TU_TOKEN_API_DEL_VERIFICADOR"
+
+tools = [{
+    "name": "analizar_codigo_owasp",
+    "description": "Analiza código fuente, una URL o un repositorio de GitHub buscando vulnerabilidades OWASP",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "target_type":  {"type": "string", "enum": ["code", "url", "github_repo"], "description": "El tipo de objetivo: code, url, o github_repo"},
+            "target_value": {"type": "string", "description": "El código fuente a escanear, la URL de la web o el link de GitHub"}
+        },
+        "required": ["target_type", "target_value"]
+    }
+}]
+
+client = anthropic.Anthropic(api_key="TU_CLAUDE_API_KEY")
+response = client.messages.create(
+    model="claude-3-5-sonnet-latest",
+    max_tokens=1024,
+    tools=tools,
+    messages=[{"role": "user", "content": "Analiza esta URL: https://ejemplo.com"}]
+)
+
+if response.stop_reason == "tool_use":
+    tool_use = [c for c in response.content if c.type == "tool_use"][0]
+    args = tool_use.input
+    
+    result = requests.post(
+        f"{BASE}/analyze/api",
+        json={
+            "target_type": args.get("target_type"),
+            "target_value": args.get("target_value")
+        },
+        headers={"X-API-Key": TOKEN}
+    ).json()
+    print(f"Score: {result.get('score')}/100 - Mensaje: {result.get('message')}")</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- RUTA DESARROLLADOR: GEMINI -->
+    <div class="ig-step">
+      <div class="ig-step-num">4</div>
+      <div class="ig-step-body">
+        <div class="ig-step-title">Opción D: Programando en Python — Integración con Google Gemini</div>
+        <div class="ig-step-desc">Habilita la llamada a funciones (Function Calling) en modelos Gemini:</div>
+        <div class="ig-code-wrap">
+          <div class="ig-code-head">
+            <span class="ig-code-lang">Python — Google Gemini</span>
             <button class="ig-copy-btn" onclick="igCopy(this)">📋 Copiar</button>
           </div>
           <pre class="ig-code-pre">import google.generativeai as genai, requests
 
-genai.configure(api_key="TU_API_KEY")
+genai.configure(api_key="TU_GEMINI_API_KEY")
 BASE = "http://38.250.116.71:8000"
+TOKEN = "TU_TOKEN_API_DEL_VERIFICADOR"
 
-# Definir el skill
 analyze_fn = genai.types.FunctionDeclaration(
     name="analizar_codigo_owasp",
     description="Analiza código fuente, una URL o un repositorio de GitHub buscando vulnerabilidades OWASP",
@@ -631,29 +714,31 @@ analyze_fn = genai.types.FunctionDeclaration(
 )
 
 model = genai.GenerativeModel("gemini-2.0-flash", tools=[analyze_fn])
-response = model.generate_content("Analiza: password = '12345'")
+response = model.generate_content("Analiza esta URL: https://ejemplo.com")
 
 if response.candidates[0].content.parts[0].function_call:
     fc = response.candidates[0].content.parts[0].function_call
     args = dict(fc.args)
+    
     result = requests.post(
         f"{BASE}/analyze/api",
         json={
             "target_type": args.get("target_type", "code"),
             "target_value": args.get("target_value", "")
         },
-        headers={"X-API-Key": "demo-token-12345"}
+        headers={"X-API-Key": TOKEN}
     ).json()
     print(f"Score: {result.get('score')}/100")</pre>
         </div>
       </div>
     </div>
 
+    <!-- RUTA DIRECTA (SIN IA) -->
     <div class="ig-step">
-      <div class="ig-step-num">3</div>
+      <div class="ig-step-num">5</div>
       <div class="ig-step-body">
-        <div class="ig-step-title">Sin IA — llamada directa al API (más simple)</div>
-        <div class="ig-step-desc">Simplemente llama a los endpoints usando curl o Python:</div>
+        <div class="ig-step-title">Opción E: Llamada Directa (Sin usar Inteligencia Artificial)</div>
+        <div class="ig-step-desc">Si prefieres integrarlo de forma directa en tus propios terminales, pipelines de CI/CD o scripts:</div>
         <div class="ig-code-wrap">
           <div class="ig-code-head">
             <span class="ig-code-lang">bash / terminal</span>
@@ -661,20 +746,19 @@ if response.candidates[0].content.parts[0].function_call:
           </div>
           <pre class="ig-code-pre"># Analizar una URL
 curl -X POST http://38.250.116.71:8000/analyze/api \
+  -H "X-API-Key: tu-token-aqui" \
   -H "Content-Type: application/json" \
   -d '{"target_type":"url","target_value":"https://tusitio.com"}'
 
-# Analizar código
+# Analizar código fuente
 curl -X POST http://38.250.116.71:8000/analyze/api \
+  -H "X-API-Key: tu-token-aqui" \
   -H "Content-Type: application/json" \
-  -d '{"target_type":"code","target_value":"password = \"12345\""}'
-
-# Ver estadísticas globales (Health check)
-curl http://38.250.116.71:8000/health</pre>
+  -d '{"target_type":"code","target_value":"password = \"12345\""}'</pre>
         </div>
         <div class="ig-btn-row">
           <a class="ig-btn ig-btn-primary" href="/docs" target="_blank">
-            📘 Probar en Swagger UI
+            📘 Probar Interactivamente en Swagger UI
           </a>
         </div>
       </div>
