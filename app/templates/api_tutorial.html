@@ -2,7 +2,11 @@
 {% block content %}
 {% set WEB_URL = 'http://38.250.116.71:8000' %}
 {% set API_URL = 'http://38.250.116.71:8000' %}
+{% set EXT_ID = 'Gerardo95.owasp-verificator' %}
 {% set EXT_URL = 'https://marketplace.visualstudio.com/items?itemName=Gerardo95.owasp-verificator' %}
+{% set EXT_VSCODE = 'vscode:extension/Gerardo95.owasp-verificator' %}
+{% set EXT_CURSOR = 'cursor:extension/Gerardo95.owasp-verificator' %}
+{% set EXT_OPENVSX = 'https://open-vsx.org/extension/Gerardo95/owasp-verificator' %}
 
 <style>
 
@@ -309,8 +313,7 @@
     </ul>
     <div class="ig-btn-row" style="margin-top:16px">
       <a class="ig-btn ig-btn-vscode"
-         href="{{ EXT_URL }}"
-         target="_blank"
+         href="{{ EXT_VSCODE }}"
          id="btn-open-vscode">
         🔌 Abrir en VS Code
       </a>
@@ -319,11 +322,10 @@
          target="_blank">
         🌐 Ver en Marketplace
       </a>
-      <a class="ig-btn ig-btn-secondary"
-         href="{{ EXT_URL }}"
-         target="_blank">
+      <button class="ig-btn ig-btn-secondary"
+         onclick="navigator.clipboard.writeText('{{ EXT_ID }}').then(() => { const original = this.innerHTML; this.innerHTML = '📋 ¡Copiado!'; setTimeout(() => this.innerHTML = original, 2000); })">
         📋 Instalar por ID
-      </a>
+      </button>
     </div>
   </div>
 
@@ -340,12 +342,11 @@
     </div>
     <div class="ig-btn-row">
       <a class="ig-btn ig-btn-cursor"
-         href="{{ EXT_URL }}"
-         target="_blank">
+         href="{{ EXT_CURSOR }}">
         🖱️ Abrir en Cursor
       </a>
       <a class="ig-btn ig-btn-secondary"
-         href="{{ EXT_URL }}"
+         href="{{ EXT_OPENVSX }}"
          target="_blank">
         🌐 Open VSX Registry
       </a>
@@ -391,10 +392,10 @@
             <span class="ig-code-lang">O instala por ID directamente</span>
             <button class="ig-copy-btn" onclick="igCopy(this)">📋 Copiar</button>
           </div>
-          <pre class="ig-code-pre">{{ EXT_URL }}</pre>
+          <pre class="ig-code-pre">{{ EXT_ID }}</pre>
         </div>
         <div class="ig-btn-row">
-          <a class="ig-btn ig-btn-vscode" href="{{ EXT_URL }}" target="_blank">
+          <a class="ig-btn ig-btn-vscode" href="{{ EXT_VSCODE }}">
             🔌 Instalar ahora en VS Code
           </a>
         </div>
