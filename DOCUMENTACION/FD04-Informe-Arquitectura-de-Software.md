@@ -99,6 +99,49 @@ El documento se divide en cuatro capítulos principales: objetivos y restriccion
 
 ## 3. Representación de la arquitectura del sistema
 
+### 3.0 Patrón Arquitectónico Principal: Arquitectura en Capas (Layered Architecture)
+
+El sistema de software **OWASP Verificator** se ha diseñado y estructurado siguiendo de manera estricta el patrón arquitectónico de **Arquitectura en Capas (Layered Architecture)**. Este patrón divide el sistema en grupos de componentes con responsabilidades específicas, permitiendo que cada capa exponga servicios bien definidos a la capa superior inmediata, logrando un alto grado de desacoplamiento, facilidad de pruebas y mantenibilidad.
+
+El sistema se organiza en las siguientes cuatro capas lógicas:
+
+1. **Capa de Presentación (Interfaz de Usuario / Vista)**:
+   * **Descripción**: Encargada de renderizar la información para el usuario final e interceptar sus acciones.
+   * **Componentes**: Plantillas de renderizado de servidor con Jinja2 en `app/templates/` y recursos estáticos interactivos (hojas de estilo CSS, scripts JS, favicon SVG) en `app/static/`.
+
+2. **Capa de Controladores (Ruteo / API Entrypoints)**:
+   * **Descripción**: Define los endpoints de comunicación (REST API) y procesa/valida las solicitudes HTTP de entrada provenientes del cliente web o de la extensión del IDE.
+   * **Componentes**: Archivos en `app/routers/` (`analysis.py`, `dashboard.py`, `reports.py`) y el punto de entrada principal en `app/main.py`. Utiliza DTOs definidos con Pydantic en `app/schemas.py`.
+
+3. **Capa de Lógica de Negocio (Service Layer)**:
+   * **Descripción**: Centraliza las reglas y algoritmos específicos del negocio, tales como el motor de análisis regex OWASP, el evaluador de CVEs y la integración externa.
+   * **Componentes**: Módulos en `app/services/` (`scanner.py`, `cve_analyzer.py`, `github_integration.py`, `pdf_export.py`, `analysis_service.py`).
+
+4. **Capa de Acceso a Datos / Persistencia (Data Layer)**:
+   * **Descripción**: Gestiona el ciclo de vida y almacenamiento persistente de los registros (Scans, Findings, tokens de sesión).
+   * **Componentes**: Administrado a través de `app/store.py` (`InMemoryScanStore`) que encapsula la base de datos local SQLite3 (`data/scans.sqlite3`). Representa las entidades mediante los modelos definidos en `app/models.py`.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ 1. Capa de Presentación (Jinja2 Templates / CSS / JS)       │
+└──────────────┬──────────────────────────────────────────────┘
+               │ Envío de Formularios / Peticiones HTTP
+               ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 2. Capa de Controladores (app.routers / FastAPI API)        │
+└──────────────┬──────────────────────────────────────────────┘
+               │ Validación de Peticiones (DTOs Pydantic)
+               ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 3. Capa de Negocio / Servicios (app.services - Scanners)    │
+└──────────────┬──────────────────────────────────────────────┘
+               │ Ejecución de Lógica y Penalidades OWASP
+               ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 4. Capa de Datos (app.store / sqlite3 / app.models)         │
+└─────────────────────────────────────────────────────────────┘
+```
+
 ### 3.1 Vista de casos de uso
 Los casos de uso que guían la arquitectura son:
 - Analizar código desde formulario web o API.
