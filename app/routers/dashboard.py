@@ -133,7 +133,7 @@ def api_tutorial(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="api_tutorial.html",
-        context={"request": request},
+        context={"request": request, "title": "Integraciones"},
     )
 
 
@@ -193,11 +193,8 @@ def monitoring_accesses(request: Request):
     return templates.TemplateResponse(request=request, name="monitoring.html", context={"request": request, "accesses": unique_accesses})
 
 
-@router.get("/integraciones", response_class=HTMLResponse)
-def integraciones(request: Request):
-    """Página de guía: extensión VS Code, Skills para IA y librería API."""
-    return templates.TemplateResponse(
-        request=request,
-        name="integraciones.html",
-        context={"request": request, "title": "Integraciones & Herramientas"},
-    )
+@router.get("/integraciones")
+def integraciones():
+    """Redirige la ruta antigua de integraciones a api-tutorial."""
+    return RedirectResponse(url="/api-tutorial", status_code=308)
+
