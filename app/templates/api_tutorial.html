@@ -6,262 +6,9 @@
 {% set EXT_URL = 'https://marketplace.visualstudio.com/items?itemName=Gerardo95.owasp-verificator' %}
 {% set EXT_VSCODE = 'vscode:extension/Gerardo95.owasp-verificator' %}
 {% set EXT_CURSOR = 'cursor:extension/Gerardo95.owasp-verificator' %}
-{% set EXT_OPENVSX = 'https://open-vsx.org/extension/Gerardo95/owasp-verificator' %}
 
-<style>
+<link rel="stylesheet" href="/static/css/api_tutorial.css?v={{ request.app.state.asset_version }}">
 
-  /* ══ Fuente y reset ══ */
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
-
-  .ig-wrap { font-family: 'Inter', sans-serif; }
-
-  /* ══ Hero ══ */
-  .ig-hero {
-    background: linear-gradient(135deg, rgba(12, 20, 38, 0.9) 0%, rgba(8, 12, 24, 0.9) 100%);
-    border: 1px solid var(--panel-border);
-    border-radius: var(--radius-md);
-    padding: 40px 36px;
-    margin-bottom: 28px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-  }
-  .ig-hero::before {
-    content: '';
-    position: absolute; top: -60px; right: -60px;
-    width: 300px; height: 300px;
-    background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .ig-hero h1 {
-    font-family: var(--font-title);
-    font-size: 2rem; font-weight: 800;
-    background: linear-gradient(135deg, #fff 0%, var(--accent-2) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text; margin-bottom: 10px;
-  }
-  .ig-hero p { color: var(--muted); font-size: 1rem; max-width: 600px; }
-
-  /* ══ Tabs principales ══ */
-  .ig-tabs {
-    display: flex; gap: 6px; flex-wrap: wrap;
-    background: rgba(12, 20, 38, 0.85);
-    border: 1px solid var(--panel-border);
-    border-radius: 12px; padding: 6px; margin-bottom: 24px;
-  }
-  .ig-tab-btn {
-    flex: 1; min-width: 130px;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    padding: 12px 16px; border-radius: 8px;
-    border: none; background: transparent;
-    color: var(--muted); font-size: 0.9rem; font-weight: 600;
-    cursor: pointer; transition: var(--transition);
-    font-family: 'Inter', sans-serif;
-  }
-  .ig-tab-btn:hover { background: rgba(99, 102, 241, 0.08); color: #e5e7eb; }
-  .ig-tab-btn.active {
-    background: rgba(6, 182, 212, 0.12);
-    color: var(--accent-2); box-shadow: 0 0 0 1px rgba(6, 182, 212, 0.3);
-  }
-  .ig-tab-btn .ig-tab-icon { font-size: 1.2rem; }
-
-  /* ══ Paneles de tab ══ */
-  .ig-panel { display: none; animation: igFade 0.2s ease; }
-  .ig-panel.active { display: block; }
-  @keyframes igFade { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
-
-  /* ══ Cards de paso ══ */
-  .ig-steps { display: flex; flex-direction: column; gap: 16px; }
-  .ig-step {
-    display: flex; gap: 20px; align-items: flex-start;
-    background: rgba(12, 20, 38, 0.4);
-    border: 1px solid var(--panel-border);
-    border-radius: 12px; padding: 20px 24px;
-    transition: var(--transition);
-  }
-  .ig-step:hover { border-color: rgba(99, 102, 241, 0.35); }
-  .ig-step-num {
-    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.85rem; font-weight: 800; color: #fff;
-  }
-  .ig-step-body { flex: 1; }
-  .ig-step-title {
-    font-family: var(--font-title);
-    font-size: 1.05rem; font-weight: 700; color: #e5e7eb; margin-bottom: 6px;
-  }
-  .ig-step-desc { font-size: 0.875rem; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
-  .ig-step-desc strong { color: #e5e7eb; }
-
-  /* ══ Code blocks ══ */
-  .ig-code-wrap { position: relative; margin-top: 8px; }
-  .ig-code-head {
-    display: flex; justify-content: space-between; align-items: center;
-    background: #030611; border: 1px solid var(--panel-border);
-    border-bottom: none; padding: 8px 16px; border-radius: 8px 8px 0 0;
-  }
-  .ig-code-lang {
-    font-size: 0.7rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 1px; color: var(--muted);
-  }
-  .ig-copy-btn {
-    display: flex; align-items: center; gap: 5px;
-    background: rgba(99, 102, 241, 0.06); border: 1px solid rgba(99, 102, 241, 0.2);
-    color: var(--muted); padding: 4px 12px; border-radius: 4px;
-    font-size: 0.75rem; cursor: pointer; transition: var(--transition);
-    font-family: 'Inter', sans-serif;
-  }
-  .ig-copy-btn:hover { background: rgba(99, 102, 241, 0.12); color: var(--accent); }
-  .ig-copy-btn.ok { color: var(--success); border-color: rgba(16, 185, 129, 0.4); }
-  .ig-code-pre {
-    background: #030611; border: 1px solid var(--panel-border);
-    border-top: none; border-radius: 0 0 8px 8px;
-    padding: 14px 16px; overflow-x: auto;
-    font-family: var(--font-code);
-    font-size: 0.825rem; line-height: 1.75;
-    color: #38bdf8; margin: 0;
-  }
-
-  /* ══ Botones de acción ══ */
-  .ig-btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
-  .ig-btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 10px 20px; border-radius: 8px; border: none;
-    font-size: 0.875rem; font-weight: 600; cursor: pointer;
-    text-decoration: none; transition: var(--transition);
-    font-family: 'Inter', sans-serif;
-  }
-  .ig-btn-primary {
-    background: linear-gradient(135deg, var(--accent) 0%, #4f46e5 100%);
-    color: #fff;
-  }
-  .ig-btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-  .ig-btn-secondary {
-    background: rgba(6, 182, 212, 0.08);
-    border: 1px solid rgba(6, 182, 212, 0.3);
-    color: var(--accent-2);
-  }
-  .ig-btn-secondary:hover { background: rgba(6, 182, 212, 0.15); }
-  .ig-btn-vscode {
-    background: linear-gradient(135deg, #101c36, #007acc);
-    color: #fff; border: 1px solid rgba(0,122,204,0.5);
-  }
-  .ig-btn-vscode:hover { opacity: 0.9; transform: translateY(-1px); }
-  .ig-btn-cursor {
-    background: linear-gradient(135deg, #101c36, #7c3aed);
-    color: #fff; border: 1px solid rgba(124,58,237,0.5);
-  }
-  .ig-btn-cursor:hover { opacity: 0.9; transform: translateY(-1px); }
-
-  /* ══ Info/warn boxes ══ */
-  .ig-info {
-    display: flex; gap: 12px; align-items: flex-start;
-    background: rgba(99, 102, 241, 0.08);
-    border: 1px solid rgba(99, 102, 241, 0.2);
-    border-radius: 8px; padding: 12px 16px;
-    font-size: 0.85rem; color: var(--text-light); margin-bottom: 16px;
-  }
-  .ig-warn {
-    display: flex; gap: 12px; align-items: flex-start;
-    background: rgba(245, 158, 11, 0.08);
-    border: 1px solid rgba(245, 158, 11, 0.2);
-    border-radius: 8px; padding: 12px 16px;
-    font-size: 0.85rem; color: var(--text-light); margin-bottom: 16px;
-  }
-  .ig-success {
-    background: rgba(16, 185, 129, 0.08);
-    border: 1px solid rgba(16, 185, 129, 0.2);
-    border-radius: 8px; padding: 14px 18px;
-    font-size: 0.875rem; color: #86efac; margin-bottom: 16px;
-  }
-  .ig-info strong, .ig-warn strong { color: #e5e7eb; }
-
-  /* ══ Skills grid ══ */
-  .ig-skills-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 14px; margin-top: 16px;
-  }
-  .ig-skill-card {
-    background: rgba(12, 20, 38, 0.6);
-    border: 1px solid var(--panel-border);
-    border-radius: 10px; padding: 16px;
-    transition: var(--transition);
-  }
-  .ig-skill-card:hover {
-    border-color: rgba(99, 102, 241, 0.35);
-    transform: translateY(-2px);
-  }
-  .ig-skill-head {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
-  }
-  .ig-skill-icon {
-    width: 32px; height: 32px; border-radius: 7px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 15px; flex-shrink: 0;
-  }
-  .ig-skill-name {
-    font-family: var(--font-code);
-    font-size: 0.78rem; font-weight: 700; color: var(--accent-2);
-  }
-  .ig-method-pill {
-    font-size: 0.65rem; font-weight: 700;
-    padding: 2px 7px; border-radius: 3px; margin-left: auto;
-    text-transform: uppercase; flex-shrink: 0;
-  }
-  .ig-method-post { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(129,140,248,0.2); }
-  .ig-method-get  { background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(52,211,153,0.2); }
-  .ig-skill-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
-  .ig-skill-endpoint {
-    font-family: var(--font-code);
-    font-size: 0.72rem; color: var(--muted);
-    margin-top: 8px; padding-top: 8px;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-  }
-
-  /* ══ Section titles ══ */
-  .ig-section-title {
-    font-family: var(--font-title);
-    font-size: 1.15rem; font-weight: 700; color: #e5e7eb;
-    margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
-  }
-  .ig-divider { border: none; border-top: 1px solid var(--panel-border); margin: 24px 0; }
-
-  /* ══ IDE install card ══ */
-  .ig-ide-card {
-    background: rgba(12, 20, 38, 0.6);
-    border: 1px solid var(--panel-border);
-    border-radius: 12px; padding: 20px 24px; margin-bottom: 16px;
-  }
-  .ig-ide-head {
-    display: flex; align-items: center; gap: 14px; margin-bottom: 14px;
-  }
-  .ig-ide-logo {
-    width: 44px; height: 44px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px; flex-shrink: 0;
-  }
-  .ig-ide-name { font-size: 1rem; font-weight: 700; color: #e5e7eb; font-family: var(--font-title); }
-  .ig-ide-sub  { font-size: 0.8rem; color: var(--muted); margin-top: 1px; }
-  .ig-feature-list {
-    list-style: none; padding: 0; margin: 12px 0 0;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-  }
-  .ig-feature-list li {
-    font-size: 0.825rem; color: var(--text-light);
-    display: flex; align-items: center; gap: 6px;
-  }
-  .ig-feature-list li::before { content: '✓'; color: var(--success); font-weight: 700; }
-
-  /* ══ Responsive ══ */
-  @media (max-width: 640px) {
-    .ig-hero h1 { font-size: 1.5rem; }
-    .ig-tab-btn { font-size: 0.78rem; padding: 9px 10px; }
-    .ig-feature-list { grid-template-columns: 1fr; }
-  }
-
-</style>
 
 <section class="hero">
     <div>
@@ -348,11 +95,6 @@
       <a class="ig-btn ig-btn-cursor"
          href="{{ EXT_CURSOR }}">
         🖱️ Abrir en Cursor
-      </a>
-      <a class="ig-btn ig-btn-secondary"
-         href="{{ EXT_OPENVSX }}"
-         target="_blank">
-        🌐 Open VSX Registry
       </a>
     </div>
   </div>
@@ -504,12 +246,12 @@ OWASP: Escanear todo el Workspace   ← analiza todos los archivos del proyecto<
     </div>
     <div class="ig-skill-card">
       <div class="ig-skill-head">
-        <div class="ig-skill-icon" style="background:rgba(239,68,68,0.1)">⚖️</div>
-        <span class="ig-skill-name">skill_compare_scans</span>
-        <span class="ig-method-pill ig-method-post">POST</span>
+        <div class="ig-skill-icon" style="background:rgba(16,185,129,0.1)">🚀</div>
+        <span class="ig-skill-name">skill_ci_pipeline</span>
+        <span class="ig-method-pill ig-method-get" style="background:#10b981">POST</span>
       </div>
-      <div class="ig-skill-desc">Compara dos escaneos y devuelve qué vulnerabilidades se resolvieron y cuáles son nuevas.</div>
-      <div class="ig-skill-endpoint">GET /reports/compare</div>
+      <div class="ig-skill-desc">Intercepta confirmaciones de código y valida el cumplimiento de políticas de seguridad.</div>
+      <div class="ig-skill-endpoint">POST /api/pipeline/verify</div>
     </div>
     <div class="ig-skill-card">
       <div class="ig-skill-head">
@@ -773,48 +515,32 @@ curl -X POST http://38.250.116.71:8000/analyze/api \
   <!-- PANEL 3: API TUTORIAL -->
   <div class="ig-panel" id="panel-libreapi">
 <!-- Token Generation Section -->
-<section class="card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%); border: 1px solid rgba(16, 185, 129, 0.3); margin-bottom: 40px;">
-    <h3>🔑 Dos Tipos de Tokens</h3>
+<section class="card" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.08) 0%, rgba(99, 102, 241, 0.04) 100%); border: 1px solid rgba(6, 182, 212, 0.2); margin-bottom: 40px;">
+    <h3>🔑 Autenticación / Token API</h3>
     
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
-        <!-- API Token -->
-        <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid var(--panel-border); padding: 16px; border-radius: 8px;">
-            <h4 style="color: var(--accent-2); margin-top: 0;">1️⃣ Token API (Servidor)</h4>
-            <p style="color: #e5e7eb; font-size: 0.9rem; margin: 8px 0;">Para autenticarte en el servidor y usar la API.</p>
-            <p style="color: #9ca3af; font-size: 0.85rem; margin: 8px 0;"><strong>Generado por:</strong> El servidor (abajo ⬇️)</p>
-            <p style="color: #9ca3af; font-size: 0.85rem; margin: 8px 0;"><strong>Se usa en:</strong></p>
-            <ul style="color: #9ca3af; font-size: 0.85rem; margin: 4px 0; padding-left: 16px;">
-                <li>Header <code>X-API-Key</code></li>
-                <li>Peticiones a <code>/analyze/api</code></li>
-                <li>Autenticación básica</li>
-            </ul>
-        </div>
-        
-        <!-- GitHub Token -->
-        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); padding: 16px; border-radius: 8px;">
-            <h4 style="color: #10b981; margin-top: 0;">2️⃣ Token GitHub (Tu Cuenta)</h4>
-            <p style="color: #e5e7eb; font-size: 0.9rem; margin: 8px 0;">Para acceder a tus repositorios privados en GitHub.</p>
-            <p style="color: #9ca3af; font-size: 0.85rem; margin: 8px 0;"><strong>Generado por:</strong> GitHub (en tu cuenta)</p>
-            <p style="color: #9ca3af; font-size: 0.85rem; margin: 8px 0;"><strong>Se usa en:</strong></p>
-            <ul style="color: #9ca3af; font-size: 0.85rem; margin: 4px 0; padding-left: 16px;">
-                <li>Parámetro <code>github_token</code></li>
-                <li>Repos privados</li>
-                <li>Crear issues automáticamente</li>
-            </ul>
+    <div style="background: rgba(99, 102, 241, 0.06); border: 1px solid var(--panel-border); padding: 18px 24px; border-radius: 8px; margin-bottom: 24px;">
+        <h4 style="color: var(--accent-2); margin-top: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; font-family: var(--font-title); font-weight: 700;">
+            <span>🔑</span> Token API (Servidor)
+        </h4>
+        <p style="color: #cbd5e1; font-size: 0.9rem; margin: 8px 0; line-height: 1.6;">Para interactuar con la API de forma programática, debes generar un token de acceso del servidor y adjuntarlo en la cabecera <code>X-API-Key</code> de cada petición HTTP.</p>
+        <div style="margin-top: 14px; display: flex; flex-wrap: wrap; gap: 16px; color: var(--muted); font-size: 0.85rem;">
+            <span><strong>Ubicación:</strong> Header <code>X-API-Key</code></span>
+            <span>·</span>
+            <span><strong>Ejemplo de análisis:</strong> <code>/analyze/api</code></span>
         </div>
     </div>
     
-    <h4 style="color: var(--accent-2); margin-top: 20px;">Genera tu Token API del Servidor</h4>
-    <p style="color: #9ca3af; margin-bottom: 16px;">Necesitas este token para usar la API. Ingresa tu nombre de usuario y generaremos uno para ti.</p>
+    <h4 style="color: var(--accent-2); margin-top: 20px; font-family: var(--font-title); font-weight: 700;">Genera tu Token API del Servidor</h4>
+    <p style="color: #94a3b8; margin-bottom: 16px; font-size: 0.9rem;">Registra tu identificador de aplicación o usuario para obtener una clave única de acceso.</p>
     
     {% if generated_token %}
-        <div style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 6px; padding: 16px; margin-bottom: 16px;">
-            <p style="color: #10b981; font-weight: 600; margin-bottom: 8px;">✅ Token generado para: <strong>{{ token_user }}</strong></p>
+        <div style="background: rgba(6, 182, 212, 0.12); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 6px; padding: 16px; margin-bottom: 16px;">
+            <p style="color: var(--accent-2); font-weight: 600; margin-bottom: 8px;">✅ Token generado para: <strong>{{ token_user }}</strong></p>
             <div style="background: #030611; border: 1px solid var(--panel-border); padding: 12px; border-radius: 6px; margin-bottom: 12px; position: relative;">
                 <code style="color: var(--accent-2); font-family: monospace; word-break: break-all;">{{ generated_token }}</code>
                 <button onclick="navigator.clipboard.writeText('{{ generated_token }}'); alert('Token copiado al portapapeles');" style="position: absolute; right: 12px; top: 12px; padding: 6px 12px; background: var(--accent); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">Copiar</button>
             </div>
-            <p style="color: #10b981; font-size: 0.9rem;">⚠️ <strong>Guarda este token en un lugar seguro.</strong> No podrás verlo de nuevo. Si lo pierdes, genera uno nuevo.</p>
+            <p style="color: var(--accent-2); font-size: 0.9rem;">⚠️ <strong>Guarda este token en un lugar seguro.</strong> No podrás recuperarlo ni volverlo a visualizar.</p>
         </div>
     {% elif error %}
         <div style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); border-radius: 6px; padding: 12px; margin-bottom: 16px; color: #fca5a5;">
@@ -822,12 +548,12 @@ curl -X POST http://38.250.116.71:8000/analyze/api \
         </div>
     {% endif %}
     
-    <form id="tokenForm" style="display: flex; gap: 12px; align-items: flex-end;">
+    <form id="tokenForm" style="display: flex; gap: 12px; align-items: flex-end; margin-top: 20px;">
         <div style="flex: 1;">
-            <label style="display: block; margin-bottom: 8px;">Tu nombre de usuario</label>
-            <input type="text" id="usernameInput" placeholder="p.ej: mi-app, usuario123" required style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc;">
+            <label style="display: block; margin-bottom: 8px; font-size: 0.8rem; color: var(--muted); font-family: var(--font-title); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Tu nombre de usuario / ID Aplicación</label>
+            <input type="text" id="usernameInput" placeholder="p.ej: mi-app, usuario123" required style="width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--panel-border); background: rgba(10, 15, 30, 0.8); color: var(--text); font-size: 0.95rem; box-sizing: border-box; transition: var(--transition);">
         </div>
-        <button class="button" type="submit" style="margin-bottom: 0;">🔐 Generar Token</button>
+        <button class="button" type="submit" style="margin-bottom: 0; padding: 12px 24px; font-family: var(--font-title); font-weight: 700; height: 47px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">🔐 Generar Token</button>
     </form>
     
     <script>
@@ -860,13 +586,13 @@ curl -X POST http://38.250.116.71:8000/analyze/api \
                 // Mostrar el token generado
                 const resultDiv = document.getElementById('tokenResult');
                 resultDiv.innerHTML = `
-                    <div style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 6px; padding: 16px; margin-bottom: 16px;">
-                        <p style="color: #10b981; font-weight: 600; margin-bottom: 8px;">✅ Token generado para: <strong>${data.user}</strong></p>
+                    <div style="background: rgba(6, 182, 212, 0.12); border: 1px solid rgba(6, 182, 212, 0.35); border-radius: 6px; padding: 16px; margin-bottom: 16px; margin-top: 20px;">
+                        <p style="color: var(--accent-2); font-weight: 600; margin-bottom: 8px;">✅ Token generado para: <strong>${data.token_user || data.user || username}</strong></p>
                         <div style="background: #030611; border: 1px solid var(--panel-border); padding: 12px; border-radius: 6px; margin-bottom: 12px; position: relative;">
-                            <code style="color: var(--accent-2); font-family: monospace; word-break: break-all;">${data.token}</code>
-                            <button onclick="navigator.clipboard.writeText('${data.token}'); alert('Token copiado al portapapeles');" style="position: absolute; right: 12px; top: 12px; padding: 6px 12px; background: var(--accent); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">Copiar</button>
+                            <code style="color: var(--accent-2); font-family: monospace; word-break: break-all;">${data.generated_token || data.token}</code>
+                            <button onclick="navigator.clipboard.writeText('${data.generated_token || data.token}'); alert('Token copiado al portapapeles');" style="position: absolute; right: 12px; top: 12px; padding: 6px 12px; background: var(--accent); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">Copiar</button>
                         </div>
-                        <p style="color: #10b981; font-size: 0.9rem;">⚠️ <strong>Guarda este token en un lugar seguro.</strong> No podrás verlo de nuevo. Si lo pierdes, genera uno nuevo.</p>
+                        <p style="color: var(--accent-2); font-size: 0.9rem;">⚠️ <strong>Guarda este token en un lugar seguro.</strong> No podrás recuperarlo ni volverlo a visualizar.</p>
                         <p style="color: #9ca3af; font-size: 0.9rem; margin-top: 12px;"><strong>Nota:</strong> Este es tu token API para autenticarte en este servidor. Úsalo en el header <code>X-API-Key</code> de tus peticiones.</p>
                     </div>
                 `;
@@ -935,8 +661,8 @@ Content-Type: application/json</pre>
   }'</pre>
         </div>
         
-        <div style="background: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.3); margin-bottom: 16px;">
-            <h4 style="color: #86efac; margin-top: 0;">✅ Respuesta Exitosa</h4>
+        <div style="background: rgba(6, 182, 212, 0.06); padding: 16px; border-radius: 8px; border: 1px solid rgba(6, 182, 212, 0.2); margin-bottom: 16px;">
+            <h4 style="color: var(--accent-2); margin-top: 0;">✅ Respuesta Exitosa</h4>
             <p style="color: #e5e7eb; margin: 8px 0;">El análisis devuelve un JSON con los resultados de seguridad:</p>
             <pre style="background: #030611; border: 1px solid var(--panel-border); padding: 12px; border-radius: 6px; color: #e5e7eb; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;">{
   "id": 1,

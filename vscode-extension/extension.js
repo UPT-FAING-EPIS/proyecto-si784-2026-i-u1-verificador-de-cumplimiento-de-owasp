@@ -108,7 +108,7 @@ function activate(context) {
     // Escuchar cambios de configuración
     context.subscriptions.push(
         vscode.workspace.onDidChangeConfiguration((e) => {
-            if (e.affectsConfiguration('owaspVerificator.enableAIScan') || e.affectsConfiguration('owaspVerificator.language')) {
+            if (e.affectsConfiguration('owaspVerificator.language')) {
                 const config = vscode.workspace.getConfiguration('owaspVerificator');
                 let lang = config.get('language') || 'es';
                 if (lang === 'auto') {
@@ -120,7 +120,7 @@ function activate(context) {
                 if (dashboardPanel) {
                     dashboardPanel.webview.postMessage({
                         command: 'updateSettings',
-                        enableAIScan: config.get('enableAIScan') !== false
+                        enableAIScan: false
                     });
                 }
             }
@@ -154,11 +154,7 @@ function activate(context) {
     );
     context.subscriptions.push(codeActionProvider);
 
-    // Registrar comando para preguntar a la IA
-    let askAICommand = vscode.commands.registerCommand('owasp-verificator.askAI', (finding) => {
-        askAI(finding);
-    });
-    context.subscriptions.push(askAICommand);
+    // Comando para preguntar a la IA desactivado
 
     // Eventos de activación
     vscode.workspace.onDidOpenTextDocument(doc => runScan(doc, diagnosticCollection), null, context.subscriptions);
@@ -298,7 +294,7 @@ function runScan(document, collection, showDashboard = false, context = null) {
             refreshDiagnosticsAndUI(document, collection, lang, showDashboard, context);
 
             // Escaneo asíncrono con IA si está habilitado
-            const enableAI = config.get('enableAIScan') !== false;
+            const enableAI = false;
             if (enableAI && vscode.lm) {
                 docData.isAiScanning = true;
                 refreshDiagnosticsAndUI(document, collection, lang, showDashboard, context);
@@ -621,22 +617,7 @@ class OwaspCodeActionProvider {
                     evidence = document.getText(diagnostic.range) || "";
                 }
 
-                const aiAction = new vscode.CodeAction(
-                    isEs ? `Preguntar a IA cómo solucionar` : `Ask AI how to fix`,
-                    vscode.CodeActionKind.QuickFix
-                );
-                aiAction.diagnostics = [diagnostic];
-                aiAction.command = {
-                    command: 'owasp-verificator.askAI',
-                    title: isEs ? `Preguntar a IA` : `Ask AI`,
-                    arguments: [{
-                        ruleId: ruleId,
-                        title: title,
-                        evidence: evidence,
-                        remediation: remediation
-                    }]
-                };
-                actions.push(aiAction);
+                // Preguntar a IA desactivado
             }
 
             if (diagnostic.code === 'OWASP-A02' && document.languageId === 'python') {
@@ -739,9 +720,6 @@ class OwaspSidebarProvider {
                 vscode.commands.executeCommand('owasp-verificator.scanFile');
             } else if (message.command === 'scanWorkspace') {
                 vscode.commands.executeCommand('owasp-verificator.scanWorkspace');
-            } else if (message.command === 'toggleAI') {
-                const currentVal = config.get('enableAIScan') !== false;
-                await config.update('enableAIScan', !currentVal, vscode.ConfigurationTarget.Global);
             } else if (message.command === 'openDashboard') {
                 vscode.commands.executeCommand('owasp-verificator.scanWorkspace');
             }
@@ -757,7 +735,7 @@ class OwaspSidebarProvider {
     getHtmlContent(lang) {
         const isEs = lang.startsWith('es');
         const config = vscode.workspace.getConfiguration('owaspVerificator');
-        const isAIEnabled = config.get('enableAIScan') !== false;
+        const isAIEnabled = false;
 
         const t = {
             es: {
@@ -765,8 +743,6 @@ class OwaspSidebarProvider {
                 scanFile: "Analizar Archivo Actual",
                 scanWorkspace: "Escanear todo el Workspace",
                 openDashboard: "Abrir Dashboard completo",
-                aiScanLabel: "Auditoría con IA activa",
-                aiScanDesc: "Usa Copilot/Gemini para auditar y sugerir parches asíncronamente.",
                 statusTitle: "Estado del Escáner",
                 statusIdle: "Esperando comando...",
                 donation: "Apoya el proyecto:"
@@ -776,8 +752,6 @@ class OwaspSidebarProvider {
                 scanFile: "Analyze Current File",
                 scanWorkspace: "Scan entire Workspace",
                 openDashboard: "Open Full Dashboard",
-                aiScanLabel: "AI Audit Active",
-                aiScanDesc: "Uses Copilot/Gemini to audit and suggest fixes asynchronously.",
                 statusTitle: "Scanner Status",
                 statusIdle: "Waiting for command...",
                 donation: "Support project:"
@@ -953,21 +927,12 @@ class OwaspSidebarProvider {
         ${t.openDashboard}
     </button>
 
-    <div class="toggle-container">
-        <div class="toggle-row">
-            <span class="toggle-label">${t.aiScanLabel}</span>
-            <label class="switch">
-                <input type="checkbox" id="aiToggle" ${isAIEnabled ? 'checked' : ''} onchange="sendMessage('toggleAI')">
-                <span class="slider"></span>
-            </label>
-        </div>
-        <div class="toggle-desc">${t.aiScanDesc}</div>
-    </div>
+
 
     <div class="sponsorship">
         <span>${t.donation}</span><br>
         <a href="https://www.paypal.com/donate/?hosted_button_id=MASK8JSBNSZPQ" target="_blank" class="paypal-link">
-            PayPal
+            Donar
         </a>
     </div>
 
@@ -1071,7 +1036,7 @@ async function scanWorkspaceAndShowDashboard(context) {
         const userConfigPath = config.get('pythonPath');
         const pythonPath = (userConfigPath && userConfigPath !== 'python') ? userConfigPath : (resolvedPythonCommand || 'python');
         const cliPath = path.join(extensionPath, 'cli.py');
-        const enableAI = config.get('enableAIScan') !== false;
+        const enableAI = false;
 
         const scanResults = await scanFiles(files, pythonPath, cliPath, lang, enableAI);
         showDashboardPanel(context, scanResults, lang, files.length);
@@ -1287,14 +1252,7 @@ function showDashboardPanel(context, scanResults, lang, totalFilesScanned) {
                     editor.revealRange(new vscode.Range(pos, pos), vscode.TextEditorRevealType.InCenter);
                 });
             });
-        } else if (message.command === 'askAI') {
-            vscode.commands.executeCommand('owasp-verificator.askAI', message.finding);
-        } else if (message.command === 'askAIInline') {
-            askAIInline(message.finding, message.fileIdx, message.findingIdx, message.groupFirstFindingIdx, dashboardPanel, lang);
-        } else if (message.command === 'toggleAI') {
-            const config = vscode.workspace.getConfiguration('owaspVerificator');
-            const current = config.get('enableAIScan') !== false;
-            config.update('enableAIScan', !current, vscode.ConfigurationTarget.Global);
+        // Comandos de IA de dashboard desactivados
         }
     }, null, context.subscriptions);
 }
@@ -1312,7 +1270,7 @@ function escapeHtml(text) {
 function getDashboardHtml(scanResults, lang, totalFilesScanned) {
     const isEs = lang.startsWith('es');
     const config = vscode.workspace.getConfiguration('owaspVerificator');
-    const isAIEnabled = config.get('enableAIScan') !== false;
+    let aiStatus = 'inactive';
     
     const t = {
         es: {
@@ -1327,7 +1285,7 @@ function getDashboardHtml(scanResults, lang, totalFilesScanned) {
             medium: "Advertencia",
             low: "Recomendación",
             viewInEditor: "Ver en Editor",
-            askAI: "Preguntar a IA",
+
             evidence: "Evidencia",
             remediation: "Remediación Sugerida",
             emptyTitle: "¡Sin vulnerabilidades detectadas!",
@@ -1350,7 +1308,7 @@ function getDashboardHtml(scanResults, lang, totalFilesScanned) {
             medium: "Warning",
             low: "Recommendation",
             viewInEditor: "Open in Editor",
-            askAI: "Ask AI",
+
             evidence: "Evidence",
             remediation: "Suggested Remediation",
             emptyTitle: "No vulnerabilities detected!",
@@ -1406,13 +1364,7 @@ function getDashboardHtml(scanResults, lang, totalFilesScanned) {
                             <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                                 <span class="finding-line" style="font-size: 12px; font-weight: 600; color: #cbd5e1; margin-bottom: 0;">Línea ${occ.line}</span>
                                 <div style="display: flex; gap: 8px;">
-                                    <button class="open-btn ai-btn" title="${isEs ? 'Preguntar a tu asistente de IA (Copilot/Gemini) para resolver esta vulnerabilidad en esta línea.' : 'Ask your AI assistant (Copilot/Gemini) to fix this vulnerability on this line.'}" style="padding: 4px 10px; font-size: 11px;" onclick="askAIInline(${fileIdx}, ${occ.findingIdx}, ${group.firstFindingIdx})">
-                                        <!-- Sparkles SVG Icon -->
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l.707-.707M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
-                                        </svg>
-                                        <span>${t.askAI}</span>
-                                    </button>
+
                                     <button class="open-btn" style="padding: 4px 10px; font-size: 11px;" title="${isEs ? 'Ir a la línea exacta de la vulnerabilidad en tu editor de código.' : 'Go to the exact vulnerability line in your code editor.'}" onclick="openFile('${fileResult.fsPath.replace(/\\/g, '\\\\')}', ${occ.line})">${t.viewInEditor}</button>
                                 </div>
                             </div>
@@ -1606,22 +1558,21 @@ function getDashboardHtml(scanResults, lang, totalFilesScanned) {
         .paypal-badge {
             display: inline-flex;
             align-items: center;
-            background: #ffd140;
-            color: #00457C;
-            border: 1px solid #ffd140;
-            padding: 6px 14px;
-            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.04);
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 5px 12px;
+            border-radius: 6px;
             text-decoration: none;
-            font-size: 12px;
-            font-weight: 700;
-            box-shadow: 0 4px 12px rgba(255, 209, 64, 0.2);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.2s ease;
         }
 
         .paypal-badge:hover {
-            background: #ffe066;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(255, 209, 64, 0.35);
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--vscode-foreground, #ffffff);
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
         .kpis-grid {
@@ -2171,19 +2122,12 @@ function getDashboardHtml(scanResults, lang, totalFilesScanned) {
             <p>${t.subtitle}</p>
         </div>
         <div class="sponsorship-container">
-            <div style="display: flex; align-items: center; gap: 8px; margin-right: 15px; font-weight: 500;">
-                <span style="font-size: 13px; color: var(--fg-color);">${isEs ? 'Auditoría con IA' : 'AI Audit'}</span>
-                <label class="switch">
-                    <input type="checkbox" id="aiToggleDashboard" ${isAIEnabled ? 'checked' : ''} onchange="toggleAI()">
-                    <span class="slider"></span>
-                </label>
-            </div>
             <span>${t.donation}</span>
             <a href="https://www.paypal.com/donate/?hosted_button_id=MASK8JSBNSZPQ" target="_blank" class="paypal-badge" title="${isEs ? 'Apoya el desarrollo de código abierto de OWASP Verificator' : 'Support the open source development of OWASP Verificator'}">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#00457C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 5px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 5px;">
                     <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
                 </svg>
-                <strong>PayPal</strong>
+                <strong>Donar</strong>
             </a>
         </div>
     </div>
@@ -2347,13 +2291,7 @@ function getDashboardHtml(scanResults, lang, totalFilesScanned) {
         window.addEventListener('message', event => {
             const message = event.data;
             
-            if (message.command === 'updateSettings') {
-                const toggle = document.getElementById('aiToggleDashboard');
-                if (toggle) {
-                    toggle.checked = message.enableAIScan;
-                }
-                return;
-            }
+
             
             const { fileIdx, findingIdx } = message;
             const container = document.getElementById('ai-response-' + fileIdx + '-' + findingIdx);

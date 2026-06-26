@@ -2,7 +2,7 @@
   "name": "owasp-verificator",
   "displayName": "OWASP Verificator",
   "description": "Analizador de cumplimiento de OWASP en tiempo real para tu código.",
-  "version": "0.2.0",
+  "version": "1.0.2",
   "publisher": "Gerardo95",
   "icon": "icon.png",
   "sponsor": {
@@ -63,14 +63,13 @@
           "type": "boolean",
           "default": true,
           "description": "Mostrar advertencias y líneas subrayadas en el editor de código (Panel de Problemas). Desactívalo si prefieres usar únicamente el Dashboard."
-        },
-        "owaspVerificator.enableAIScan": {
-          "type": "boolean",
-          "default": true,
-          "description": "Permite activar o desactivar la auditoría de seguridad asistida por IA en tiempo real utilizando los modelos de lenguaje disponibles en VS Code (e.g. Copilot o Gemini)."
         }
       }
     }
+  },
+  "scripts": {
+    "sync": "node sync.js",
+    "package": "node sync.js && npx @vscode/vsce package"
   },
   "dependencies": {
     "@vscode/vsce": "^3.9.2"

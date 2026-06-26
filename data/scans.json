@@ -1,52 +1,45 @@
 {
   "scans": [
     {
-      "id": 2,
+      "id": 3,
       "target_type": "code",
-      "target_value": "password = \"12345\"\napi_key = \"sk-secret\"\neval(user_input)",
+      "target_value": "print('Owned scan')",
       "status": "completed",
-      "score": 40,
-      "created_at": "2026-06-20T01:33:23.508410+00:00",
-      "findings": [
-        {
-          "rule_id": "OWASP-A02",
-          "title": "Fallas Criptográficas - Exposición de Secretos",
-          "severity": "high",
-          "description": "Secretos, contraseñas o claves hardcodeadas detectadas en el código.",
-          "evidence": "Coincidencia encontrada: password = \"",
-          "penalty": 30,
-          "remediation": "1. Nunca hardcodear secretos\n2. Usar variables de entorno (os.getenv())\n3. Implementar secret manager (Azure Key Vault, HashiCorp Vault)\n4. Rotar credenciales regularmente"
-        },
-        {
-          "rule_id": "OWASP-A03",
-          "title": "Inyección de Código",
-          "severity": "high",
-          "description": "Se detectaron funciones que permiten inyección de código o ejecución dinámica insegura.",
-          "evidence": "Coincidencia encontrada: eval(",
-          "penalty": 30,
-          "remediation": "1. Evitar eval(), exec(), pickle.loads()\n2. Usar funciones seguras alternativas\n3. Validar y sanear TODA entrada de usuario\n4. Usar ORM para consultas SQL"
-        }
-      ]
+      "score": 92,
+      "created_at": "2026-06-26T17:08:02.664312+00:00",
+      "username": "analista_test",
+      "findings": []
+    },
+    {
+      "id": 2,
+      "target_type": "url",
+      "target_value": "http://guest-test.com",
+      "status": "completed",
+      "score": 85,
+      "created_at": "2026-06-26T17:08:02.652641+00:00",
+      "username": null,
+      "findings": []
     },
     {
       "id": 1,
-      "target_type": "code",
-      "target_value": "x",
+      "target_type": "url",
+      "target_value": "http://http-insecure-url.test",
       "status": "completed",
-      "score": 1,
-      "created_at": "2026-05-09T01:28:25.544554+00:00",
+      "score": 85,
+      "created_at": "2026-06-26T16:40:04.234379+00:00",
+      "username": null,
       "findings": [
         {
-          "rule_id": "R1",
-          "title": "t",
-          "severity": "low",
-          "description": "d",
-          "evidence": "e",
-          "penalty": 0,
+          "rule_id": "OWASP-A01",
+          "title": "No se pudo conectar al objetivo",
+          "severity": "medium",
+          "description": "La URL no respondió correctamente durante el análisis.",
+          "evidence": "HTTPConnectionPool(host='http-insecure-url.test', port=80): Max retries exceeded with url: / (Caused by NameResolutionError(\"HTTPConnection(host='http-insecure-url.test', port=80): Failed to resolve 'http-insecure-url.test' ([Errno 11001] getaddrinfo failed)\"))",
+          "penalty": 15,
           "remediation": ""
         }
       ]
     }
   ],
-  "next_id": 3
+  "next_id": 4
 }

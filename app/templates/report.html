@@ -1,70 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
-<style>
-    /* Circular Progress Score Badge styling */
-    .score-circle-wrap {
-        position: relative;
-        width: 120px;
-        height: 120px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 12px;
-    }
-    .score-ring {
-        transform: rotate(-90deg);
-        width: 100%;
-        height: 100%;
-    }
-    .score-ring-bg {
-        fill: none;
-        stroke: rgba(255, 255, 255, 0.04);
-    }
-    .score-ring-bar {
-        fill: none;
-        stroke-linecap: round;
-        transition: stroke-dashoffset 0.6s ease;
-    }
-    
-    /* Dynamic color allocation based on scan score */
-    {% if scan.score >= 80 %}
-        .score-ring-bar { stroke: var(--success); }
-        .score-value { color: var(--success); text-shadow: 0 0 12px rgba(16, 185, 129, 0.3); }
-    {% elif scan.score >= 50 %}
-        .score-ring-bar { stroke: var(--warning); }
-        .score-value { color: var(--warning); text-shadow: 0 0 12px rgba(245, 158, 11, 0.3); }
-    {% else %}
-        .score-ring-bar { stroke: var(--danger); }
-        .score-value { color: var(--danger); text-shadow: 0 0 12px rgba(239, 68, 68, 0.3); }
-    {% endif %}
-    
-    .score-value {
-        position: absolute;
-        font-family: var(--font-title);
-        font-size: 2.25rem;
-        font-weight: 900;
-    }
+<link rel="stylesheet" href="/static/css/report.css?v={{ request.app.state.asset_version }}">
 
-    /* Details and Summary overrides for interactive findings */
-    .finding-details summary {
-        list-style: none;
-        padding: 18px 24px;
-        cursor: pointer;
-        user-select: none;
-    }
-    .finding-details summary::-webkit-details-marker {
-        display: none;
-    }
-    .finding-details[open] .arrow-icon {
-        transform: rotate(180deg);
-    }
-    .arrow-icon {
-        display: inline-block;
-        transition: transform 0.2s ease;
-        color: var(--muted);
-        font-size: 0.8rem;
-    }
-</style>
 
 <section class="hero">
     <div>
@@ -74,7 +11,7 @@
     </div>
     <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
         <p style="font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 6px;">Puntuación General</p>
-        <div class="score-circle-wrap">
+        <div class="score-circle-wrap {% if scan.score >= 80 %}score-high{% elif scan.score >= 50 %}score-medium{% else %}score-low{% endif %}">
             <svg class="score-ring" width="120" height="120" viewBox="0 0 120 120">
                 <circle class="score-ring-bg" cx="60" cy="60" r="50" stroke-width="8"/>
                 <circle class="score-ring-bar" cx="60" cy="60" r="50" stroke-width="8" stroke-dasharray="314" stroke-dashoffset="{{ 314 - (314 * scan.score / 100) }}"/>
@@ -164,6 +101,17 @@
                         <div style="margin-bottom: 16px; padding: 14px; background: rgba(99, 102, 241, 0.04); border-left: 3px solid var(--accent); border-radius: var(--radius-sm);">
                             <strong style="color: var(--accent); display: block; margin-bottom: 6px; font-size: 0.9rem; font-family: var(--font-title); font-weight: 700;">❌ Descripción de la Vulnerabilidad</strong>
                             <p style="margin: 0; color: var(--text-light); line-height: 1.5; font-size: 0.925rem;">{{ finding.description }}</p>
+                            <div style="margin-top: 10px;">
+                                {% set wiki_anchor = "A01" %}
+                                {% if finding.rule_id in ['OWASP-A01-NO-AUTH', 'OWASP-A01-HARDCODED-ROLE', 'OWASP-A01-OPEN-CIDR', 'OWASP-A02-HARDCODED-SECRET', 'OWASP-A02-WEAK-HASH', 'OWASP-A03-SQLI', 'OWASP-A03-XSS', 'OWASP-A03-PATH-TRAVERSAL', 'OWASP-A03-DYNAMIC-SQL', 'OWASP-A04-TODO-SECURITY', 'OWASP-A05-DEBUG-ACTIVE', 'OWASP-A05-INSECURE-COOKIE', 'OWASP-A05-DOCKER-ROOT', 'OWASP-A05-K8S-PRIV-ESC', 'OWASP-A06-DEP-VULN', 'OWASP-A07-WEAK-PASS-CHECK', 'OWASP-A07-WEAK-SESSION', 'OWASP-A08-UNSAFE-DESERIALIZATION', 'OWASP-A08-UNSIGNED-JWT', 'OWASP-A09-SILENT-EXCEPT', 'OWASP-A10-SSRF-REQUESTS'] %}
+                                    {% set wiki_anchor = finding.rule_id %}
+                                {% elif finding.rule_id.startswith('OWASP-A') %}
+                                    {% set wiki_anchor = finding.rule_id[6:9] %}
+                                {% endif %}
+                                <a href="/owasp#{{ wiki_anchor }}" class="button button-secondary" style="padding: 4px 10px; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 6px; background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.3);">
+                                    <span>📖 Ver explicación en Wiki OWASP</span>
+                                </a>
+                            </div>
                         </div>
                         
                         {% if finding.evidence %}
@@ -174,9 +122,12 @@
                         {% endif %}
                         
                         {% if finding.remediation %}
-                        <div style="padding: 16px; background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-sm);">
-                            <strong style="color: var(--success); display: block; margin-bottom: 8px; font-size: 0.9rem; font-family: var(--font-title); font-weight: 700;">✅ Solución Recomendada:</strong>
-                            <div style="color: var(--text-light); line-height: 1.6; white-space: pre-wrap; font-size: 0.9rem;">{{ finding.remediation }}</div>
+                        <div class="remediation-box">
+                            <strong class="remediation-box-title">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                <span>Solución Recomendada:</span>
+                            </strong>
+                            <div class="remediation-box-content">{{ finding.remediation }}</div>
                         </div>
                         {% endif %}
                     </div>

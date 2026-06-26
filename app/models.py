@@ -22,3 +22,4 @@ class Scan:
     score: int
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     findings: list[Finding] = field(default_factory=list)
+    username: Optional[str] = None

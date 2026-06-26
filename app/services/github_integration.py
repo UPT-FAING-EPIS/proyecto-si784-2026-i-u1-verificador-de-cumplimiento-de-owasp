@@ -1,7 +1,7 @@
 import os
 import time
 import logging
-import requests
+requests = __import__('requests')
 
 logger = logging.getLogger("github_integration")
 
@@ -13,7 +13,7 @@ def create_github_issue(owner: str, repo: str, title: str, body: str, github_tok
         logger.debug("No GitHub token available for creating issue %s/%s", owner, repo)
         return None
 
-    url = f"https://api.github.com/repos/{owner}/{repo}/issues"
+    issue_url = f"https://api.github.com/repos/{owner}/{repo}/issues"
     headers = {
         "Authorization": f"token {token}",
         "Accept": "application/vnd.github.v3+json",
@@ -25,7 +25,7 @@ def create_github_issue(owner: str, repo: str, title: str, body: str, github_tok
     backoff = 1.0
     for attempt in range(1, retries + 1):
         try:
-            r = requests.post(url, json=payload, headers=headers, timeout=10)
+            r = requests.post(issue_url, json=payload, headers=headers, timeout=10)
             if r.status_code in (200, 201):
                 return r.json()
             # For rate-limit or server errors, log and retry

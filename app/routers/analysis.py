@@ -12,12 +12,26 @@ templates_dir = Path(__file__).parent.parent / "templates"
 templates = Jinja2Templates(directory=str(templates_dir))
 
 
-@router.get("", response_class=HTMLResponse)
+def get_current_user_context(request: Request):
+    session_id = request.cookies.get("admin_session")
+    from app.store import scan_store
+    user = scan_store.get_admin_session_user(session_id)
+    return {"current_user": user}
+
+templates.context_processors.append(get_current_user_context)
+
+
+@router.get("", response_class=HTMLResponse, dependencies=[])
 def analyze_form(request: Request):
+    session_id = request.cookies.get("admin_session")
+    from app.store import scan_store
+    current_user = scan_store.get_admin_session_user(session_id)
+    if current_user and current_user.get("role") == "admin":
+        return RedirectResponse(url="/dashboard", status_code=303)
     return templates.TemplateResponse(request=request, name="analyze.html", context={"request": request})
 
 
-@router.post("", response_class=HTMLResponse)
+@router.post("", response_class=HTMLResponse, dependencies=[])
 async def analyze(
     request: Request,
     target_type: str = Form(...),
@@ -26,6 +40,11 @@ async def analyze(
     create_issues: Optional[str] = Form(None),
     github_token: Optional[str] = Form(None),
 ):
+    session_id = request.cookies.get("admin_session")
+    from app.store import scan_store
+    current_user = scan_store.get_admin_session_user(session_id)
+    if current_user and current_user.get("role") == "admin":
+        return RedirectResponse(url="/dashboard", status_code=303)
     try:
         # Si es archivo, leer el contenido del archivo
         if target_type == "archivo":
@@ -51,14 +70,28 @@ async def analyze(
         # Clean up token (strip whitespace)
         token = github_token.strip() if github_token else None
 
-        scan = execute_scan(target_type=target_type, target_value=target_value, create_issues=create_issues_flag, github_token=token)
+        # Fetch active session owner if logged in
+        session_id = request.cookies.get("admin_session")
+        from app.store import scan_store
+        user_info = scan_store.get_admin_session_user(session_id)
+        username = user_info["username"] if user_info else None
+
+        # Save/load token logic for logged in users
+        if username:
+            if token:
+                scan_store.update_user_github_token(username, token)
+            else:
+                if user_info and user_info.get("github_token"):
+                    token = user_info["github_token"]
+
+        scan = execute_scan(target_type=target_type, target_value=target_value, create_issues=create_issues_flag, github_token=token, username=username)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     return RedirectResponse(url=f"/reports/{scan.id}", status_code=303)
 
 
-@router.post("/api", response_model=ScanOut)
+@router.post("/api", response_model=ScanOut, dependencies=[])
 def analyze_api(payload: AnalyzeRequest):
     try:
         return execute_scan(target_type=payload.target_type, target_value=payload.target_value, create_issues=payload.create_issues)

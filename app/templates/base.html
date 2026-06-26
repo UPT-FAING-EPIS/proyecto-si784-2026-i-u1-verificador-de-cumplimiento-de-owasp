@@ -12,28 +12,38 @@
         <div class="topbar-inner">
             <div class="topbar-left">
                 <h1>
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle;">
-                        <path d="M12 2L3 6v6c0 5.52 4.48 10 9 10s9-4.48 9-10V6l-9-4zm0 18c-3.86 0-7-3.14-7-7V7.3l7-3.11 7 3.11V13c0 3.86-3.14 7-7 7z" fill="url(#logo-grad)"/>
-                        <path d="M12 6l-5 2.22V12c0 2.76 2.24 5 5 5s5-2.24 5-5V8.22L12 6zm2.3 5.3l-2.8 2.8a.99.99 0 01-1.4 0l-1.4-1.4a.99.99 0 111.4-1.4l.7.7 2.1-2.1a.99.99 0 111.4 1.4z" fill="url(#logo-grad-inner)"/>
-                        <defs>
-                            <linearGradient id="logo-grad" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#6366f1"/>
-                                <stop offset="1" stop-color="#06b6d4"/>
-                            </linearGradient>
-                            <linearGradient id="logo-grad-inner" x1="7" y1="6" x2="17" y2="17" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#06b6d4"/>
-                                <stop offset="1" stop-color="#6366f1"/>
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                    <span style="vertical-align: middle;">OWASP Verificator</span>
+                    <a href="{% if current_user %}/dashboard{% else %}/{% endif %}" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 8px;">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle;">
+                            <path d="M12 2L3 6v6c0 5.52 4.48 10 9 10s9-4.48 9-10V6l-9-4zm0 18c-3.86 0-7-3.14-7-7V7.3l7-3.11 7 3.11V13c0 3.86-3.14 7-7 7z" fill="url(#logo-grad)"/>
+                            <path d="M12 6l-5 2.22V12c0 2.76 2.24 5 5 5s5-2.24 5-5V8.22L12 6zm2.3 5.3l-2.8 2.8a.99.99 0 01-1.4 0l-1.4-1.4a.99.99 0 111.4-1.4l.7.7 2.1-2.1a.99.99 0 111.4 1.4z" fill="url(#logo-grad-inner)"/>
+                            <defs>
+                                <linearGradient id="logo-grad" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#6366f1"/>
+                                    <stop offset="1" stop-color="#06b6d4"/>
+                                </linearGradient>
+                                <linearGradient id="logo-grad-inner" x1="7" y1="6" x2="17" y2="17" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#06b6d4"/>
+                                    <stop offset="1" stop-color="#6366f1"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <span style="vertical-align: middle;">OWASP Verificator</span>
+                    </a>
                 </h1>
                 <nav class="topbar-nav">
+                    {% if current_user %}
+                        {% if current_user.role == 'admin' %}
+                        <a href="/dashboard">Panel Global</a>
+                        <a href="/dashboard/users">Cuentas SOC</a>
+                        {% else %}
+                        <a href="/dashboard">Mi Dashboard</a>
+                        <a href="/analyze">Analizar</a>
+                        {% endif %}
+                    {% else %}
                     <a href="/">Dashboard</a>
                     <a href="/analyze">Analizar</a>
-                    <a href="/reports/compare">Comparar</a>
+                    {% endif %}
                     <a href="/owasp">Wiki OWASP</a>
-                    <a href="/monitoring">Monitoreo</a>
                     <a href="/api-tutorial">🔌 Integraciones</a>
                     <a href="/about">Acerca de</a>
                 </nav>
@@ -45,14 +55,34 @@
                 <a class="topbar-action topbar-action-docs" href="/docs" title="API Docs">
                     📘 API
                 </a>
-                <a class="topbar-action topbar-action-admin" href="/admin/login" title="Admin Seguro">
-                    🛡️ Admin
+                {% if current_user %}
+                <a class="topbar-action topbar-action-admin" href="/dashboard" title="Ver Panel SOC" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    🛡️ {{ current_user.username }}
                 </a>
+                {% else %}
+                <a class="topbar-action topbar-action-login" href="/login" title="Iniciar Sesión / Acceder">
+                    🔑 Iniciar Sesión
+                </a>
+                {% endif %}
             </div>
         </div>
     </header>
     <main class="container">
         {% block content %}{% endblock %}
     </main>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const path = window.location.pathname;
+            const navLinks = document.querySelectorAll(".topbar-nav a");
+            navLinks.forEach(link => {
+                const href = link.getAttribute("href");
+                if (href === path) {
+                    link.classList.add("active");
+                } else if (href !== "/" && href !== "/dashboard" && path.startsWith(href)) {
+                    link.classList.add("active");
+                }
+            });
+        });
+    </script>
 </body>
 </html>

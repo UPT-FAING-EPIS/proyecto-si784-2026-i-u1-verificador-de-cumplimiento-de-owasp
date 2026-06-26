@@ -7,6 +7,9 @@ passwd = 'upt2026'
 FILES = [
     (r'app\static\css\styles.css', '/opt/owasp-verificador/app/static/css/styles.css'),
     (r'app\static\favicon.svg', '/opt/owasp-verificador/app/static/favicon.svg'),
+    (r'app\services\analysis_service.py', '/opt/owasp-verificador/app/services/analysis_service.py'),
+    (r'app\routers\dashboard.py', '/opt/owasp-verificador/app/routers/dashboard.py'),
+    (r'app\routers\reports.py', '/opt/owasp-verificador/app/routers/reports.py'),
     (r'app\templates\analyze.html', '/opt/owasp-verificador/app/templates/analyze.html'),
     (r'app\templates\api_tutorial.html', '/opt/owasp-verificador/app/templates/api_tutorial.html'),
     (r'app\templates\base.html', '/opt/owasp-verificador/app/templates/base.html'),

@@ -2,154 +2,226 @@
 {% block content %}
 <section class="hero">
     <div>
-        <p class="eyebrow">Información del Proyecto</p>
+        <p class="eyebrow">Información del Proyecto · v1.0.3</p>
         <h2>Verificador de Cumplimiento OWASP</h2>
-        <p>Herramienta profesional de auditoría estática y dinámica orientada a la detección de riesgos OWASP en aplicaciones y servicios.</p>
+        <p>Plataforma profesional de auditoría de seguridad con análisis estático, escaneo de URLs, repositorios GitHub y gestión SOC multi-usuario.</p>
     </div>
+    <a href="/analyze" class="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Analizar Ahora
+    </a>
 </section>
 
+<!-- Objetivo -->
 <section class="card">
     <h3>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
         <span>Objetivo del Sistema</span>
     </h3>
     <p style="line-height: 1.8; margin-top: 12px; color: var(--text-light);">
-        El Verificador de Cumplimiento OWASP es una herramienta profesional de auditoría diseñada para equipos y analistas de seguridad. Analiza código fuente y endpoints web contra patrones de riesgo alineados con OWASP Top 10, entregando hallazgos accionables y guías de mitigación.
+        El Verificador de Cumplimiento OWASP es una plataforma profesional de auditoría de seguridad diseñada para equipos SOC, analistas, desarrolladores y estudiantes. Detecta vulnerabilidades en código fuente, endpoints web y repositorios GitHub contra los patrones del <strong>OWASP Top 10</strong>, entregando hallazgos accionables, puntuación de riesgo y guías de mitigación. Soporta gestión multi-usuario con roles diferenciados (Usuario / Administrador SOC) y se integra con herramientas externas mediante API REST.
     </p>
 </section>
 
-<section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 24px;">
-    <div class="card" style="margin-bottom: 0;">
-        <h4 style="margin-top: 0; color: #ffffff;">🔬 Análisis Automático</h4>
-        <p style="font-size: 0.9rem;">Motor de análisis que utiliza reglas, heurísticas y firmas para identificar riesgos en múltiples lenguajes y de forma rápida.</p>
-    </div>
-    
-    <div class="card" style="margin-bottom: 0;">
-        <h4 style="margin-top: 0; color: #ffffff;">📊 Puntuación Técnica</h4>
-        <p style="font-size: 0.9rem;">Scoring cuantitativo basado en severidad y frecuencia, pensado para priorizar triage y respuesta operacional.</p>
-    </div>
-    
-    <div class="card" style="margin-bottom: 0;">
-        <h4 style="margin-top: 0; color: #ffffff;">✅ Mitigación y Contexto</h4>
-        <p style="font-size: 0.9rem;">Cada hallazgo incluye recomendaciones concretas, ejemplos y referencias para ayudar al equipo a aplicar mitigaciones efectivas.</p>
-    </div>
-    
-    <div class="card" style="margin-bottom: 0;">
-        <h4 style="margin-top: 0; color: #ffffff;">📚 Referencias Técnicas</h4>
-        <p style="font-size: 0.9rem;">Documentación y referencias para cada categoría de riesgo, pensada para analistas y revisores técnicos.</p>
-    </div>
-    
-    <div class="card" style="margin-bottom: 0;">
-        <h4 style="margin-top: 0; color: #ffffff;">📡 Monitoreo</h4>
-        <p style="font-size: 0.9rem;">Registro de accesos y telemetría para auditoría y detección de patrones de uso relevantes de la aplicación.</p>
-    </div>
-    
-    <div class="card" style="margin-bottom: 0;">
-        <h4 style="margin-top: 0; color: #ffffff;">🔐 URL Scanning</h4>
-        <p style="font-size: 0.9rem;">Análisis de endpoints que verifica cabeceras de seguridad y configuraciones de servidores y frameworks en vivo.</p>
+<!-- Modos de Análisis -->
+<section class="card">
+    <h3>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <span>Modos de Análisis</span>
+    </h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 16px;">
+        <div style="padding: 18px; background: rgba(99, 102, 241, 0.05); border-radius: var(--radius-sm); border-left: 3px solid var(--accent);">
+            <p style="font-weight: 700; color: #ffffff; margin-bottom: 6px; font-family: var(--font-title); font-size: 0.95rem;">💻 Código Fuente</p>
+            <p style="font-size: 0.85rem; color: var(--muted);">Pega código directamente en el editor. Compatible con Python, JavaScript, Java, PHP, Go, Ruby, C/C++, TypeScript, Kotlin, Scala, SQL, Bash, Terraform, YAML y Dockerfile.</p>
+        </div>
+        <div style="padding: 18px; background: rgba(6, 182, 212, 0.05); border-radius: var(--radius-sm); border-left: 3px solid var(--accent-2);">
+            <p style="font-weight: 700; color: #ffffff; margin-bottom: 6px; font-family: var(--font-title); font-size: 0.95rem;">🌐 URL / Web App</p>
+            <p style="font-size: 0.85rem; color: var(--muted);">Analiza servidores y aplicaciones web activas. Verifica cabeceras HTTP de seguridad, configuración TLS, exposición de información de servidor y configuraciones inseguras.</p>
+        </div>
+        <div style="padding: 18px; background: rgba(16, 185, 129, 0.05); border-radius: var(--radius-sm); border-left: 3px solid var(--success);">
+            <p style="font-weight: 700; color: #ffffff; margin-bottom: 6px; font-family: var(--font-title); font-size: 0.95rem;">📁 Archivo</p>
+            <p style="font-size: 0.85rem; color: var(--muted);">Sube un archivo de código directamente desde tu equipo. Soporta los mismos formatos que el análisis de código. Análisis estático inmediato sin exposición del código en la red.</p>
+        </div>
+        <div style="padding: 18px; background: rgba(245, 158, 11, 0.05); border-radius: var(--radius-sm); border-left: 3px solid var(--warning);">
+            <p style="font-weight: 700; color: #ffffff; margin-bottom: 6px; font-family: var(--font-title); font-size: 0.95rem;">🐙 Repositorio GitHub</p>
+            <p style="font-size: 0.85rem; color: var(--muted);">Escanea repositorios públicos o privados de GitHub por URL o <code style="font-family: var(--font-code); font-size: 0.8rem; color: var(--accent-2);">owner/repo</code>. Los usuarios con cuenta pueden guardar su token PAT para no ingresarlo cada vez.</p>
+        </div>
     </div>
 </section>
 
+<!-- Características del Sistema -->
 <section class="card">
     <h3>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-        <span>Características Principales</span>
+        <span>Características del Sistema</span>
     </h3>
-    
+
     <div style="margin-top: 20px;">
-        <h4 style="color: var(--accent-2); margin-bottom: 10px;">Detección de Vulnerabilidades</h4>
+        <h4 style="color: var(--accent-2); margin-bottom: 10px;">🔬 Detección de Vulnerabilidades OWASP Top 10</h4>
         <ul style="margin-left: 20px; color: var(--text-light); line-height: 1.8; font-size: 0.925rem;">
-            <li><strong>OWASP-A02: Exposición de Secretos</strong> - Detecta contraseñas, API keys y tokens hardcodeados en el código.</li>
-            <li><strong>OWASP-A03: Funciones Peligrosas</strong> - Identifica eval(), exec(), pickle.loads() y subprocess inseguros.</li>
-            <li><strong>OWASP-A04: Validación Insuficiente</strong> - Verifica manejo inseguro de entrada de usuario sin sanitizar.</li>
-            <li><strong>OWASP-A05: Headers Faltantes</strong> - Comprueba cabeceras de seguridad HTTP críticas en tu servidor.</li>
-            <li><strong>OWASP-A06: Divulgación de Info</strong> - Expone headers del servidor que revelan tecnología y software usado.</li>
+            <li><strong>OWASP-A01: Control de Acceso Roto</strong> — Detección de rutas sin autenticación y privilegios incorrectos.</li>
+            <li><strong>OWASP-A02: Exposición de Secretos</strong> — Detecta contraseñas, API keys, tokens y credenciales hardcodeadas.</li>
+            <li><strong>OWASP-A03: Funciones Peligrosas</strong> — Identifica <code style="font-family: var(--font-code); font-size: 0.82rem; color: #38bdf8;">eval()</code>, <code style="font-family: var(--font-code); font-size: 0.82rem; color: #38bdf8;">exec()</code>, <code style="font-family: var(--font-code); font-size: 0.82rem; color: #38bdf8;">pickle.loads()</code> y subprocesos inseguros.</li>
+            <li><strong>OWASP-A04: Diseño Inseguro</strong> — Verifica manejo inseguro de entrada de usuario sin sanitizar.</li>
+            <li><strong>OWASP-A05: Headers Faltantes</strong> — Comprueba cabeceras HTTP de seguridad críticas (CSP, HSTS, X-Frame-Options, etc.).</li>
+            <li><strong>OWASP-A06: Componentes Vulnerables</strong> — Detección de dependencias y versiones con vulnerabilidades conocidas.</li>
+            <li><strong>OWASP-A09: Logging Insuficiente</strong> — Ausencia de manejo de errores y registro de eventos críticos.</li>
         </ul>
     </div>
-    
+
     <div style="margin-top: 24px;">
-        <h4 style="color: var(--accent-2); margin-bottom: 10px;">Dashboard y Reportes</h4>
+        <h4 style="color: var(--accent-2); margin-bottom: 10px;">👥 Sistema de Roles (Usuario / Admin SOC)</h4>
         <ul style="margin-left: 20px; color: var(--text-light); line-height: 1.8; font-size: 0.925rem;">
-            <li><strong>Panel de Control</strong> - Estadísticas en tiempo real (total análisis, promedio score, hallazgos críticos).</li>
-            <li><strong>Reportes Detallados</strong> - Información completa por análisis con problema, evidencia y solución.</li>
-            <li><strong>Historial de Escaneos</strong> - Acceso a todos los análisis realizados anteriormente en la plataforma.</li>
-            <li><strong>Monitoreo de Accesos Log</strong> - Log de IPs que acceden al sistema para control del administrador.</li>
+            <li><strong>Usuario:</strong> Puede analizar código, URLs, archivos y repos. Tiene su dashboard personal con historial, estadísticas, gráficos de tendencias, distribución de severidades y gestión de su token GitHub.</li>
+            <li><strong>Administrador SOC:</strong> Visualiza el panel global de seguridad corporativo con todos los análisis, Grado de Cumplimiento, Matriz de Severidad y Logs de Actividad. Gestiona cuentas (crear admins, eliminar usuarios) desde la pestaña Cuentas SOC.</li>
+            <li><strong>Invitado (sin cuenta):</strong> Puede analizar repos públicos y código directamente, con aviso de registro para guardar token y conservar historial.</li>
         </ul>
     </div>
-    
+
     <div style="margin-top: 24px;">
-        <h4 style="color: var(--accent-2); margin-bottom: 10px;">Interfaz de Usuario</h4>
-        <ul style="margin-left: 20px; color: var(--muted); line-height: 1.8; font-size: 0.925rem;">
-            <li><strong>Diseño Corporativo</strong> - Interfaz oscura, técnica y enfocada en analistas de operaciones de seguridad.</li>
-            <li><strong>Responsive completo</strong> - Compatible con dispositivos móviles, tablets y desktops grandes.</li>
-            <li><strong>Accesibilidad y Lectura</strong> - Contrastes optimizados y tipografías orientadas a legibilidad en entornos profesionales.</li>
+        <h4 style="color: var(--accent-2); margin-bottom: 10px;">📊 Dashboard y Reportes</h4>
+        <ul style="margin-left: 20px; color: var(--text-light); line-height: 1.8; font-size: 0.925rem;">
+            <li><strong>Panel Usuario:</strong> Estadísticas personales (total análisis, score promedio, hallazgos críticos, totales). Gráfico de tendencia de seguridad y doughnut de distribución de severidades.</li>
+            <li><strong>Panel Admin (SOC):</strong> Grado de Cumplimiento Corporativo (A–F), Matriz de Severidad vs. Frecuencia global, Historial de Reportes de todos los usuarios, Logs de Actividad Reciente.</li>
+            <li><strong>Reportes Individuales:</strong> Vista detallada por análisis: hallazgos con evidencia, severidad, penalización de score y remediación específica. Exportación PDF y JSON.</li>
+            <li><strong>Historial de Escaneos:</strong> Cada usuario accede a su propio historial; el admin ve todos los análisis de la plataforma.</li>
+        </ul>
+    </div>
+
+    <div style="margin-top: 24px;">
+        <h4 style="color: var(--accent-2); margin-bottom: 10px;">🔌 Integraciones y API</h4>
+        <ul style="margin-left: 20px; color: var(--text-light); line-height: 1.8; font-size: 0.925rem;">
+            <li><strong>API REST:</strong> Endpoints documentados con Swagger/OpenAPI (<code style="font-family: var(--font-code); font-size: 0.82rem; color: #38bdf8;">/docs</code>) para integración en pipelines CI/CD.</li>
+            <li><strong>Token de GitHub (PAT):</strong> Guardado seguro en cuenta de usuario para escanear repositorios privados sin ingresar el token cada vez.</li>
+            <li><strong>Tokens de API:</strong> Generación de tokens de integración propios para uso programático de la API desde herramientas externas.</li>
+            <li><strong>Extensión de Chrome:</strong> Extensión oficial v1.0.3 para analizar desde el navegador directamente, con acceso rápido al verificador.</li>
+            <li><strong>Wiki OWASP:</strong> Referencia completa integrada de las 10 categorías de vulnerabilidades con ejemplos y mitigaciones.</li>
         </ul>
     </div>
 </section>
 
+<!-- Arquitectura Técnica -->
 <section class="card">
     <h3>🛡️ Arquitectura Técnica</h3>
-    <div style="background: rgba(12, 20, 38, 0.4); border: 1px solid var(--panel-border); padding: 20px; border-radius: var(--radius-sm); margin-top: 16px;">
-        <p style="margin: 0 0 12px 0;"><strong style="color: var(--accent-2);">Backend:</strong> <span style="color: var(--text-light);">FastAPI con Python 3.11+</span></p>
-        <p style="margin: 0 0 12px 0;"><strong style="color: var(--accent-2);">Frontend:</strong> <span style="color: var(--text-light);">Jinja2 Templates + CSS3 Moderno</span></p>
-        <p style="margin: 0 0 12px 0;"><strong style="color: var(--accent-2);">Almacenamiento:</strong> <span style="color: var(--text-light);">In-Memory SQLite Store</span></p>
-        <p style="margin: 0;"><strong style="color: var(--accent-2);">Análisis:</strong> <span style="color: var(--text-light);">Regex-based pattern matching + heurísticas AST y HTTP</span></p>
-    </div>
-</section>
-
-<section class="card">
-    <h3>📈 Casos de Uso del Verificador</h3>
-    
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 16px;">
-        <div style="padding: 16px; background: rgba(99, 102, 241, 0.03); border-radius: var(--radius-sm); border-left: 3px solid var(--accent);">
-            <p style="font-weight: 700; color: #ffffff; margin-bottom: 6px; font-family: var(--font-title);">👨‍💻 Desarrolladores</p>
-            <p style="font-size: 0.85rem; color: var(--muted);">Verificar código antes de commits para identificar y remediar vulnerabilidades tempranamente.</p>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 16px;">
+        <div style="background: rgba(12, 20, 38, 0.5); border: 1px solid var(--panel-border); padding: 18px; border-radius: var(--radius-sm);">
+            <p style="font-weight: 700; color: var(--accent-2); margin-bottom: 10px; font-family: var(--font-title);">⚙️ Backend</p>
+            <ul style="list-style: none; padding: 0; color: var(--text-light); font-size: 0.875rem; line-height: 1.8;">
+                <li>🐍 Python 3.11+ con FastAPI</li>
+                <li>🔄 Uvicorn ASGI server</li>
+                <li>🗄️ MySQL (Producción VM)</li>
+                <li>🔐 Sesiones con cookie HttpOnly</li>
+                <li>🔑 Hashing SHA-256 de contraseñas</li>
+            </ul>
         </div>
-        
-        <div style="padding: 16px; background: rgba(99, 102, 241, 0.03); border-radius: var(--radius-sm); border-left: 3px solid var(--accent);">
-            <p style="font-weight: 700; color: #ffffff; margin-bottom: 6px; font-family: var(--font-title);">🎓 Estudiantes</p>
-            <p style="font-size: 0.85rem; color: var(--muted);">Aprender sobre vulnerabilidades OWASP de forma práctica con retroalimentación inmediata.</p>
+        <div style="background: rgba(12, 20, 38, 0.5); border: 1px solid var(--panel-border); padding: 18px; border-radius: var(--radius-sm);">
+            <p style="font-weight: 700; color: var(--accent-2); margin-bottom: 10px; font-family: var(--font-title);">🎨 Frontend</p>
+            <ul style="list-style: none; padding: 0; color: var(--text-light); font-size: 0.875rem; line-height: 1.8;">
+                <li>📄 Jinja2 Templates</li>
+                <li>🎨 CSS3 Moderno (Glassmorphism)</li>
+                <li>📈 Chart.js (Gráficos interactivos)</li>
+                <li>🔠 Google Fonts (Inter + Outfit)</li>
+                <li>📱 Diseño Responsive completo</li>
+            </ul>
         </div>
-        
-        <div style="padding: 16px; background: rgba(99, 102, 241, 0.03); border-radius: var(--radius-sm); border-left: 3px solid var(--accent);">
-            <p style="font-weight: 700; color: #ffffff; margin-bottom: 6px; font-family: var(--font-title);">🔒 Equipo de Seguridad</p>
-            <p style="font-size: 0.85rem; color: var(--muted);">Realizar auditorías automáticas de seguridad e integraciones en su pipeline local.</p>
-        </div>
-        
-        <div style="padding: 16px; background: rgba(99, 102, 241, 0.03); border-radius: var(--radius-sm); border-left: 3px solid var(--accent);">
-            <p style="font-weight: 700; color: #ffffff; margin-bottom: 6px; font-family: var(--font-title);">🎯 Code Review</p>
-            <p style="font-size: 0.85rem; color: var(--muted);">Automatizar parte del proceso de revisión de código enfocándose en vulnerabilidades OWASP.</p>
-        </div>
-        
-        <div style="padding: 16px; background: rgba(99, 102, 241, 0.03); border-radius: var(--radius-sm); border-left: 3px solid var(--accent);">
-            <p style="font-weight: 700; color: #ffffff; margin-bottom: 6px; font-family: var(--font-title);">📚 Educación</p>
-            <p style="font-size: 0.85rem; color: var(--muted);">Demostración práctica de vulnerabilidades comunes en clases y laboratorios.</p>
-        </div>
-        
-        <div style="padding: 16px; background: rgba(99, 102, 241, 0.03); border-radius: var(--radius-sm); border-left: 3px solid var(--accent);">
-            <p style="font-weight: 700; color: #ffffff; margin-bottom: 6px; font-family: var(--font-title);">🚀 Startups</p>
-            <p style="font-size: 0.85rem; color: var(--muted);">Verificación de seguridad ágil y económica para aplicaciones nuevas en despliegue.</p>
+        <div style="background: rgba(12, 20, 38, 0.5); border: 1px solid var(--panel-border); padding: 18px; border-radius: var(--radius-sm);">
+            <p style="font-weight: 700; color: var(--accent-2); margin-bottom: 10px; font-family: var(--font-title);">🔍 Motor de Análisis</p>
+            <ul style="list-style: none; padding: 0; color: var(--text-light); font-size: 0.875rem; line-height: 1.8;">
+                <li>⚡ Regex pattern matching multicapa</li>
+                <li>🌐 HTTP header analysis</li>
+                <li>🐙 GitHub API integration</li>
+                <li>📦 Descarga y escaneo de repos ZIP</li>
+                <li>🔗 Detección de frameworks</li>
+            </ul>
         </div>
     </div>
 </section>
 
+<!-- Puntuación -->
 <section class="card">
-    <h3>📊 Métricas y Evaluación</h3>
+    <h3>📊 Sistema de Puntuación</h3>
     <p style="margin-top: 12px; line-height: 1.8; color: var(--text-light);">
-        El sistema utiliza un algoritmo de puntuación transparente que calcula una puntuación de 0 a 100 basada en la severidad acumulativa de los hallazgos:
+        El sistema calcula una puntuación de <strong>0 a 100</strong> basada en la severidad acumulativa de los hallazgos detectados. El score representa el nivel de cumplimiento de seguridad del objetivo analizado:
     </p>
-    <ul style="margin: 16px 0 0 20px; color: var(--text-light); line-height: 1.8; font-size: 0.925rem;">
-        <li><strong>Severidad:</strong> Vulnerabilidades HIGH (-30 pts), MEDIUM (-15 pts), LOW (-5 pts).</li>
-        <li><strong>Acumulativo:</strong> La puntuación desciende linealmente hasta un mínimo de 0.</li>
-        <li><strong>Interpretación:</strong> 90-100 = Excelente | 70-89 = Aceptable | 50-69 = Necesita mejora | &lt;50 = Crítico.</li>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 16px;">
+        <div style="padding: 14px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-sm); text-align: center;">
+            <p style="font-size: 1.5rem; font-weight: 900; color: var(--success); font-family: var(--font-title);">90–100</p>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-top: 4px;">Grado A — Excelente</p>
+        </div>
+        <div style="padding: 14px; background: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: var(--radius-sm); text-align: center;">
+            <p style="font-size: 1.5rem; font-weight: 900; color: var(--accent-2); font-family: var(--font-title);">80–89</p>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-top: 4px;">Grado B — Bueno</p>
+        </div>
+        <div style="padding: 14px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: var(--radius-sm); text-align: center;">
+            <p style="font-size: 1.5rem; font-weight: 900; color: var(--warning); font-family: var(--font-title);">70–79</p>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-top: 4px;">Grado C — Aceptable</p>
+        </div>
+        <div style="padding: 14px; background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: var(--radius-sm); text-align: center;">
+            <p style="font-size: 1.5rem; font-weight: 900; color: #f87171; font-family: var(--font-title);">60–69</p>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-top: 4px;">Grado D — Riesgo</p>
+        </div>
+        <div style="padding: 14px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-sm); text-align: center;">
+            <p style="font-size: 1.5rem; font-weight: 900; color: var(--danger); font-family: var(--font-title);">&lt;60</p>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-top: 4px;">Grado F — Crítico</p>
+        </div>
+    </div>
+    <ul style="margin: 16px 0 0 20px; color: var(--text-light); line-height: 1.8; font-size: 0.9rem;">
+        <li>Vulnerabilidad <strong style="color: var(--danger);">HIGH</strong>: −30 puntos por hallazgo</li>
+        <li>Vulnerabilidad <strong style="color: var(--warning);">MEDIUM</strong>: −15 puntos por hallazgo</li>
+        <li>Vulnerabilidad <strong style="color: var(--success);">LOW</strong>: −5 puntos por hallazgo</li>
     </ul>
 </section>
 
-<section class="card" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.08) 0%, rgba(99, 102, 241, 0.08) 100%); border: 1px solid var(--panel-border);">
-    <h3 style="margin-top: 0; color: #ffffff;">🌟 Comienza a Proteger tus Apps</h3>
+<!-- Casos de Uso -->
+<section class="card">
+    <h3>🎯 Casos de Uso</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 16px;">
+        <div style="padding: 16px; background: rgba(99, 102, 241, 0.03); border-radius: var(--radius-sm); border-left: 3px solid var(--accent);">
+            <p style="font-weight: 700; color: #ffffff; margin-bottom: 6px; font-family: var(--font-title);">👨‍💻 Desarrolladores</p>
+            <p style="font-size: 0.85rem; color: var(--muted);">Verificar código antes de commits para identificar y remediar vulnerabilidades OWASP tempranamente en el ciclo de desarrollo.</p>
+        </div>
+        <div style="padding: 16px; background: rgba(99, 102, 241, 0.03); border-radius: var(--radius-sm); border-left: 3px solid var(--accent);">
+            <p style="font-weight: 700; color: #ffffff; margin-bottom: 6px; font-family: var(--font-title);">🛡️ Equipos SOC</p>
+            <p style="font-size: 0.85rem; color: var(--muted);">Gestión centralizada del cumplimiento de seguridad corporativo. Panel global con métricas, matriz de riesgo y administración de analistas.</p>
+        </div>
+        <div style="padding: 16px; background: rgba(99, 102, 241, 0.03); border-radius: var(--radius-sm); border-left: 3px solid var(--accent);">
+            <p style="font-weight: 700; color: #ffffff; margin-bottom: 6px; font-family: var(--font-title);">🎓 Estudiantes</p>
+            <p style="font-size: 0.85rem; color: var(--muted);">Aprender sobre vulnerabilidades OWASP de forma práctica con retroalimentación inmediata y explicaciones técnicas por hallazgo.</p>
+        </div>
+        <div style="padding: 16px; background: rgba(99, 102, 241, 0.03); border-radius: var(--radius-sm); border-left: 3px solid var(--accent);">
+            <p style="font-weight: 700; color: #ffffff; margin-bottom: 6px; font-family: var(--font-title);">🔄 CI/CD Pipeline</p>
+            <p style="font-size: 0.85rem; color: var(--muted);">Integración vía API REST con pipelines de integración continua (GitHub Actions, Jenkins) para auditoría automática en cada build.</p>
+        </div>
+        <div style="padding: 16px; background: rgba(99, 102, 241, 0.03); border-radius: var(--radius-sm); border-left: 3px solid var(--accent);">
+            <p style="font-weight: 700; color: #ffffff; margin-bottom: 6px; font-family: var(--font-title);">📋 Code Review</p>
+            <p style="font-size: 0.85rem; color: var(--muted);">Automatizar parte del proceso de revisión de código enfocándose en vulnerabilidades conocidas del OWASP Top 10.</p>
+        </div>
+        <div style="padding: 16px; background: rgba(99, 102, 241, 0.03); border-radius: var(--radius-sm); border-left: 3px solid var(--accent);">
+            <p style="font-weight: 700; color: #ffffff; margin-bottom: 6px; font-family: var(--font-title);">🚀 Startups</p>
+            <p style="font-size: 0.85rem; color: var(--muted);">Verificación de seguridad ágil y económica para aplicaciones nuevas antes del despliegue en producción.</p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="card" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.08) 0%, rgba(99, 102, 241, 0.1) 100%); border: 1px solid rgba(99, 102, 241, 0.25);">
+    <h3 style="margin-top: 0; color: #ffffff;">🌟 Comienza a Proteger tus Proyectos</h3>
     <p style="margin-top: 12px; line-height: 1.8; color: var(--text-light);">
-        Comienza ahora a analizar tu código o URLs. El sistema te proporcionará retroalimentación inmediata con recomendaciones específicas para mejorar la seguridad de tu aplicación.
+        Analiza tu código, URLs o repositorios GitHub ahora mismo. El sistema entregará retroalimentación inmediata con recomendaciones específicas. Crea una cuenta para guardar tu historial, token de GitHub y acceder a estadísticas personales.
     </p>
-    <a href="/analyze" class="button" style="margin-top: 16px;">Realizar Análisis →</a>
+    <div style="display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap;">
+        <a href="/analyze" class="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Realizar Análisis
+        </a>
+        <a href="/register" class="button button-secondary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+            Crear Cuenta
+        </a>
+        <a href="/owasp" class="button button-secondary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            Wiki OWASP
+        </a>
+    </div>
 </section>
 {% endblock %}

@@ -19,9 +19,8 @@ import json
 from datetime import datetime
 
 
-def execute_scan(target_type: str, target_value: str, create_issues: bool = False, github_token: str | None = None) -> Scan:
-    # Prefer request token, fallback to admin-configured token in memory.
-    effective_github_token = github_token or scan_store.get_github_token()
+def execute_scan(target_type: str, target_value: str, create_issues: bool = False, github_token: str | None = None, username: str | None = None) -> Scan:
+    effective_github_token = github_token
 
     if target_type == "code":
         findings = scan_code(target_value)
@@ -67,7 +66,7 @@ def execute_scan(target_type: str, target_value: str, create_issues: bool = Fals
                         branch = parts[blob_idx + 1]
                         file_path = '/'.join(parts[blob_idx + 2:])
                         raw_url = f"https://raw.githubusercontent.com/{parts[0]}/{parts[1]}/{branch}/{file_path}"
-                        import requests as _req
+                        _req = __import__('requests')
                         headers = None
                         if effective_github_token:
                             headers = {"Authorization": f"token {effective_github_token}"}
@@ -78,7 +77,8 @@ def execute_scan(target_type: str, target_value: str, create_issues: bool = Fals
                         combined = ""
                 else:
                     # try downloading repo zip (main/master) and combine a subset of files for detection
-                    import requests as _req, zipfile, io
+                    _req = __import__('requests')
+                    import zipfile, io
                     owner = parts[0]
                     repo = parts[1].replace('.git', '')
                     zip_url = f"https://github.com/{owner}/{repo}/archive/refs/heads/main.zip"
@@ -129,6 +129,7 @@ def execute_scan(target_type: str, target_value: str, create_issues: bool = Fals
         status="completed",
         score=score,
         findings=stored_findings,
+        username=username,
     )
     created_scan = scan_store.create_scan(scan)
 
@@ -179,3 +180,49 @@ def execute_scan(target_type: str, target_value: str, create_issues: bool = Fals
             logger.exception("Failed to enqueue background issue creation")
 
     return created_scan
+
+
+def calculate_dashboard_statistics(scans: list[Scan]) -> dict:
+    """Calcula las estadísticas y matriz de riesgos de negocio para el panel de administración."""
+    total_scans = len(scans)
+    total_findings = sum(len(scan.findings) for scan in scans)
+    avg_score = round(sum(scan.score for scan in scans) / total_scans, 1) if total_scans > 0 else 0
+    high_severity_count = sum(
+        1 for scan in scans 
+        for finding in scan.findings 
+        if finding.severity == 'high'
+    )
+    
+    stats = {
+        "total_scans": total_scans,
+        "total_findings": total_findings,
+        "avg_score": avg_score,
+        "high_severity": high_severity_count,
+    }
+    
+    # Construir matriz de riesgo
+    risk_matrix = {"high": [0, 0, 0, 0], "medium": [0, 0, 0, 0], "low": [0, 0, 0, 0]}
+    for scan in scans:
+        for finding in scan.findings:
+            severity = finding.severity
+            count = sum(1 for f in scan.findings if f.rule_id == finding.rule_id and f.severity == severity)
+            if count > 10:
+                idx = 0
+            elif count > 5:
+                idx = 1
+            elif count > 2:
+                idx = 2
+            else:
+                idx = 3
+            if risk_matrix[severity][idx] < count:
+                risk_matrix[severity][idx] = count
+                
+    return {
+        "stats": stats,
+        "risk_matrix": risk_matrix,
+        "scans_data": [{"id": s.id, "score": s.score} for s in scans[-10:]]
+    }
+
+
+
+

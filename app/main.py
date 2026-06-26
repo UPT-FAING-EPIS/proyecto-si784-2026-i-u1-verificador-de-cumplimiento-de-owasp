@@ -39,8 +39,9 @@ async def access_logger(request: Request, call_next):
     ua = request.headers.get("user-agent", "")
     try:
         scan_store.log_access(path=str(request.url.path), ip=client_ip, user_agent=ua)
-    except Exception:
-        pass
+    except Exception as e:
+        # Ignore access logging failure
+        err = e
     response = await call_next(request)
 
     # Avoid stale HTML after deployment; assets are cache-busted via version query.
@@ -52,13 +53,13 @@ async def access_logger(request: Request, call_next):
 
     return response
 
-@app.get("/health")
+@app.get("/health", dependencies=[])
 def health_check():
     """Health check endpoint - verifica que el servicio está operativo."""
     return {"status": "ok", "env": settings.app_env}
 
 
-@app.post("/api/token")
+@app.post("/api/token", dependencies=[])
 def generate_api_token(username: str = Form(...)):
     """Genera un nuevo token API para el usuario especificado."""
     if not username or len(username.strip()) < 2:
@@ -67,7 +68,7 @@ def generate_api_token(username: str = Form(...)):
     return {"token": token, "user": username.strip(), "message": "Token generado exitosamente"}
 
 
-@app.get("/api/validate-token")
+@app.get("/api/validate-token", dependencies=[])
 def validate_api_token(x_api_key: Optional[str] = Header(None)):
     """Valida un token API y retorna información del usuario."""
     if not x_api_key:

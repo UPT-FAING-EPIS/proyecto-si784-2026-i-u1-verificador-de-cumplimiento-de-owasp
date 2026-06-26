@@ -1,18 +1,28 @@
 from pathlib import Path
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, UploadFile, File
 from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 
 from app.schemas import ScanOut
 from app.store import scan_store
 from app.services.pdf_export import export_scan_to_pdf
+from app.services.analysis_service import execute_scan
 
 router = APIRouter(prefix="/reports")
 templates_dir = Path(__file__).parent.parent / "templates"
 templates = Jinja2Templates(directory=str(templates_dir))
 
 
-@router.get("/api/{scan_id}", response_model=ScanOut)
+def get_current_user_context(request: Request):
+    session_id = request.cookies.get("admin_session")
+    from app.store import scan_store
+    user = scan_store.get_admin_session_user(session_id)
+    return {"current_user": user}
+
+templates.context_processors.append(get_current_user_context)
+
+
+@router.get("/api/{scan_id}", response_model=ScanOut, dependencies=[])
 def report_detail_api(scan_id: int):
     scan = scan_store.get_scan(scan_id)
     if not scan:
@@ -20,13 +30,13 @@ def report_detail_api(scan_id: int):
     return scan
 
 
-@router.get("/api", response_model=list[ScanOut])
+@router.get("/api", response_model=list[ScanOut], dependencies=[])
 def report_list_api(limit: int = 20):
     safe_limit = min(max(limit, 1), 100)
     return scan_store.list_scans(limit=safe_limit)
 
 
-@router.get("/{scan_id}/export-pdf")
+@router.get("/{scan_id}/export-pdf", dependencies=[])
 def export_report_pdf(scan_id: int):
     """Exporta un reporte de escaneo como PDF."""
     scan = scan_store.get_scan(scan_id)
@@ -43,45 +53,7 @@ def export_report_pdf(scan_id: int):
     )
 
 
-@router.get("/compare", response_class=HTMLResponse)
-def compare_reports(request: Request, left_id: int | None = None, right_id: int | None = None):
-    """Compara dos escaneos y muestra diferencias de score y hallazgos."""
-    scans = scan_store.list_scans(limit=100)
-    left_scan = scan_store.get_scan(left_id) if left_id else None
-    right_scan = scan_store.get_scan(right_id) if right_id else None
-
-    comparison = None
-    if left_scan and right_scan:
-        left_rules = {f.rule_id: f for f in left_scan.findings}
-        right_rules = {f.rule_id: f for f in right_scan.findings}
-        added_rules = sorted(set(right_rules.keys()) - set(left_rules.keys()))
-        fixed_rules = sorted(set(left_rules.keys()) - set(right_rules.keys()))
-        persistent_rules = sorted(set(left_rules.keys()) & set(right_rules.keys()))
-
-        comparison = {
-            "score_delta": right_scan.score - left_scan.score,
-            "findings_delta": len(right_scan.findings) - len(left_scan.findings),
-            "left": left_scan,
-            "right": right_scan,
-            "added_rules": added_rules,
-            "fixed_rules": fixed_rules,
-            "persistent_rules": persistent_rules,
-        }
-
-    return templates.TemplateResponse(
-        request=request,
-        name="compare.html",
-        context={
-            "request": request,
-            "scans": scans,
-            "left_id": left_id,
-            "right_id": right_id,
-            "comparison": comparison,
-        },
-    )
-
-
-@router.get("/{scan_id}/export-json")
+@router.get("/{scan_id}/export-json", dependencies=[])
 def export_report_json(scan_id: int):
     """Exporta un reporte de escaneo como JSON."""
     scan = scan_store.get_scan(scan_id)
@@ -109,7 +81,7 @@ def export_report_json(scan_id: int):
     }
 
 
-@router.get("/{scan_id}", response_class=HTMLResponse)
+@router.get("/{scan_id}", response_class=HTMLResponse, dependencies=[])
 def report_detail(request: Request, scan_id: int):
     scan = scan_store.get_scan(scan_id)
     if not scan:
