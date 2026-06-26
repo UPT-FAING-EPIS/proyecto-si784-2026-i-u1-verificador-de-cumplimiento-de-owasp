@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash VARCHAR(255) NOT NULL,
     role VARCHAR(50) NOT NULL DEFAULT 'user',
     created_at DATETIME NOT NULL,
+    email VARCHAR(255) NULL,
     github_token VARCHAR(255) NULL
 ) ENGINE=InnoDB;
 
